@@ -1,0 +1,293 @@
+---
+title: "Paradojas e intuiciones fundacionales"
+slug: "01-paradojas-e-intuicion"
+objective: "Experimentar el fracaso de la intuición estadística en cuatro trampas clásicas (Monty Hall, Linda, Bertrand, la ley de los números pequeños) y entender contra qué compite cada herramienta formal"
+order: 1
+datasets: []
+duration: 90
+prerequisites: []
+---
+
+import { Callout } from '@/components/Callout'
+import { Quiz } from '@/components/Quiz'
+import { Flashcard } from '@/components/Flashcard'
+import { RCell } from '@/components/RCell'
+import { LabExercise } from '@/components/LabExercise'
+import { ProcessSteps } from '@/components/ProcessSteps'
+
+<Callout type="tip" title="El método de este curso">
+Aquí nadie te va a pedir que confíes en las fórmulas. El trato es otro:
+primero vas a responder con tu intuición, después vas a ver el resultado,
+y solo entonces llega la explicación formal. Los errores que cometas en
+este módulo son el material de trabajo. Kahneman y Tversky construyeron
+una carrera entera sobre esa idea: la estadística existe porque la mente
+humana no razona estadísticamente de forma natural.
+</Callout>
+
+Este módulo no empieza con definiciones. Empieza con cuatro problemas
+diseñados para que falles: tres puertas, una mujer llamada Linda, una
+cuerda dentro de un círculo y una moneda que se niega a portarse bien.
+La idea es que sientas el tropiezo en tu propia cabeza antes de que
+alguien te explique por qué ocurrió. Los psicólogos llaman a eso
+tensión cognitiva. Nosotros le llamamos el punto de partida.
+
+## Tres puertas, un coche y dos cabras
+
+El concurso es sencillo. Hay tres puertas cerradas. Detrás de una hay
+un coche; detrás de las otras dos, cabras. Eliges una puerta. El
+presentador, que sabe dónde está el coche, abre otra puerta y muestra
+una cabra. Entonces te hace la pregunta que ha roto amistades:
+¿te quedas con tu puerta o cambias a la que sigue cerrada?
+
+La respuesta que casi todo el mundo da es que da igual. Dos puertas
+cerradas, un coche, cincuenta por ciento cada una. Juega unas rondas
+y mira tu propio historial antes de seguir leyendo.
+
+<MontyHallGame />
+
+¿Ya jugaste? Mira tus números. Si cambiaste, deberías haber ganado más
+seguido. Si te quedaste, lo normal es haber perdido dos de cada tres
+veces. La simulación masiva lo deja aún más claro: diez mil rondas no
+mienten.
+
+## La trampa explicada
+
+Tu primera elección acierta con probabilidad $1/3$. Eso nadie lo
+discute. La pregunta es qué pasa con esa probabilidad cuando el
+presentador abre una puerta con una cabra.
+
+La intuición razona así: quedaron dos puertas, el coche está en una de
+ellas, cincuenta cincuenta. El error está en tratar al presentador como
+si abriera puertas al azar. No lo hace. Él sabe dónde está el coche y
+siempre abre una cabra. Su gesto no reparte la probabilidad entre las
+dos puertas: la concentra.
+
+Tu puerta conserva su $1/3$ original, porque la regla del juego decía
+que el presentador jamás la abriría. El $2/3$ que le correspondía a
+las otras dos puertas juntas no desapareció cuando una se abrió:
+migró entero a la única puerta cerrada que queda. Cambiar no te da
+mejor suerte. Te da la herencia completa de la puerta que se sacrificó.
+
+<Callout type="note" title="El detalle que todo el mundo pasa por alto">
+Si el presentador abriera una puerta al azar y resultara cabra por
+casualidad, el problema sería otro y ahí sí cambiar o quedarse daría
+igual. La trampa funciona porque él sabe y porque tú sabes que él sabe.
+En probabilidad, la regla del juego es parte del problema, aunque el
+problema no la grite.
+</Callout>
+
+Verifícalo con R. Mil rondas simuladas separan las dos estrategias sin
+dejar espacio a la duda:
+
+<RCell
+  id="01/monty-hall"
+  title="Monty Hall simulado: quedarse vs. cambiar"
+  code={`# Monty Hall: 10000 rondas con semilla fija.
+set.seed(2024)
+
+jugar <- function() {
+  premio <- sample(1:3, 1)
+  primera <- sample(1:3, 1)
+  # El presentador abre una puerta que no es la elegida ni la del premio.
+  # Quedarse gana si primera == premio; cambiar gana en el caso contrario.
+  c(quedarse = primera == premio, cambiar = primera != premio)
+}
+
+resultados <- replicate(10000, jugar())
+rowMeans(resultados)`}
+/>
+
+<Quiz
+  question="Tras elegir una puerta, el presentador abre otra con una cabra. ¿Por qué cambiar duplica tus opciones de ganar?"
+  options={[
+    "Porque al abrir una cabra, la probabilidad se reparte de nuevo entre las dos puertas cerradas",
+    "Porque tu puerta conserva su 1/3 inicial y el 2/3 restante se concentra en la otra puerta cerrada",
+    "Porque el presentador siempre abre la puerta con el coche cuando no lo elegiste",
+    "Porque dos de tres puertas tienen cabras y cambiar garantiza escoger una nueva"
+  ]}
+  correctIndex={1}
+  explanation="El presentador no abre al azar: siempre revela una cabra. Tu primera elección tenía 1/3 de probabilidad y esa cifra no se mueve; el 2/3 que correspondía a las dos puertas juntas pasa entero a la que sigue cerrada."
+/>
+
+## Linda, la cajera
+
+Segunda trampa, otro formato. Lee la descripción con calma antes de
+responder.
+
+Tversky y Kahneman le presentaron este problema a estudiantes de
+posgrado en 1983 y los resultados fueron incómodos. Ahora te toca.
+
+<LindaVenn />
+
+La falacia tiene nombre propio: <Term k="falacia de conjunción">falacia
+de conjunción</Term>. Juntar dos condiciones en una sola afirmación la
+hace más vívida, más coherente con el estereotipo, más satisfactoria
+narrativamente. También la hace menos probable, siempre, por pura
+lógica de conjuntos. La intersección no puede superar al conjunto.
+
+El motor del error es la <Term k="representatividad">heurística de
+representatividad</Term>: juzgar probabilidad por parecido. Linda se
+parece al estereotipo «feminista» mucho más que al estereotipo
+«cajera», así que la conjunción, que contiene el detalle que mejor
+encaja, se siente más verdadera. El parecido mide ajuste narrativo.
+La probabilidad mide otra cosa.
+
+<Quiz
+  question="¿Por qué 'Linda es cajera y feminista' no puede ser más probable que 'Linda es cajera'?"
+  options={[
+    "Porque ser feminista es estadísticamente raro entre cajeras",
+    "Porque el conjunto 'cajera y feminista' está contenido dentro del conjunto 'cajera', y un subconjunto nunca supera al conjunto",
+    "Porque la descripción de Linda fue diseñada para engañar",
+    "Porque P(A ∩ B) siempre vale cero cuando A y B son independientes"
+  ]}
+  correctIndex={1}
+  explanation="La regla de conjuntos no admite excepciones: si un caso cumple dos condiciones, también cumple cada una por separado. Agregar una condición solo puede reducir o mantener la probabilidad, nunca aumentarla. La descripción estereotipada es el cebo; la lógica de conjuntos es la ley."
+/>
+
+## Otras dos puertas del mismo vestíbulo
+
+Antes de seguir, conviene ver que el problema no son las puertas. El
+problema es lo que la intuición hace con la probabilidad misma.
+
+**La paradoja de Bertrand** (1889). Toma un círculo, dibuja una cuerda
+al azar y pregúntate: ¿cuál es la probabilidad de que la cuerda sea más
+larga que el lado del triángulo equilátero inscrito? Hay al menos tres
+formas legítimas de entender «al azar»: por el punto medio, por el
+ángulo, por la distancia al centro. Cada una da una respuesta distinta:
+$1/3$, $1/2$ o $1/4$. Las tres son correctas. La paradoja no es un error
+de cálculo, es un error de pregunta: «al azar» no se define solo.
+
+**La paradoja de San Petersburgo** (Bernoulli, 1738). Una moneda se
+lanza hasta que sale cara. Si sale en el primer intento te pagan 2, en
+el segundo 4, en el tercero 8, y así duplicando. El valor esperado del
+juego es infinito. ¿Cuánto pagarías por jugar? Casi nadie ofrece más de
+20 unidades, y tiene razón en no hacerlo: la ganancia astronómica que
+infla el promedio casi nunca llega. El valor esperado es un resumen,
+no una guía universal.
+
+Las dos paradojas enseñan lo mismo desde ángulos distintos: la
+probabilidad solo existe una vez que el espacio de posibilidades está
+definido, y un promedio puede esconder todo lo que importa. La
+intuición salta esos dos detalles con facilidad pasmosa.
+
+## La ley de los números pequeños
+
+Última trampa del módulo, y la más peligrosa porque se disfraza de
+sentido común. Tversky y Kahneman la llamaron <Term k="LNP">ley de los
+números pequeños</Term>: la creencia de que una muestra pequeña debe
+parecerse a la población. Que diez lanzamientos de una moneda justa
+deben dar cerca de cinco caras. Que un hospital pequeño no puede tener
+rachas raras.
+
+Prueba el experimento. Mil repeticiones de lanzar una moneda justa
+n veces, con n a tu elección:
+
+<SmallNumbersLab />
+
+Con n = 10, sacar 7 caras no es noticia, es martes. Con n = 1000, la
+misma proporción sería un escándalo de veinte desviaciones. El azar no
+se corrige rápido; se diluye lento. La intuición confunde esas dos
+cosas y espera que la muestra chica se comporte como la grande.
+
+Esta ley tiene una prima malvada, la <Term k="falacia del jugador">
+falacia del jugador</Term>: si la ley de los números pequeños espera
+que la muestra se parezca a la población ya, entonces tras cinco caras
+«ya toca» cruz. La moneda no tiene memoria. Nosotros le prestamos la
+nuestra.
+
+<Quiz
+  question="Dos hospitales registran nacimientos. El grande tiene ~45 bebés al día, el pequeño ~15. ¿Cuál registrará más días con más del 60% de niños?"
+  options={[
+    "El hospital grande, porque tiene más nacimientos",
+    "El hospital pequeño, porque las muestras pequeñas varían más",
+    "Los dos por igual, porque la proporción de niños es la misma",
+    "Ninguno: más del 60% de niños es imposible con una proporción base de 50%"
+  ]}
+  correctIndex={1}
+  explanation="La variabilidad de una proporción decrece con n. Con 15 nacimientos, superar el 60% de niños solo exige un desvío moderado; con 45 exige uno mucho mayor. Las muestras pequeñas producen extremos con mucha más frecuencia, el corazón de la ley de los números pequeños."
+/>
+
+## El reparto del trabajo: Sistema 1 y Sistema 2
+
+Las cuatro trampas de este módulo parecen distintas. Comparten el mismo
+mecanismo. <Term k="Kahneman">Kahneman</Term> lo describe como el
+reparto entre dos sistemas.
+
+<Term k="S1">El Sistema 1</Term> es rápido, automático y barato. Lee la
+descripción de Linda y produce un veredicto antes de que termines la
+frase. Ve dos puertas cerradas y declara empate. Ve cinco caras y
+anuncia que «ya toca» cruz. Es magnífico para narrativas y pésimo para
+frecuencias.
+
+<Term k="S2">El Sistema 2</Term> es lento, esforzado y perezoso. Puede
+hacer la cuenta correcta, pero no se activa solo: hay que llamarlo.
+Toda la formación estadística consiste, en el fondo, en entrenar al
+Sistema 2 para que se presente a trabajar en los momentos exactos en
+que el Sistema 1 está a punto de fallar.
+
+<Callout type="warning" title="El sesgo no se cura con inteligencia">
+Los experimentos originales se hicieron con estudiantes de posgrado,
+médicos y estadísticos profesionales. Fallaron igual que todos. La
+conclusión incómoda de Kahneman: el sesgo no es ignorancia que la
+formación elimina, es la respuesta por defecto de una mente que
+evolucionó para otras tareas. Por eso este curso te hace fallar en
+vivo: el concepto se recuerda mejor cuando costó.
+</Callout>
+
+## Lo que te llevas
+
+<ProcessSteps
+  steps={[
+    { title: 'Fallar', description: 'El problema se presenta sin aviso y el Sistema 1 responde primero. La intuición queda registrada.' },
+    { title: 'Ver el error', description: 'La simulación o la geometría muestran la brecha entre tu respuesta y la respuesta correcta. Sin sermón, con números.' },
+    { title: 'Nombrar la trampa', description: 'Cada error tiene nombre propio y mecanismo conocido: representatividad, conjunción, números pequeños.' },
+    { title: 'Corregir', description: 'La herramienta formal llega al final, cuando ya se siente la necesidad. La fórmula no persuade, cierra.' },
+  ]}
+/>
+
+<Flashcard
+  title="El mapa en tarjetas"
+  items={[
+    { front: 'Monty Hall', back: 'Cambiar gana 2/3: tu puerta conserva 1/3 y la otra hereda el resto, porque el presentador siempre abre una cabra sabiendo dónde está el premio.' },
+    { front: 'Falacia de conjunción', back: 'P(A y B) ≤ P(A): la intersección nunca supera al conjunto. Linda es cajera con más probabilidad que cajera y feminista, por muy feminista que parezca.' },
+    { front: 'Representatividad', back: 'Juzgar probabilidad por parecido a un estereotipo: explica Linda, la tasa base olvidada y la creencia en muestras típicas.' },
+    { front: 'Ley de los números pequeños', back: 'Esperar que n = 10 se comporte como n = 1000. La varianza de la proporción es p(1−p)/n: las muestras chicas producen extremos, no verdad.' },
+    { front: 'Paradoja de Bertrand', back: 'Al azar necesita definirse: el mismo círculo da 1/3, 1/2 o 1/4 según cómo se elija la cuerda. La probabilidad no existe sin espacio muestral.' },
+    { front: 'Sistema 1 / Sistema 2', back: 'Rápido e intuitivo vs. lento y analítico. El Sistema 1 siempre gana si el Sistema 2 no se entrena para aparecer.' },
+  ]}
+/>
+
+<LabExercise
+  id="lab-01-tu-propia-trampa"
+  title="Tu propia trampa: simula, luego explica"
+  code={`# Laboratorio: reproduce las trampas del modulo con R.
+set.seed(42)
+
+# 1. Monty Hall con un giro: que pasa si hay cuatro puertas
+#    y el presentador abre una cabra?
+jugar4 <- function() {
+  premio <- sample(1:4, 1)
+  primera <- sample(1:4, 1)
+  c(quedarse = primera == premio, cambiar = primera != premio)
+}
+res4 <- replicate(10000, jugar4())
+cat("Cuatro puertas -> quedarse:", mean(res4["quedarse", ]),
+    "| cambiar:", mean(res4["cambiar", ]), "\n")
+
+# 2. La ley de los numeros pequenos, en numeros.
+for (n in c(10, 100, 1000)) {
+  p <- rbinom(10000, n, 0.5) / n
+  cat(sprintf("n = %4d -> sd empirica %.3f | teorica %.3f | P(p en [0.45,0.55]) = %.2f\n",
+              n, sd(p), sqrt(0.25 / n), mean(p >= 0.45 & p <= 0.55)))
+}`}
+  tasks={[
+    "Explica por qué con cuatro puertas cambiar gana más que quedarse, y calcula a mano la probabilidad teórica de cada estrategia antes de mirar la salida.",
+    "Compara la desviación empírica con la teórica σ/√n en cada n: ¿en cuál se nota más la diferencia entre lo que esperabas y lo que sale?",
+    "Modifica la simulación de Monty Hall para que el presentador abra una puerta al azar (puede abrir el premio): ¿qué pasa con la ventaja de cambiar y por qué?",
+  ]}
+  hint="Con cuatro puertas, tu elección inicial acierta 1/4; si el presentador abre una cabra, el 3/4 restante se reparte entre dos puertas cerradas: cada una hereda 3/8, que sigue siendo mejor que 1/4. Si el presentador abriera al azar, ver una cabra sí cambia tu probabilidad, porque ahora podría haber abierto el coche."
+/>
+
+El módulo siguiente, M2, lleva estas trampas al terreno donde más daño
+hacen: las pruebas diagnósticas y el teorema de Bayes. Ahí la intuición
+que falla no te cuesta un coche de concurso. Te cuesta un diagnóstico.

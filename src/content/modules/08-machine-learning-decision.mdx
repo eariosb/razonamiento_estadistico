@@ -1,0 +1,110 @@
+---
+title: "Machine learning, deep learning y decisión"
+slug: "08-machine-learning-decision"
+objective: "Conectar los sesgos del juicio humano con los del juicio algorítmico: tasa base diferencial, ruido, las dos culturas de Breiman y la humildad epistémica como competencia profesional"
+order: 8
+datasets: []
+duration: 90
+prerequisites: ["M7"]
+---
+
+import { Callout } from '@/components/Callout'
+import { Quiz } from '@/components/Quiz'
+import { RCell } from '@/components/RCell'
+
+<Callout type="warning" title="Módulo en desarrollo">
+El cierre conceptual está montado; el laboratorio de sesgo algorítmico
+con regresión logística en vivo y el simulador de jueces ruidosos se
+integran en la siguiente iteración.
+</Callout>
+
+## Los sesgos no desaparecen con más datos
+
+La promesa implícita del machine learning es que el volumen cura: con
+suficientes datos, el patrón correcto emerge solo. El curso entero ha
+trabajado para que esa frase te suene sospechosa. El volumen amplifica
+lo que hay: si los datos cargan la tasa base de una sociedad desigual,
+el modelo la aprende con más precisión y la aplica a más escala.
+
+El caso que lo puso en la portada fue COMPAS (Angwin et al., 2016,
+*Machine Bias*): el software que puntúa riesgo de reincidencia marcaba
+a acusados negros como de alto riesgo el doble que a blancos. Ninguna
+línea de código mencionaba raza. El <Term k="sesgo algorítmico">sesgo
+algorítmico</Term> no necesita racismo explícito: le basta con una
+tasa base diferencial entre grupos y variables proxy honestas.
+
+## Las dos culturas de Breiman
+
+Breiman (2001) nombró la división antes de que el ML la heredara: el
+modelado de datos quiere entender el mecanismo (la caja debe explicar);
+el modelado algorítmico quiere predecir bien (basta que la caja funcione).
+Las <Term k="dos culturas">dos culturas</Term> producen criterios de
+éxito distintos y, sobre todo, criterios de fracaso distintos. Un modelo
+que predice sin explicar puede estar discriminando; uno que explica sin
+predecir puede estar contando una buena historia.
+
+El AUC resume discriminación, no justicia ni
+<Term k="calibración">calibración</Term>: un modelo puede rankear bien
+en promedio y aun así asignar riesgos sistemáticamente inflados a un
+grupo, exactamente lo que Barocas, Hardt y Narayanan formalizan al
+mostrar que las definiciones de equidad son mutuamente incompatibles
+salvo en casos especiales.
+
+## El ruido, ahora algorítmico
+
+El <Term k="ruido">ruido</Term> de *Noise* tiene traducción directa:
+donde diez jueces humanos divergían, un modelo diverge de su propio
+historial de entrenamiento, del pipeline de limpieza y de la semilla del
+generador aleatorio. La promesa algorítmica es consistente: eliminar el
+ruido inter-juez. La realidad es más modesta: se elimina un ruido y se
+instala otro, este peor documentado porque nadie audita al algoritmo
+con la vara con que se audita al humano.
+
+<RCell
+  id="08/tasa-base-diferencial"
+  title="El mismo clasificador, dos grupos, dos tasas de error"
+  code={`# Simulacion: dos grupos con distinta prevalencia del desenlace.
+set.seed(21)
+n <- 10000
+grupo <- rep(c("A", "B"), each = n / 2)
+prevalencia <- ifelse(grupo == "A", 0.5, 0.1)
+score <- rnorm(n, mean = 2 * prevalencia, sd = 1)  # el modelo ve la tasa base
+pred_pos <- score > 1
+y <- rbinom(n, 1, prevalencia)
+
+tapply(pred_pos & y == 0, grupo, mean)  # falsos positivos por grupo`}
+/>
+
+El modelo no sabe nada de justicia. Aprende que el grupo B casi nunca
+produce el evento, y cuando se equivoca lo hace en la dirección que la
+tasa base le marcó. La falacia de tasa base del módulo M2, ahora con
+nómina de servidores.
+
+## Cierre del curso: la competencia de saber cuándo dudar
+
+Ocho módulos atrás, la primera puerta de Monty Hall te pareció un
+empate. La promesa de este curso nunca fue volverte infalible: los
+experimentos dicen que ni siquiera los expertos lo son. La promesa era
+otra, más útil: enseñarte a reconocer el terreno donde tu intuición
+pierde. Tasas base olvidadas, muestras chicas tomadas por grandes,
+conjunciones que seducen, medias que el azar devuelve, tendencias que
+el ruido dibuja, algoritmos que heredan la historia que no debían.
+
+La estadística es una tecnología cognitiva. Existe porque la mente no
+la trae de fábrica, y la IA que llegó después corre la misma carrera
+con peores hábitos documentados: amplifica la mala pregunta y el mal
+dato con más eficiencia que ningún humano. El profesional que el curso
+quería formar no es quien calcula mejor. Es quien sabe cuándo
+desconfiar de su propia certeza, humana o computada.
+
+<Quiz
+  question="Un modelo de scoring discrimina contra un grupo sin usar la variable protegida. ¿Cuál es la explicación más consistente con el curso?"
+  options={[
+    "El modelo fue programado con sesgo explícito",
+    "La tasa base diferencial entre grupos y las variables proxy bastan para producir discriminación, como la falacia de tasa base del juicio humano",
+    "Los datos eran insuficientes para entrenar",
+    "El AUC del modelo era demasiado alto"
+  ]}
+  correctIndex={1}
+  explanation="El sesgo algorítmico no necesita variables prohibidas: una prevalencia diferente entre grupos y correlatos honestos bastan. Es el mismo mecanismo de la falacia de tasa base, automatizado y a escala."
+/>

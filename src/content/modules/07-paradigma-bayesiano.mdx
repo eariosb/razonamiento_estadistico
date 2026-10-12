@@ -1,0 +1,93 @@
+---
+title: "El paradigma bayesiano"
+slug: "07-paradigma-bayesiano"
+objective: "Ver la actualización de creencias como movimiento de una distribución completa, entender la paradoja de Lindley y sostener el debate Kahneman-Gigerenzer sin bajarlo a caricatura"
+order: 7
+datasets: []
+duration: 90
+prerequisites: ["M2"]
+---
+
+import { Callout } from '@/components/Callout'
+import { Quiz } from '@/components/Quiz'
+import { RCell } from '@/components/RCell'
+
+<Callout type="warning" title="Módulo en desarrollo">
+El marco epistemológico está montado; el actualizador bayesiano en vivo
+(prior beta más datos secuenciales) y el interactivo de la paradoja de
+Lindley se integran en la siguiente iteración.
+</Callout>
+
+## El razonamiento que la gente debería hacer
+
+El módulo M2 presentó a Bayes como corrección de un error: la tasa base
+olvidada. Aquí el paradigma se muestra completo. La
+<Term k="prior">prior</Term> es la distribución de creencias antes de
+los datos; la <Term k="verosimilitud">verosimilitud</Term> es lo que
+los datos dicen de cada valor posible; la <Term k="posterior">
+posterior</Term> es la prior moldeada por la evidencia.
+
+La clave que distingue al marco: la creencia no es un número sino una
+distribución entera que se desplaza, se estrecha o se divide con cada
+observación. Bayes describe el movimiento de la incertidumbre, no solo
+su veredicto.
+
+## Prior, datos, posterior: la mecánica
+
+Con una prior Beta(α, β) sobre una probabilidad y observaciones
+binarias, la actualización es conteo puro: cada éxito suma a α, cada
+fracaso suma a β. Una prior uniforme Beta(1, 1) y 20 lanzamientos con
+14 caras terminan en Beta(15, 7): el centro se movió a 14/20 y la
+dispersión se cerró. La evidencia arrastró a la creencia, que es lo que
+debería pasarle a cualquier mente razonable.
+
+<RCell
+  id="07/beta-actualizacion"
+  title="La posterior tras 14 caras en 20 lanzamientos"
+  code={`# Prior Beta(1,1) + 14 caras en 20 -> posterior Beta(15,7).
+x <- seq(0, 1, length.out = 400)
+plot(x, dbeta(x, 1, 1), type = "l", col = "gray50", lty = 2,
+     ylim = c(0, 5), main = "Prior (punteada) vs. posterior",
+     xlab = "p", ylab = "densidad")
+lines(x, dbeta(x, 15, 7), col = "steelblue", lwd = 2)
+abline(v = 14/20, col = "tomato", lty = 3)
+cat("Media posterior:", 15/22, "| IC 90%:",
+    round(qbeta(c(0.05, 0.95), 15, 7), 3), "\n")`}
+/>
+
+## La paradoja de Lindley
+
+Lindley (1957) mostró que un mismo dato puede llevar a los dos
+paradigmas a conclusiones opuestas. Con n grande y una previa muy
+dispersa, un resultado que el test frecuentista rechaza al 5% puede
+tener una posterior abrumadoramente a favor de la nula. El valor p
+evalúa el dato contra una sola hipótesis; Bayes compara lo que el dato
+dice de dos. No es una contradicción lógica: son preguntas distintas
+que casualmente usan el mismo experimento.
+
+La moraleja del módulo no es elegir bando. Es ver que la elección entre
+paradigmas es epistemológica: qué cuenta como evidencia, qué papel
+tiene la creencia previa y quién tiene la carga de la prueba.
+
+## El debate que el curso no resuelve: Kahneman contra Gigerenzer
+
+Dos lecturas del mismo edificio experimental. Kahneman y Tversky:
+las heurísticas producen errores sistemáticos y medibles, ilusiones
+cognitivas tan reales como las ópticas. <Term k="Gigerenzer">Gigerenzer</Term>
+responde: las heurísticas son adaptaciones ecológicas que funcionan en
+los ambientes para los que evolucionaron; el laboratorio las evalúa con
+normas estrechas y formatos antinaturales. Y tiene datos: las frecuencias
+naturales "curan" la falacia de tasa base sin instrucción.
+
+El curso adopta las dos posiciones como formación. El estudiante que
+puede decir cuándo la racionalidad formal y la ecológica coinciden y
+cuándo divergen entendió el módulo mejor que quien memorizó el veredicto
+de un bando.
+
+## Lo que sigue
+
+La siguiente iteración trae el actualizador en vivo con priors a elegir
+(escéptica, uniforme, entusiasta) y el interactivo de Lindley con n
+deslizable. M8 cierra el arco: cuando el estimador ya no es una persona
+sino un algoritmo entrenado con datos históricos, los sesgos no
+desaparecen. Se amplifican o se heredan.

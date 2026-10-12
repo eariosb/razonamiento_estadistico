@@ -1,0 +1,97 @@
+---
+title: "Inferencia y estimación"
+slug: "03-inferencia-y-estimacion"
+objective: "Exponer el anclaje y la sobreconfianza en las estimaciones propias, calibrar intervalos de confianza y medir la brecha entre la confianza declarada y el acierto real"
+order: 3
+datasets: []
+duration: 90
+prerequisites: ["M2"]
+---
+
+import { Callout } from '@/components/Callout'
+import { Quiz } from '@/components/Quiz'
+import { RCell } from '@/components/RCell'
+
+<Callout type="warning" title="Módulo en desarrollo">
+El marco y los conceptos centrales están montados; el juego de
+calibración de 20 preguntas y el simulador de control de calidad se
+integran en la siguiente iteración.
+</Callout>
+
+## El número que te pusieron delante
+
+Pregunta rápida: ¿el río Nilo es más largo o más corto que 6000 km?
+¿Y qué tan largo es? La mayoría de los que responden después de leer
+6000 dan una cifra cercana a esa. Los que leen 3000 en su lugar dan una
+cifra mucho menor. La primera cifra no era información: era un ancla.
+
+El <Term k="anclaje">anclaje y ajuste</Term> es la tercera heurística
+del artículo de 1974: las estimaciones parten del primer número
+disponible y se ajustan hacia la respuesta correcta, pero el ajuste se
+queda corto. En la práctica significa que quien fija el primer número
+de la conversación fija el centro de gravedad de la negociación, del
+pronóstico y del diagnóstico.
+
+## Intervalos que no cubren
+
+Alpert y Raiffa pidieron a evaluadores entrenados que dieran intervalos
+de confianza del 98% para cantidades que desconocían. La frecuencia real
+de aciertos quedó muy por debajo del 98%: los intervalos subjetivos
+salen sistemáticamente demasiado estrechos. Eso es la
+<Term k="sobreconfianza">sobreconfianza</Term>, y no es arrogancia de
+carácter: es la geometría del anclaje aplicada a la incertidumbre. El
+estimador central se ancla y los extremos se ajustan poco.
+
+La <Term k="calibración">calibración</Term> es la propiedad opuesta:
+que la confianza declarada coincida con la frecuencia real de aciertos.
+Un meteorólogo bien calibrado acierta el 80% de los días que pronostica
+«80% de probabilidad de lluvia». Un ejecutivo mal calibrado acierta el
+50% de lo que declara al 90%.
+
+## El ruido: el villano que nadie mide
+
+Kahneman, Sibony y Sunstein dedicaron un libro entero a distinguir el
+<Term k="ruido">ruido</Term> del sesgo. El sesgo empuja las decisiones
+en una dirección sistemática. El ruido las dispersa sin patrón: dos
+médicos que dan diagnósticos distintos al mismo paciente, dos jueces
+que imponen penas distintas al mismo caso, un mismo analista que da
+respuestas distintas un lunes y un viernes.
+
+El ruido se mide con auditorías, no con intuición. Y cuesta lo mismo
+que el sesgo: cada juicio distinto al correcto es un error, venga de
+un empuje sistemático o de un dispersión sin causa.
+
+## La estimación formal como corrección
+
+El <Term k="IC">intervalo de confianza</Term> estadístico existe
+precisamente porque el subjetivo falla: toma la variabilidad medida de
+los datos y convierte la incertidumbre en un rango calculado, no
+imaginado. La inferencia es la respuesta institucional a la
+sobreconfianza.
+
+<RCell
+  id="03/ic-cobertura"
+  title="Cobertura real de un intervalo del 95%"
+  code={`# Cobertura del IC95% normal para una media: simulacion.
+set.seed(7)
+n <- 30
+cubre <- replicate(5000, {
+  x <- rnorm(n, mean = 0, sd = 1)
+  ic <- mean(x) + c(-1, 1) * 1.96 * sd(x) / sqrt(n)
+  ic[1] <= 0 & ic[2] >= 0
+})
+mean(cubre)`}
+/>
+
+Cuando el modelo es correcto, el IC del 95% cubre el 95% de las veces.
+El interactivo del módulo hará la misma pregunta sobre tus propios
+intervalos: veinte preguntas de trivia, tus rangos del 90%, y luego la
+cuenta de cuántos cubrieron la respuesta real.
+
+## Lo que sigue
+
+La siguiente iteración integra el juego de calibración con curva de
+confianza declarada contra acierto real, y el simulador de control de
+calidad donde reaccionar a cada fluctuación se revela como persecución
+del ruido. M4 toma esa misma pieza, la regresión a la media, y la
+lleva al terreno de la causalidad.

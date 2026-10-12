@@ -1,0 +1,116 @@
+---
+title: "Probabilidad y el problema de Bayes"
+slug: "02-bayes-y-la-tasa-base"
+objective: "Diagnosticar la falacia de tasa base en un test diagnóstico, corregirla con frecuencias naturales y entender el teorema de Bayes como la contabilidad de las creencias"
+order: 2
+datasets: []
+duration: 90
+prerequisites: ["M1"]
+---
+
+import { Callout } from '@/components/Callout'
+import { Quiz } from '@/components/Quiz'
+import { RCell } from '@/components/RCell'
+
+<Callout type="warning" title="Módulo en desarrollo">
+La estructura y el ejemplo ancla están montados; el laboratorio completo
+de frecuencias naturales y los interactivos de prevalencia variable se
+integran en la siguiente iteración. El núcleo conceptual ya está aquí.
+</Callout>
+
+## El test que casi todos leen mal
+
+Una enfermedad afecta a 1 de cada 1000 personas. Existe un test con
+99% de <Term k="sensibilidad">sensibilidad</Term> y 95% de
+<Term k="especificidad">especificidad</Term>. Te hacen el test y sale
+positivo. ¿Cuál es la probabilidad de que estés enfermo?
+
+Anota tu respuesta antes de seguir. En los experimentos originales, la
+mayoría de los estudiantes, y buena parte del personal médico encuestado
+después, contesta algo cercano al 95%. La respuesta correcta está más
+cerca del 2% que del 95%. El error es de un factor cincuenta.
+
+## Frecuencias naturales: la cura de Gigerenzer
+
+El problema se vuelve transparente si lo contamos en personas en lugar
+de porcentajes. De cada 1000 personas:
+
+- 1 está enferma. El test la detecta con 99% de probabilidad: 1 positivo
+  verdadero (casi siempre).
+- 999 están sanas. El test falla en el 5% de ellas: unos 50 falsos
+  positivos.
+
+Total de positivos: aproximadamente 51. Enfermos entre ellos: 1. La
+probabilidad buscada, el <Term k="VPP">valor predictivo positivo</Term>,
+es 1/51 ≈ 0.02.
+
+Gigerenzer y Hoffrage (1995) mostraron que este formato, las
+<Term k="frecuencias naturales">frecuencias naturales</Term>, eleva
+drásticamente las respuestas correctas sin instrucción formal alguna.
+El problema no era la capacidad bayesiana del cerebro: era el formato
+en que se le entregaba la información. Este hallazgo es el primer acto
+del debate que el módulo M7 retoma en serio.
+
+## El teorema de Bayes como contabilidad
+
+La fórmula ordena exactamente el mismo conteo:
+
+$$
+P(\text{enfermo} \mid +) = \frac{\text{sens} \cdot \text{prev}}
+{\text{sens} \cdot \text{prev} + (1 - \text{esp}) \cdot (1 - \text{prev})}
+$$
+
+La <Term k="prior">prior</Term> es la <Term k="prevalencia">prevalencia</Term>:
+lo que creías antes del test. La <Term k="verosimilitud">verosimilitud</Term>
+es lo que el test dice de cada hipótesis. La <Term k="posterior">posterior</Term>
+es la creencia actualizada. Bayes no adivina: lleva la contabilidad de
+las creencias.
+
+<RCell
+  id="02/bayes-prevalencia"
+  title="El valor predictivo positivo en función de la prevalencia"
+  code={`# VPP en funcion de la prevalencia: la tasa base manda.
+sens <- 0.99
+esp <- 0.95
+
+vpp <- function(prev) sens * prev / (sens * prev + (1 - esp) * (1 - prev))
+
+prevs <- c(0.0001, 0.001, 0.01, 0.05, 0.10, 0.50)
+data.frame(prevalencia = prevs, VPP = round(sapply(prevs, vpp), 4))`}
+/>
+
+Mira la tabla. Con prevalencia de uno en diez mil el VPP apenas pasa del
+2%; con prevalencia del 50% el mismo test vale 95%. El test no cambió.
+Cambió la <Term k="tasa base">tasa base</Term>, y con ella todo el
+significado del resultado positivo.
+
+## Cuando la intuición se equivoca de escala
+
+El patrón es general y se repite donde haya detección: fraude bancario
+(transacciones legítimas abruman a las fraudulentas), cribado de
+enfermedades raras, alarmas de seguridad, pruebas de dopaje. Siempre
+que la clase buscada es rara, los falsos positivos del grupo grande
+superan en número a los positivos verdaderos del grupo chico. El test
+puede ser excelente y el resultado seguir siendo, la mayoría de las
+veces, una falsa alarma.
+
+<Quiz
+  question="Una enfermedad tiene prevalencia 1/1000, sensibilidad 99% y especificidad 95%. De cada 1000 personas testadas, ¿cuántos positivos se esperan aproximadamente y cuántos son verdaderos?"
+  options={[
+    "~50 positivos, ~50 verdaderos",
+    "~51 positivos, 1 verdadero",
+    "~10 positivos, 1 verdadero",
+    "~950 positivos, 50 verdaderos"
+  ]}
+  correctIndex={1}
+  explanation="De 1000 personas: 1 enferma que el test detecta (sensibilidad 99%) más el 5% de los 999 sanos que dan falso positivo (~50). Total ~51 positivos, de los cuales solo 1 es verdadero: VPP ≈ 2%."
+/>
+
+## Lo que sigue
+
+La próxima iteración de este módulo trae el laboratorio completo:
+el diagrama de 1000 iconos que se colorea en vivo, el slider de
+prevalencia que mueve la curva del VPP en tiempo real y la comparación
+lado a lado del mismo problema en probabilidades y en frecuencias
+naturales. M3 pasa del cálculo a la calibración: qué tan buenos son
+tus propios intervalos de confianza.

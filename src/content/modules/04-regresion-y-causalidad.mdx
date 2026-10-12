@@ -1,0 +1,105 @@
+---
+title: "Regresión y causalidad"
+slug: "04-regresion-y-causalidad"
+objective: "Reconocer la regresión a la media donde otros ven efectos de intervención, desarmar la ilusión causal de las correlaciones espurias y manipular la paradoja de Simpson hasta entenderla"
+order: 4
+datasets: []
+duration: 90
+prerequisites: ["M3"]
+---
+
+import { Callout } from '@/components/Callout'
+import { Quiz } from '@/components/Quiz'
+import { RCell } from '@/components/RCell'
+
+<Callout type="warning" title="Módulo en desarrollo">
+Los conceptos centrales están montados; el simulador de control de
+calidad con intervención falsa, el generador de correlaciones espurias
+y la paradoja de Simpson interactiva se integran en la siguiente
+iteración.
+</Callout>
+
+## Los pilotos que desmentían la psicología
+
+Kahneman cuenta que descubrió la <Term k="regresión a la media">
+regresión a la media</Term> dando un curso a instructores de vuelo de
+la Fuerza Aérea israelí. Los instructores estaban convencidos de que el
+castigo funcionaba y el elogio no: tras gritarle a un piloto por una
+mala maniobra, la siguiente salía mejor; tras elogiar una buena, la
+siguiente salía peor.
+
+La explicación no era psicológica. El desempeño de vuelo tiene un
+componente de habilidad y uno de azar. Una maniobra excepcionalmente
+mala es, por definición, un extremo: lo más probable es que la siguiente
+sea mejor, con castigo o sin él. Una excepcionalmente buena, al revés.
+El elogio no estropeaba nada y el grito no curaba nada. La media
+reclamaba su lugar y los instructores le atribuían la hazaña a sus
+propias voces.
+
+## Correlaciones que no cuentan nada
+
+Tyler Vigen colecciona <Term k="correlación espuria">correlaciones
+espurias</Term>: el consumo per cápita de queso correlaciona con los
+doctorados otorgados en ingeniería civil; los ahogamientos en piscinas
+correlacionan con el número de películas de Nicolas Cage estrenadas ese
+año. Coeficientes de correlación de 0.9 y más, entre variables que no
+tienen nada que ver.
+
+Con suficientes series y suficiente tiempo, el azar produce asociaciones
+perfectas. La falacia se llama *cum hoc ergo propter hoc*: con esto,
+luego por esto. La <Term k="representatividad">representatividad</Term>
+ayuda al desastre porque el Sistema 1 no acepta bien la asociación sin
+historia, y siempre encuentra una.
+
+## La paradoja de Simpson
+
+En 1973, la Universidad de Berkeley admitió al 44% de los hombres
+aspirantes y al 35% de las mujeres. Parecía discriminación. Al
+desagregar por departamento, el sesgo se desvanecía o se invertía: las
+mujeres aplicaban en mayor proporción a departamentos más selectivos,
+y dentro de cada departamento las tasas eran parecidas o favorables a
+ellas.
+
+La <Term k="paradoja de Simpson">paradoja de Simpson</Term> es la
+inversión de una asociación al desagregar por un confusor. El número
+agregado y el número por estratos cuentan historias opuestas, y las dos
+son correctas: lo que cambia es la pregunta que cada una responde.
+
+## El puente hacia la causalidad formal
+
+Pearl (2009) da el marco matemático de todo esto: los diagramas causales
+dirigidos distinguen confusores, mediadores y colisionadores, y el
+criterio back-door dice cuándo una asociación admite lectura causal.
+El módulo deja la formalización para su segunda iteración; la moraleja
+ya se puede decir: ver asociación es ver sombra, no mecanismo. La
+causalidad exige un modelo del proceso generador, no un coeficiente
+más bonito.
+
+<RCell
+  id="04/regresion-media"
+  title="Regresión a la media: la intervención que no existe"
+  code={`# Proceso con media 100: intervenir el peor decil "mejora" sin causa.
+set.seed(11)
+proceso <- rnorm(200, mean = 100, sd = 5)
+
+# Seleccionar el 10% peor y "intervenir" (no hacemos nada).
+peores <- order(proceso)[1:20]
+ronda2 <- rnorm(200, mean = 100, sd = 5)
+
+cat("Media del decil peor, ronda 1:", round(mean(proceso[peores]), 2), "\n")
+cat("Mismas unidades, ronda 2:  ", round(mean(ronda2[peores]), 2), "\n")
+cat("Media del proceso:         ", round(mean(ronda2), 2), "\n")`}
+/>
+
+Las unidades intervenidas mejoraron casi 6 puntos. La intervención fue
+ninguna. Ese efecto gratuito es el que cobran las consultoras de
+reentrenamiento, los programas de recuperación y los castigos del
+instructor de vuelo.
+
+## Lo que sigue
+
+La siguiente iteración trae el simulador con el botón de intervención
+falsa, el explorador de Simpson con vista agregada y desagregada, y el
+generador de correlaciones por puro azar. M5 sube la apuesta: de pares
+de variables a procesos enteros, donde la ilusión de tendencia hace
+carreras en finanzas.

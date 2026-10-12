@@ -1,0 +1,92 @@
+---
+title: "Procesos estocásticos y series de tiempo"
+slug: "05-procesos-estocasticos"
+objective: "Desactivar la ilusión de tendencia en series aleatorias, distinguir tendencia, estacionalidad y ruido, y entender por qué la disponibilidad distorsiona la percepción de riesgos en el tiempo"
+order: 5
+datasets: []
+duration: 90
+prerequisites: ["M4"]
+---
+
+import { Callout } from '@/components/Callout'
+import { Quiz } from '@/components/Quiz'
+import { RCell } from '@/components/RCell'
+
+<Callout type="warning" title="Módulo en desarrollo">
+El marco conceptual está montado; el simulador de caminatas aleatorias
+con reto de predicción y el ejercicio de disponibilidad mediática se
+integran en la siguiente iteración.
+</Callout>
+
+## La caminata que parece ir a alguna parte
+
+Genera una <Term k="caminata aleatoria">caminata aleatoria</Term> pura:
+cada paso es un sorteo independiente, sin tendencia, sin memoria, sin
+destino. Grafícala. Ahora mírala con ojos de analista de mercado:
+encontrarás tendencias claras, canales, soportes, rupturas de techo.
+Todo eso está en la gráfica. Nada de eso está en el proceso.
+
+La caminata aleatoria produce estructura aparente gratis porque
+acumula: unos cuantos pasos en la misma dirección bastan para dibujar
+una "tendencia" que dura meses en el gráfico. La varianza acumulada
+crece con el tiempo, así que las excursiones lejanas del origen son lo
+normal, no la anomalía.
+
+<RCell
+  id="05/caminata-aleatoria"
+  title="Seis caminatas aleatorias: busca la tendencia"
+  code={`# Seis random walks de 365 pasos: ninguno tiene tendencia real.
+set.seed(99)
+n <- 365
+matplot(
+  sapply(1:6, function(i) cumsum(rnorm(n))),
+  type = "l", lty = 1,
+  main = "Seis caminatas aleatorias (deriva cero)",
+  xlab = "paso", ylab = "valor"
+)
+abline(h = 0, col = "gray60", lty = 3)`}
+/>
+
+Corre la celda unas cuantas veces. En cada una habrá una serie que
+"claramente sube" y otra que "claramente cae". La intuición le ofrece
+un relato a cada una. El proceso no tiene relato: tiene
+<Term k="ruido blanco">ruido blanco</Term> acumulado.
+
+## Tendencia, estacionalidad y ruido
+
+Una serie real mezcla tres ingredientes que el ojo separa mal:
+tendencia (la dirección de fondo), estacionalidad (los ciclos que se
+repiten) y ruido (todo lo demás). La descomposición es una decisión de
+modelado, no un hecho del gráfico: dos analistas honestos pueden partir
+la misma serie distinto. Las series de tiempo exigen pensar en
+procesos, y pensar en procesos es exactamente lo que el Sistema 1
+evita.
+
+La propiedad que ordena el territorio es la
+<Term k="estacionariedad">estacionariedad</Term>: que el comportamiento
+estadístico del proceso no cambie con el tiempo. La caminata aleatoria
+no es estacionaria, y esa es la razón técnica de por qué sus
+"tendencias" son gratis.
+
+## Disponibilidad: el riesgo que sale en las noticias
+
+¿Qué causa más muertes al año: los accidentes aéreos o los accidentes
+domésticos? La heurística de <Term k="disponibilidad">disponibilidad</Term>
+(Tversky y Kahneman, 1973) predice la respuesta típica y su error: lo
+que viene fácil a la mente se juzga frecuente. Los accidentes aéreos
+salen en las noticias todos los años; los domésticos matan más y no
+tienen corresponsalías.
+
+En series de tiempo, la disponibilidad tiene calendario: los analistas
+sobreestiman la probabilidad de lo que acaba de pasar (la última crisis,
+la última falla del equipo) y subestiman la de lo que no ha ocurrido en
+el pasado reciente. El historial reciente se convierte en el modelo,
+y el modelo cobra en la siguiente sorpresa.
+
+## Lo que sigue
+
+La siguiente iteración trae el reto de predicción sobre caminatas
+generadas en vivo y el ejercicio de estimación de frecuencias
+mediáticas contra tasas reales. M6 baja del proceso al dato individual:
+qué hace un solo outlier con la media, y por qué la mediana sobrevive
+donde la media se rinde.

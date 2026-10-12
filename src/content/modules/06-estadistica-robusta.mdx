@@ -1,0 +1,92 @@
+---
+title: "Estadística no paramétrica y robusta"
+slug: "06-estadistica-robusta"
+objective: "Ver el outlier como información y no como error, medir la fragilidad de la media frente a la resistencia de la mediana, y entender el bootstrap como inferencia sin distribución"
+order: 6
+datasets: []
+duration: 90
+prerequisites: ["M5"]
+---
+
+import { Callout } from '@/components/Callout'
+import { Quiz } from '@/components/Quiz'
+import { RCell } from '@/components/RCell'
+
+<Callout type="warning" title="Módulo en desarrollo">
+El marco conceptual está montado; el ejercicio de arrastrar el outlier
+sobre el scatter y el comparador de pruebas paramétricas contra rangos
+se integran en la siguiente iteración.
+</Callout>
+
+## El outlier que arrastra a la media
+
+Toma veinte tiempos de entrega honestos, alrededor de 48 horas. Añade un
+día malo: un paquete perdido que tardó 600. La media salta de 48 a casi
+75. La <Term k="mediana">mediana</Term> apenas se mueve.
+
+La media tiene <Term k="punto de quiebre">punto de quiebre</Term> cero:
+un solo dato contaminado, por extremo que sea, la lleva a cualquier
+valor. La mediana resiste hasta casi la mitad de los datos corrompidos
+antes de rendirse. Esa diferencia no es un tecnicismo: es la respuesta
+formal a una intuición defectuosa. Kahneman y Tversky documentaron que
+la gente subestima la frecuencia de los extremos y sobreestima la
+regularidad de los datos. La estadística robusta es esa subestimación
+corregida.
+
+## Los datos reales no leen libros de texto
+
+La normal manda en la intuición porque manda en los ejemplos. Los datos
+del trabajo tienen <Term k="colas pesadas">colas pesadas</Term>: los
+tiempos de entrega, los retornos financieros, los siniestros
+asegurados, las precipitaciones extremas. En una cola pesada, los
+outliers no son errores de medición a depurar: son la información más
+importante de la distribución. Borrarlos es destruir el dato que más
+decisión carga.
+
+Las medidas compañeras cambian con la distribución. La desviación
+estándar eleva los desvíos al cuadrado y los extremos la inflan; la
+<Term k="MAD">desviación absoluta respecto de la mediana</Term> los
+cuenta de frente y sobrevive.
+
+## El bootstrap: inferencia sin distribución
+
+Cuando ninguna distribución teórica convence, queda el
+<Term k="bootstrap">bootstrap</Term>: remuestrear los propios datos con
+reemplazo, recalcular el estadístico miles de veces y usar la dispersión
+obtenida como distribución muestral empírica. Efron lo formalizó en
+1979 y es, en el fondo, el laboratorio del curso hecho método: cuando
+la intuición y la teoría fallan, simula.
+
+<RCell
+  id="06/media-vs-mediana"
+  title="Un outlier contra la media y la mediana"
+  code={`# 20 tiempos honestos + un paquete perdido.
+set.seed(3)
+entregas <- c(rnorm(20, mean = 48, sd = 4), 600)
+
+cat("Media:    ", round(mean(entregas), 1), "h\n")
+cat("Mediana:  ", round(median(entregas), 1), "h\n")
+cat("SD:       ", round(sd(entregas), 1), "h\n")
+cat("MAD:      ", round(mad(entregas), 1), "h\n")
+
+# Bootstrap de la media y de la mediana.
+B <- 5000
+b <- replicate(B, {
+  x <- sample(entregas, replace = TRUE)
+  c(mean(x), median(x))
+})
+cat("\nDE bootstrap de la media:  ", round(sd(b[1, ]), 1), "\n")
+cat("DE bootstrap de la mediana:", round(sd(b[2, ]), 1), "\n")`}
+/>
+
+La media llega a 74 horas por un solo paquete; la mediana sigue en 48.
+Y el bootstrap muestra el segundo efecto: bajo contaminación, la media
+también varía mucho más entre remuestreos. El outlier no solo mueve la
+cuenta, la vuelve inestable.
+
+## Lo que sigue
+
+La siguiente iteración integra el scatter con el punto arrastrable en
+vivo y la comparación de la prueba t contra rangos bajo violación de
+normalidad, con el slider de cola. M7 cambia de paradigma entero:
+del estimador resistente a la creencia actualizada.
