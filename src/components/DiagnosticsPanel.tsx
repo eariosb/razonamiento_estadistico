@@ -40,7 +40,7 @@ export function DiagnosticsPanel() {
   const recent = [...events].reverse().slice(0, 100);
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded border border-ink-200 bg-white">
+    <div className="flex h-full flex-col overflow-hidden rounded border border-ink-200 bg-surface">
       <div className="flex items-center justify-between border-b border-ink-200 bg-ink-50 px-3 py-1.5">
         <span className="text-xs font-semibold text-ink-700">
           Diagnóstico: {events.length} eventos (anillo, máx. 500)

@@ -5,21 +5,36 @@ import { compileMDX } from 'next-mdx-remote/rsc';
 import remarkMath from 'remark-math';
 import remarkGfm from 'remark-gfm';
 import { remarkModuleRefs } from '../src/lib/remark-module-refs.ts';
+import { remarkGlossaryTerms } from '../src/lib/remark-glossary-terms.ts';
 
+const dirs = ['src/content/modules', 'src/content/en/modules'];
 const files = process.argv[2]
   ? [process.argv[2]]
-  : fs.readdirSync('src/content/modules').filter((f) => f.endsWith('.mdx')).sort()
-      .map((f) => `src/content/modules/${f}`);
+  : dirs.flatMap((d) =>
+      fs.existsSync(d)
+        ? fs.readdirSync(d).filter((f) => f.endsWith('.mdx')).sort()
+            .map((f) => `${d}/${f}`)
+        : []
+    );
 
 const opts = {
   blockJS: false,
-  mdxOptions: { remarkPlugins: [remarkMath, remarkGfm, remarkModuleRefs], rehypePlugins: [] },
+  mdxOptions: { remarkPlugins: [remarkMath, remarkGfm, remarkModuleRefs, remarkGlossaryTerms], rehypePlugins: [] },
 };
 
 let failures = 0;
+let styleWarnings = 0;
 for (const file of files) {
   const raw = fs.readFileSync(file, 'utf-8');
   const source = raw.replace(/^---[\s\S]*?---\n/, '');
+
+  // Regla editorial (docs/redaccion.md §4): el guion largo esta prohibido.
+  raw.split('\n').forEach((l, i) => {
+    if (l.includes('—')) {
+      styleWarnings++;
+      console.log(`STYLE: ${file}:${i + 1}: guion largo (—) prohibido`);
+    }
+  });
 
   try {
     await compileMDX({ source, components: {}, options: opts });
@@ -60,8 +75,9 @@ for (const file of files) {
     }
   }
 }
-if (failures) {
-  console.log(`\n${failures} archivo(s) con problemas`);
+if (failures || styleWarnings) {
+  if (failures) console.log(`\n${failures} archivo(s) con problemas`);
+  if (styleWarnings) console.log(`\n${styleWarnings} guion(es) largo(s) por reemplazar`);
   process.exit(1);
 }
 console.log(`\nTodos compilan (${files.length} archivos)`);

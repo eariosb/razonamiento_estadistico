@@ -24,7 +24,7 @@ export interface SeccionLecturas {
 export const LECTURAS: SeccionLecturas[] = [
   {
     titulo: 'Núcleo del curso (transversal a los ocho módulos)',
-    nota: 'Las obras que sostienen el argumento completo; conviene tenerlas a la mano siempre.',
+    nota: 'Las obras que sostienen el argumento completo.',
     entradas: [
       {
         cita: 'Kahneman D. Thinking, Fast and Slow. Nueva York: Farrar, Straus and Giroux; 2011.',
@@ -304,3 +304,12 @@ export const ENLACES: { titulo: string; items: Enlace[] }[] = [
     ],
   },
 ];
+
+/** Resuelve lecturas/enlaces por locale (es = fuente; en = transcreación). */
+export async function getLecturas(locale: string) {
+  if (locale === 'en') {
+    const en = await import('./lecturas.en');
+    return { lecturas: en.LECTURAS_EN, enlaces: en.ENLACES_EN };
+  }
+  return { lecturas: LECTURAS, enlaces: ENLACES };
+}

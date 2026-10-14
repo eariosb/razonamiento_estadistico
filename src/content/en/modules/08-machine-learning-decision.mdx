@@ -1,0 +1,277 @@
+---
+title: "Machine learning, deep learning, and decision"
+slug: "08-machine-learning-decision"
+objective: "Connect the biases of human judgment with those of algorithmic judgment: differential base rates, noise, Breiman's two cultures, and epistemic humility as a professional skill"
+order: 8
+datasets: []
+duration: 90
+prerequisites: ["M7"]
+---
+
+import { Quiz } from '@/components/Quiz'
+import { RCell } from '@/components/RCell'
+import { Callout } from '@/components/Callout'
+
+## Ninety-five percent accuracy
+
+Before reading, commit to an answer. A bank trains an anti-fraud
+model with 95% accuracy on a million transactions, of which one in a
+thousand is fraudulent. The model flags your transaction as fraud.
+
+<CommitReveal
+  question="What is the probability your transaction actually is fraud?"
+  options={[
+    "Around 95%: the model is almost always right",
+    "Around 50%: a coin flip",
+    "Much lower: the base rate rules"
+  ]}
+  correctIndex={2}
+>
+
+If you picked something near 95%, the module has already made its
+point: global accuracy is the PPV in disguise, and M2 already taught
+you what happens when the base rate is low. The count: of a
+thousand transactions there is 1 fraud and 999 legitimate ones; the
+model catches almost all the fraud but also flags a small
+percentage of legitimate activity, and that small percentage of 999
+dwarfs the single real fraud. The exact number depends on its
+error rates, but the conclusion doesn't: a marker "95% accurate"
+over rare events produces more false alarms than catches.
+
+</CommitReveal>
+
+## Biases don't vanish with more data
+
+Machine learning's implicit promise is that volume cures: with
+enough data, the right pattern emerges on its own. The whole course
+has worked to make that sentence sound suspicious. Volume amplifies
+what's there: if the data carry the base rate of an unequal society,
+the model learns it more precisely and applies it at greater scale.
+
+The case that put it on the cover was COMPAS (Angwin et al., 2016,
+*Machine Bias*): among defendants who did **not** reoffend, the
+software flagged 45% of Black defendants as high risk versus 23% of
+white ones. The figure is conditional, on the true negatives, and
+that's where it hurts. Northpointe's reply was just as serious: the
+model was equally calibrated in both groups; a "high risk" meant the
+same for each. Both claims are true at once, and that is the core of
+the debate. Not a single line of code mentioned race.
+<Term k="sesgo algorítmico">Algorithmic bias</Term> doesn't need
+explicit racism: a differential base rate between groups and honest
+proxy variables are enough.
+
+## Breiman's two cultures
+
+Breiman (2001) named the split before ML inherited it: data modeling
+wants to understand the mechanism (the box must explain); algorithmic
+modeling wants to predict well (the box just has to work). The
+<Term k="dos culturas">two cultures</Term> produce different criteria
+for success and, above all, different criteria for failure. A model
+that predicts without explaining may be discriminating; one that
+explains without predicting may be telling a good story.
+
+AUC summarizes discrimination, not justice nor
+<Term k="calibración">calibration</Term>: a model can rank well on
+average and still assign systematically inflated risks to a group,
+exactly what Barocas, Hardt and Narayanan formalize by showing that
+definitions of fairness are mutually incompatible except in special
+cases.
+
+## Predicting well: overfitting and validation
+
+Overfitting is the law of small numbers wearing silicon: a model
+with enough degrees of freedom memorizes the sample's noise and
+reports it as signal. The symptom is always the same: brilliant
+performance on data it already saw and collapse on data it didn't.
+The defense is equally uniform and worth more than any algorithm:
+measure performance on data the model never touched.
+<Term k="validación">Cross-validation</Term> institutionalizes that
+distrust, rotating which part of the sample trains and which part
+judges, so that no success counts if it was seen during learning.
+
+The second professional error is believing the model decides. The
+model assigns a number; you decide by setting the threshold. And the
+right threshold is not a statistical number, it's a ratio of costs:
+how much a false positive hurts against how much a false negative
+hurts. In the opening fraud case, rejecting legitimate transactions
+costs clients and letting fraud through costs money, so the
+threshold moves until expected cost, not accuracy, is minimized.
+Two hospitals with the same model and different costs should use
+different thresholds, and that's no defect of the model; it's the
+decision placed where it always belonged: with whoever pays the
+consequences.
+
+## Deep learning and the promise that remains
+
+Deep networks changed the landscape because they learn the very
+representation of the data, not just the boundary over given
+representations. For this course one precise consequence matters:
+the more expressive the model, the more of the course's confusion
+mechanisms it inherits. It overfits at scale, absorbs historical
+base rates with higher fidelity, and its opacity turns into
+research what in a regression was reading a coefficient. Breiman's
+two-cultures lesson hardens: predicting very well while explaining
+badly is, for most of the decisions this course discusses, exactly
+the wrong combination.
+
+## Meehl, seventy years earlier
+
+The debate between human judgment and algorithm didn't start with
+machine learning. Meehl (1954) compared clinical prediction, the
+expert weighing the whole case, with actuarial prediction, a
+statistical rule over the same variables, across dozens of domains.
+The result was uncomfortable and has replicated for seventy years:
+the empirical rule wins or ties almost always, and rarely loses.
+Dawes extended it by showing that even "improper" models, rounded
+weights, beat expert judgment.
+
+The honest reading has two faces and both matter. Against human
+enthusiasm: if you're going to override the algorithm, the burden
+of proof is yours, not its. Against algorithmic enthusiasm: Meehl's
+rules were simple, auditable, and stable; the modern model buys its
+edge in accuracy at the price of exactly the fragilities this module
+lists. The course's closing criterion decides where to trust: an
+environment with regularities and feedback calls for the systematic
+method; an irregular environment exempts neither intuition from
+review.
+
+<Callout type="note" title="The same error in your field">
+The claims model with 96% accuracy that never flags anything in a
+portfolio with 1% claims is playing the opening game: beating the
+majority without looking at anyone. The credit score that passes
+internal validation but collapses on the segment the sample never
+covered repeats overfitting in institutional clothing. And whoever
+sets the credit-approval threshold is making a cost decision in
+statistical disguise: every point of the cutoff trades how many good
+clients are lost against how many bad ones get in.
+</Callout>
+
+## Noise, now algorithmic
+
+The <Term k="ruido">noise</Term> of *Noise* translates directly:
+where ten human judges diverged, ten trainings of the "same" model
+diverge. The precision Meehl and Dawes ask for is due here: an
+already-trained mechanical rule has no noise at decision time; the
+same case gets the same number every time. The variability appears
+earlier, in the modeling: the seed, the cleaning pipeline, the
+training sample. It's real noise, but of another category:
+construction noise, not judgment noise. The algorithmic promise
+removes the first; the second only appears when someone decides to
+train the model ten times with the same yardstick used to audit the
+human.
+
+Watch it in two lanes. The same case goes through ten human judges
+and through ten versions of the "same" model: different seed,
+different pipeline, same purpose. Human noise is visible at a
+glance; algorithmic noise only shows up when someone decides to
+train it ten times.
+
+<NoisyJudgeSim />
+
+The code reduces the mechanism of algorithmic bias to its skeleton:
+two groups of ten thousand people with different outcome
+prevalences (50% and 10%), a score that does look at the individual
+(mean 1.5 for reoffenders, 0 for non-reoffenders) and an identical
+threshold for both. Then it computes three conditional rates per
+group: who gets flagged while negative, who gets flagged while
+positive, and what fraction of the flagged is truly positive. The
+model never read the group's name. Even so, one of the rates comes
+out different.
+
+<RCell
+  id="08/tasa-base-diferencial"
+  title="Same classifier, two groups, two error rates"
+  code={`# The same classifier over two groups with different prevalences.
+# The score does look at the individual: mean 1.5 if reoffender, 0 if not.
+# Within each group the conditional distributions are identical,
+# so FPR and TPR come out equal; what breaks is the PPV.
+set.seed(21)
+n <- 10000
+group <- rep(c("A", "B"), each = n / 2)
+prevalence <- ifelse(group == "A", 0.5, 0.1)
+y <- rbinom(n, 1, prevalence)
+score <- rnorm(n, mean = 1.5 * y, sd = 1)  # informed by the individual
+pred_pos <- score > 1                      # identical threshold in both
+
+# Conditional rates by group: counting hits is not enough; look at
+# who pays the error.
+fpr <- tapply(pred_pos[y == 0], group[y == 0], mean)   # false positives among negatives
+tpr <- tapply(pred_pos[y == 1], group[y == 1], mean)   # true positives among positives
+ppv <- tapply(y[pred_pos], group[pred_pos], mean)      # precision among the flagged
+
+cat("P(flagged | negative) by group:", round(fpr, 3), "\n")
+cat("P(flagged | positive) by group:", round(tpr, 3), "\n")
+cat("P(positive | flagged) by group:", round(ppv, 3), "\n")`}
+/>
+
+The result is the reverse of what intuition expects: the model does
+use the base rate and respects the individual (FPR and TPR come out
+equal across groups), and still "flagged" doesn't mean the same for
+both. In the low-prevalence group, a flagged case is truly positive
+far less often. It's the M2 lesson turned into a system: with
+different prevalences and the same threshold, there's no way to
+equalize all the metrics at once. Kleinberg, Mullainathan and
+Raghavan (2016) and Chouldechova (2017) proved it as a theorem: you
+can equalize one, never all.
+
+Here is the full mechanism. Two groups, the same classifier, the
+same threshold; only the prevalence changes. Move group B's base
+rate and watch which metric breaks. Then try to repair it with the
+threshold: you'll find you can equalize one metric, never all at
+once.
+
+<AlgorithmicBiasLab />
+
+## Closing the course: the skill of knowing when to doubt
+
+Eight modules ago, the first Monty Hall door looked like a tie to
+you. This course's promise was never to make you infallible: the
+experiments say not even experts are. The promise was something
+else, more useful: teaching you to recognize the terrain where your
+intuition loses. Forgotten base rates, small samples taken for large
+ones, conjunctions that seduce, means that chance returns, trends
+that noise draws, algorithms that inherit the history they shouldn't.
+
+Statistics is a cognitive technology. It exists because the mind
+doesn't ship with it, and the AI that came later runs the same race
+with worse-documented habits: it amplifies the bad question and the
+bad data more efficiently than any human. The professional this
+course set out to train computes well, certainly, but above all
+knows when to distrust their own certainty, human or computed.
+
+And here the last nuance is due, because a course that only teaches
+doubt produces another bias, universal distrust. Kahneman and Klein
+(2009), the two captains of opposing camps, sat down to define when
+intuition is genuinely expert and reached a two-condition criterion:
+the environment has valid regularities to learn, and the person had
+prolonged practice with fast, unambiguous feedback. The firefighter
+reading the fire and the nurse reading the vein meet both; the
+analyst forecasting markets, the judge estimating recidivism, and
+whoever evaluates a stranger in an interview meet neither. That is
+the closing criterion: don't distrust intuition, verify its
+conditions of production.
+
+Seen from a distance, the course's eight traps are a single one,
+the one Kahneman and Frederick named back in M1: the mind answers
+the easy question instead of the hard one. Linda was resemblance
+for probability, the M2 test diagnosis for disease, the M3 interval
+certainty for sample size, the M4 improvement cause for luck, the
+M5 streak pattern for real frequency, the M6 median the available
+answer for the asked one, the M7 p-value the inverted hypothesis,
+and this module's algorithm accuracy for the right decision. The
+final hygiene is a single question, repeatable out loud on every
+terrain: what question am I actually answering?
+
+<Quiz
+  question="A model equalizes its false- and true-positive rates across two groups with different prevalences, yet the predictive value stays unequal. Why?"
+  options={[
+    "The model was coded with explicit bias",
+    "The model ignores the group's base rate",
+    "With different prevalences and a common threshold, no classification can equalize all metrics at once: equalizing one breaks another",
+    "There wasn't enough data to train it"
+  ]}
+  correctIndex={2}
+  explanation="This is the impossibility proved by Kleinberg and colleagues (2016) and Chouldechova (2017): the model does use the base rate, and precisely for that reason the metrics can't all be equalized. 'Flagged' weighs differently depending on the group's prevalence, just like the diagnostic test in M2."
+/>
+
+**In one sentence:** the model assigns a number and the data tell their history; the decision, with its costs, is still yours.

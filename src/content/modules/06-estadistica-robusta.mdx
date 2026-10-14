@@ -8,15 +8,36 @@ duration: 90
 prerequisites: ["M5"]
 ---
 
-import { Callout } from '@/components/Callout'
 import { Quiz } from '@/components/Quiz'
 import { RCell } from '@/components/RCell'
+import { Callout } from '@/components/Callout'
 
-<Callout type="warning" title="Módulo en desarrollo">
-El marco conceptual está montado; el ejercicio de arrastrar el outlier
-sobre el scatter y el comparador de pruebas paramétricas contra rangos
-se integran en la siguiente iteración.
-</Callout>
+## La prima que decide el estimador
+
+Antes de leer, compromete tu respuesta. Diriges una aseguradora y
+debes fijar la prima del ramo. Los siniestros del año pasado tienen
+una mediana de dos millones y una media de once, porque un solo
+siniestro catastrófico arrastró el promedio.
+
+<CommitReveal
+  question="¿Con cuál de los dos resúmenes tarifas la prima?"
+  options={[
+    "Con la mediana: el siniestro extremo es un accidente, no el caso típico",
+    "Con la media: el siniestro extremo también lo paga la cartera"
+  ]}
+  correctIndex={1}
+>
+
+Con la media. La prima pura es el valor esperado del costo de la
+cartera; el siniestro típico no entra en esa pregunta, y el
+catastrófico sí. Quien tarifa con la mediana cobra dos millones por póliza y
+quiebra la primera vez que llega el de doscientos. Pero la respuesta
+desmonta una idea que el propio módulo va a construir primero: que la
+mediana es el resumen más honesto. Honesta para qué, esa es la
+pregunta que decide todo, y la respuesta cambia según lo que te
+interese proteger.
+
+</CommitReveal>
 
 ## El outlier que arrastra a la media
 
@@ -27,26 +48,87 @@ día malo: un paquete perdido que tardó 600. La media salta de 48 a casi
 La media tiene <Term k="punto de quiebre">punto de quiebre</Term> cero:
 un solo dato contaminado, por extremo que sea, la lleva a cualquier
 valor. La mediana resiste hasta casi la mitad de los datos corrompidos
-antes de rendirse. Esa diferencia no es un tecnicismo: es la respuesta
-formal a una intuición defectuosa. Kahneman y Tversky documentaron que
-la gente subestima la frecuencia de los extremos y sobreestima la
-regularidad de los datos. La estadística robusta es esa subestimación
-corregida.
+antes de rendirse. Esa diferencia corrige una intuición concreta: leer el promedio como
+el caso típico. Con un solo dato extremo, la media describe un paquete
+que nadie recibió.
+
+Siéntelo con las manos. El punto ocre de abajo es el paquete perdido:
+súbelo con el dedo o con las flechas y mira la media seguirlo en vivo
+mientras la mediana se queda quieta.
+
+<OutlierDragLab />
 
 ## Los datos reales no leen libros de texto
 
-La normal manda en la intuición porque manda en los ejemplos. Los datos
+Si la mediana resiste donde la media cae, surge la pregunta correcta:
+¿por qué no usarla siempre? Porque la protección tiene un precio, y
+el precio es tratar el extremo como ruido. La normal manda en la intuición porque manda en los ejemplos. Los datos
 del trabajo tienen <Term k="colas pesadas">colas pesadas</Term>: los
 tiempos de entrega, los retornos financieros, los siniestros
 asegurados, las precipitaciones extremas. En una cola pesada, los
-outliers no son errores de medición a depurar: son la información más
-importante de la distribución. Borrarlos es destruir el dato que más
+outliers son la información más importante de la distribución, lejos de
+ser errores de medición a depurar. Borrarlos es destruir el dato que más
 decisión carga.
+
+Ese borrado tiene raíz psicológica. Cuando los extremos se conocen por
+descripción, la gente los sobrepondera, como predice la teoría
+prospectiva de M1; cuando llegan por experiencia propia, como en una
+muestra de datos, los subestima, porque casi nunca se han visto.
+Hertwig y colegas (2004) llamaron a eso la brecha entre descripción y
+experiencia, y el analista que depura outliers trabaja casi siempre
+del lado de la experiencia.
 
 Las medidas compañeras cambian con la distribución. La desviación
 estándar eleva los desvíos al cuadrado y los extremos la inflan; la
 <Term k="MAD">desviación absoluta respecto de la mediana</Term> los
 cuenta de frente y sobrevive.
+
+Lo mismo le pasa a las pruebas de hipótesis. El comparador de abajo
+enfrenta la prueba t con el test de rangos bajo el mismo experimento,
+cuatrocientas veces por nivel. Con datos limpios gana la t, aunque por
+poco: frente a datos normales, el test de rangos conserva cerca del 95%
+de su eficiencia (3/π), y frente a cualquier distribución continua
+nunca baja del 86%. Sube el slider de la cola y observa cuál de las dos sigue viendo
+la diferencia cuando la normalidad se retira.
+
+<RankVsTExplorer />
+
+## La pregunta decide el estimador
+
+Aquí se resuelve la prima de la apertura, y con ella la tensión
+aparente del módulo. Si la estadística robusta «corrige» al resumir
+con la mediana, ¿cómo puede decir dos párrafos después que el dato
+extremo es la información más importante? Las dos frases son ciertas
+porque responden preguntas distintas.
+
+Si la pregunta es «¿qué le pasa al caso típico?», la mediana: un
+cliente individual, el tiempo de entrega ordinario, el siniestro
+común. Si la pregunta es «¿cuánto cuesta el fenómeno en total?», la
+media: el costo agregado de la cartera, el presupuesto anual, la
+prima. La aseguradora que tarifica con la mediana cobra dos millones
+donde el siniestro esperado es once, y quiebra en el primer año malo.
+El extremo que la mediana ignora con elegancia es exactamente el que
+paga las primas.
+
+Y hay una advertencia técnica que cierra el círculo: el bootstrap de
+la sección siguiente estima la incertidumbre de un estadístico
+remuestreando los datos, pero para la media falla justamente donde
+más interesaría, en colas tan pesadas que la varianza verdadera es
+infinita (Athreya, 1987). Ninguna remuestra finita la alcanza. Por
+eso, en la práctica actuarial, el riesgo catastrófico se modela con
+teoría de valores extremos o se cede al reaseguro. La robustez, bien
+entendida, consiste en saber qué protege cada estadístico y qué precio
+cobra esa protección.
+
+<Callout type="note" title="El mismo error en tu campo">
+Tarificar primas con la mediana del siniestro, presupuestar un
+proyecto minero con el costo típico, dimensionar reservas hídricas
+con la precipitación mediana: en los tres casos el resumen robusto
+del caso típico responde la pregunta equivocada, porque el riesgo
+vive en la cola. Y a la inversa: resumir el ingreso de un barrio con
+la media contamina el caso típico con unos pocos extremos. Primero la
+pregunta, después el estadístico.
+</Callout>
 
 ## El bootstrap: inferencia sin distribución
 
@@ -56,6 +138,14 @@ reemplazo, recalcular el estadístico miles de veces y usar la dispersión
 obtenida como distribución muestral empírica. Efron lo formalizó en
 1979 y es, en el fondo, el laboratorio del curso hecho método: cuando
 la intuición y la teoría fallan, simula.
+
+El código hace las dos cosas en una corrida. Primero arma el
+escenario: veinte tiempos de entrega honestos más un paquete perdido
+de 600 horas, y enfrenta media y desviación estándar contra mediana y
+MAD. Después remuestrea esos veintiún datos con reemplazo cinco mil
+veces y calcula el error estándar bootstrap de cada estimador, la
+medida de cuánto puede bailar cada uno de una muestra a otra. La media
+baila mucho; la mediana, apenas.
 
 <RCell
   id="06/media-vs-mediana"
@@ -79,14 +169,28 @@ cat("\nDE bootstrap de la media:  ", round(sd(b[1, ]), 1), "\n")
 cat("DE bootstrap de la mediana:", round(sd(b[2, ]), 1), "\n")`}
 />
 
-La media llega a 74 horas por un solo paquete; la mediana sigue en 48.
+La media llega a unas 74 horas por un solo paquete; la mediana sigue en 48.
 Y el bootstrap muestra el segundo efecto: bajo contaminación, la media
 también varía mucho más entre remuestreos. El outlier no solo mueve la
 cuenta, la vuelve inestable.
 
+<Quiz
+  question="Un municipio quiere reportar el ingreso «representativo» de sus hogares y, aparte, presupuestar el gasto total en subsidios. Hay veinte mil hogares y unos pocos ingresos muy altos. ¿Qué estadístico usa para cada tarea?"
+  options={[
+    "La media para ambas, porque resume todos los datos",
+    "La mediana para ambas, porque es más robusta",
+    "La mediana para el representativo y la media para el presupuesto, porque la pregunta decide el estimador",
+    "La moda para ambas, que es el valor más frecuente"
+  ]}
+  correctIndex={2}
+  explanation="Es la prima de la apertura con otro disfraz: el caso típico lo describe la mediana; el costo total lo acumula la media. Elegir primero la pregunta y después el estadístico es la lección entera del módulo."
+/>
+
 ## Lo que sigue
 
-La siguiente iteración integra el scatter con el punto arrastrable en
-vivo y la comparación de la prueba t contra rangos bajo violación de
-normalidad, con el slider de cola. M7 cambia de paradigma entero:
-del estimador resistente a la creencia actualizada.
+Quedó medida la fragilidad: un solo dato mueve la media, una fracción
+de cola tumba la prueba t, y el orden de los datos aguanta ambos
+ataques. M7 cambia de paradigma entero: del estimador resistente a la
+creencia actualizada.
+
+**En una frase:** primero la pregunta, después el estadístico; la mediana describe el caso típico y la media acumula el costo.

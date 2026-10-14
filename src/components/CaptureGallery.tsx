@@ -37,7 +37,7 @@ export function CaptureGallery() {
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded border border-ink-200 bg-white shadow-sm">
+    <div className="flex h-full flex-col overflow-hidden rounded border border-ink-200 bg-surface shadow-sm">
       <div className="border-b border-ink-200 bg-ink-50 px-4 py-2">
         <p className="text-sm font-semibold text-ink-800">Biblioteca de capturas</p>
       </div>
@@ -47,7 +47,7 @@ export function CaptureGallery() {
           type="button"
           onClick={() => setFilter('all')}
           className={`rounded px-2 py-0.5 text-xs font-medium ${
-            filter === 'all' ? 'bg-brand-100 text-brand-700' : 'text-ink-500 hover:bg-ink-100'
+            filter === 'all' ? 'bg-brand-100 text-brand-800' : 'text-ink-500 hover:bg-ink-100'
           }`}
         >
           Todas
@@ -58,7 +58,7 @@ export function CaptureGallery() {
             type="button"
             onClick={() => setFilter(type)}
             className={`rounded px-2 py-0.5 text-xs font-medium ${
-              filter === type ? 'bg-brand-100 text-brand-700' : 'text-ink-500 hover:bg-ink-100'
+              filter === type ? 'bg-brand-100 text-brand-800' : 'text-ink-500 hover:bg-ink-100'
             }`}
           >
             {TYPE_LABELS[type]}
@@ -73,7 +73,7 @@ export function CaptureGallery() {
         {filtered.map((cap) => (
           <div
             key={cap.id}
-            className="group rounded border border-ink-200 bg-white p-2 transition-colors hover:border-brand-300"
+            className="group rounded border border-ink-200 bg-surface p-2 transition-colors hover:border-brand-300"
             draggable
             onDragStart={(e) => {
               e.dataTransfer.setData('text/plain', cap.dataUrl);
@@ -103,7 +103,7 @@ export function CaptureGallery() {
                   <button
                     type="button"
                     onClick={() => startRename(cap)}
-                    className="text-left text-xs font-medium text-ink-700 hover:text-brand-600"
+                    className="text-left text-xs font-medium text-ink-700 hover:text-brand-800"
                   >
                     {cap.name}
                   </button>
@@ -133,7 +133,7 @@ export function CaptureGallery() {
                       },
                     })
                   }
-                  className="text-[10px] text-brand-600 hover:text-brand-700"
+                  className="text-[10px] text-brand-800 hover:text-brand-800"
                   title="Insertar en la pizarra"
                 >
                   A la pizarra

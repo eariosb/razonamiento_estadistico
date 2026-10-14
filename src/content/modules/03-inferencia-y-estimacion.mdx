@@ -8,58 +8,127 @@ duration: 90
 prerequisites: ["M2"]
 ---
 
-import { Callout } from '@/components/Callout'
 import { Quiz } from '@/components/Quiz'
 import { RCell } from '@/components/RCell'
-
-<Callout type="warning" title="Módulo en desarrollo">
-El marco y los conceptos centrales están montados; el juego de
-calibración de 20 preguntas y el simulador de control de calidad se
-integran en la siguiente iteración.
-</Callout>
+import { Callout } from '@/components/Callout'
 
 ## El número que te pusieron delante
 
-Pregunta rápida: ¿el río Nilo es más largo o más corto que 6000 km?
-¿Y qué tan largo es? La mayoría de los que responden después de leer
-6000 dan una cifra cercana a esa. Los que leen 3000 en su lugar dan una
-cifra mucho menor. La primera cifra no era información: era un ancla.
+Antes de leer, dos gestos. Escribe los dos últimos dígitos de tu
+documento de identidad y multiplícalos por cien. Después responde, sin
+consultar nada: ¿el río Nilo es más largo o más corto que ese número
+en kilómetros? Con esa respuesta en mente, estima su longitud.
 
-El <Term k="anclaje">anclaje y ajuste</Term> es la tercera heurística
-del artículo de 1974: las estimaciones parten del primer número
+<CommitReveal
+  question="¿Cuánto mide el Nilo, según tu estimación?"
+  options={[
+    "Menos de 3.000 km",
+    "Entre 3.000 y 6.000 km",
+    "Entre 6.000 y 9.000 km",
+    "Más de 9.000 km"
+  ]}
+  correctIndex={2}
+>
+
+El Nilo mide cerca de 6.650 km. Tus dígitos no saben nada de
+geografía, y aun así es probable que hayan tirado de tu estimación.
+Una persona sola no lo nota; el promedio de muchas, sí. Tversky y
+Kahneman (1974) lo mostraron con una ruleta amañada que caía en 10 o
+en 65 antes de preguntar qué porcentaje de los países de la ONU son
+africanos: la mediana de las estimaciones fue 25 con la ruleta en 10
+y 45 con la ruleta en 65. Con anclas tan arbitrarias como un número de
+documento el efecto existe, aunque es más débil; con un ancla
+explícita, como la ruleta, está entre los resultados más replicados
+de la psicología (Klein y colegas, 2014).
+
+</CommitReveal>
+
+El <Term k="anclaje">anclaje y ajuste</Term> completa el trío de
+heurísticas del artículo de 1974: la representatividad ya apareció en
+M1 y la disponibilidad llegará en M5. Las estimaciones parten del primer número
 disponible y se ajustan hacia la respuesta correcta, pero el ajuste se
 queda corto. En la práctica significa que quien fija el primer número
 de la conversación fija el centro de gravedad de la negociación, del
 pronóstico y del diagnóstico.
 
+Conviene fijar el mapa del módulo antes de seguir. Vas a medir tres
+brechas del mismo instrumento, la mente estimando: el **centro** que
+se ancla, el **ancho** que promete más de lo que cubre y la
+**dispersión** que nadie audita. La estadística formal del final del
+módulo existe porque esas tres brechas ya fueron medidas, una por una.
+
 ## Intervalos que no cubren
 
-Alpert y Raiffa pidieron a evaluadores entrenados que dieran intervalos
-de confianza del 98% para cantidades que desconocían. La frecuencia real
-de aciertos quedó muy por debajo del 98%: los intervalos subjetivos
-salen sistemáticamente demasiado estrechos. Eso es la
-<Term k="sobreconfianza">sobreconfianza</Term>, y no es arrogancia de
-carácter: es la geometría del anclaje aplicada a la incertidumbre. El
-estimador central se ancla y los extremos se ajustan poco.
+Si el ancla corrompe el punto de partida, esta sección mide lo que
+corrompe del ancho.
+
+Alpert y Raiffa pidieron a estudiantes de MBA de Harvard que dieran
+intervalos de confianza del 98% para cantidades que desconocían.
+Prometían fallar el 2% de las veces; fallaron cerca del 40%. Los
+intervalos subjetivos salen sistemáticamente demasiado estrechos. Es
+la forma más robusta de <Term k="sobreconfianza">sobreconfianza</Term>,
+la que Moore y Healy (2008) llaman sobreprecisión. Tversky y Kahneman
+propusieron un mecanismo conocido: se parte de un valor central y los
+extremos se ajustan poco desde ahí, como en cualquier ancla.
 
 La <Term k="calibración">calibración</Term> es la propiedad opuesta:
 que la confianza declarada coincida con la frecuencia real de aciertos.
 Un meteorólogo bien calibrado acierta el 80% de los días que pronostica
-«80% de probabilidad de lluvia». Un ejecutivo mal calibrado acierta el
-50% de lo que declara al 90%.
+«80% de probabilidad de lluvia». Un ejecutivo mal calibrado puede
+acertar la mitad de lo que declara al 90%.
+
+¿Y tú? El juego de abajo te pide diez intervalos del 90% sobre
+cantidades que probablemente no recuerdas con exactitud. Después te
+muestra cuántos cubrieron la verdad. Si tu calibración fuera perfecta,
+fallarías una vez de diez. Mira cuántas fallas tú.
+
+<CalibrationGame />
+
+## La vista desde afuera
+
+Los intervalos de Alpert y Raiffa fallaban en abstracto: cantidades
+que nadie mide a diario. La misma estrechez de intervalo tiene una
+versión con calendario que probablemente te ha costado dinero o
+vergüenza: la <Term k="falacia de planificación">falacia
+de planificación</Term>. Todo el mundo estima cuánto tardará su
+proyecto por dentro, sumando las tareas que ve, y casi nadie consulta
+la estadística de proyectos parecidos. Kahneman y Tversky
+le pusieron nombre en 1979, y Kahneman la había vivido en carne
+propia: el equipo con el que escribía un libro de texto estimó unos
+dos años de trabajo y tardó ocho, aunque el más experto del grupo
+sabía que cerca del 40% de los equipos parecidos nunca terminaba. La
+versión monumental es la Ópera de Sídney: debía terminarse en 1963
+por siete millones de dólares australianos, abrió en 1973 y costó 102
+millones, catorce veces lo previsto.
+
+El antídoto tiene nombre propio y es de los más portátiles del curso:
+la <Term k="vista desde afuera">vista desde afuera</Term> o pronóstico
+por clase de referencia. Antes de estimar tu proyecto, pregunta
+cuánto tardaron los proyectos de su clase, no cuánto tardaría el tuyo
+si todo saliera según el plan. La pregunta por dentro mide tu
+optimismo; la clase de referencia mide el mundo.
 
 ## El ruido: el villano que nadie mide
 
-Kahneman, Sibony y Sunstein dedicaron un libro entero a distinguir el
-<Term k="ruido">ruido</Term> del sesgo. El sesgo empuja las decisiones
+Queda una brecha por medir, la más escondida. Kahneman, Sibony y
+Sunstein (2021) dedicaron *Noise* a separar el <Term k="ruido">ruido</Term>
+del sesgo. El sesgo empuja las decisiones
 en una dirección sistemática. El ruido las dispersa sin patrón: dos
 médicos que dan diagnósticos distintos al mismo paciente, dos jueces
 que imponen penas distintas al mismo caso, un mismo analista que da
 respuestas distintas un lunes y un viernes.
 
-El ruido se mide con auditorías, no con intuición. Y cuesta lo mismo
-que el sesgo: cada juicio distinto al correcto es un error, venga de
-un empuje sistemático o de un dispersión sin causa.
+Tiene una ventaja práctica: para medirlo no hace falta conocer la
+respuesta correcta. Basta una auditoría que compare juicios que
+deberían coincidir. Y pesa tanto como el sesgo, literalmente: en el
+error cuadrático medio los dos entran al cuadrado y con el mismo peso,
+ECM = sesgo² + ruido².
+
+El ruido, además, cobra una prima peligrosa: reaccionar a él como si
+fuera señal. Premiar lo que sube y castigar lo que baja en un proceso
+estable produce la ilusión de gestión eficaz, porque las unidades
+intervenidas «mejoran» siempre. Esa trampa tiene nombre propio,
+regresión a la media, y un simulador esperándote al inicio de M4.
 
 ## La estimación formal como corrección
 
@@ -69,29 +138,138 @@ los datos y convierte la incertidumbre en un rango calculado, no
 imaginado. La inferencia es la respuesta institucional a la
 sobreconfianza.
 
+El código pone esa promesa ante la única prueba que aquí importa: la
+repetición. Genera cinco mil muestras de tamaño 30 de una normal
+estándar, calcula el IC del 95% de cada una y registra cuántas
+capturan la media real. La celda corre dos versiones: la ingenua con
+z = 1.96 y la corregida con la t de Student. El 1.96 queda corto: con
+la desviación estimada y n = 30, la cobertura real anda por 0.94. La
+t ensancha el intervalo lo justo para devolver el 0.95 prometido. «95% de
+confianza» describe al método: acierta el 95% de las veces. Sobre un
+intervalo ya calculado no promete nada; contiene al parámetro o no lo
+contiene. Y nota la ironía: la versión ingenua también peca de
+sobreprecisión, porque olvida que la desviación estándar fue estimada.
+
 <RCell
   id="03/ic-cobertura"
   title="Cobertura real de un intervalo del 95%"
-  code={`# Cobertura del IC95% normal para una media: simulacion.
+  code={`# Cobertura del IC95% para una media con n = 30: z vs. t de Student.
+# Con la sd estimada, z = 1.96 queda corto; qt(0.975, n-1) corrige.
 set.seed(7)
 n <- 30
-cubre <- replicate(5000, {
+cubre <- function(mult) mean(replicate(5000, {
   x <- rnorm(n, mean = 0, sd = 1)
-  ic <- mean(x) + c(-1, 1) * 1.96 * sd(x) / sqrt(n)
+  ic <- mean(x) + c(-1, 1) * mult * sd(x) / sqrt(n)
   ic[1] <= 0 & ic[2] >= 0
-})
-mean(cubre)`}
+}))
+cat("con z = 1.96:     ", round(cubre(1.96), 3), "\n")
+cat("con t de Student: ", round(cubre(qt(0.975, n - 1)), 3), "\n")`}
 />
 
-Cuando el modelo es correcto, el IC del 95% cubre el 95% de las veces.
-El interactivo del módulo hará la misma pregunta sobre tus propios
-intervalos: veinte preguntas de trivia, tus rangos del 90%, y luego la
-cuenta de cuántos cubrieron la respuesta real.
+Cuando el modelo y el multiplicador son correctos, el IC del 95% cubre
+el 95% de las veces; con el z ingenuo, cubre menos de lo que promete.
+El juego de calibración de arriba hizo la misma pregunta sobre tus
+propios intervalos: rangos del 90% sobre cantidades inciertas, y luego
+la cuenta de cuántos cubrieron la respuesta real.
+
+## Del intervalo al valor p
+
+El <Term k="EE">error estándar</Term> es el ladrillo de todo esto: la
+desviación típica del estimador, no de los datos. Con muestras grandes,
+la media de la muestra se comporta casi como una normal cuya dispersión
+es σ/√n, y de ahí sale el intervalo de arriba.
+
+El <Term k="p">valor p</Term> se construye sobre esa misma cuenta y es,
+con diferencia, la cifra más mal leída de la estadística en uso. Dice
+una sola cosa: si la hipótesis nula fuera cierta, qué tan probable sería
+ver un dato al menos tan extremo como el tuyo. No dice cuál es la
+probabilidad de que la nula sea verdadera, que es la pregunta que todos
+quisiéramos responder y que exige una prior, el camino de M7. Tampoco
+mide tamaño del efecto ni importancia práctica: con n suficiente, una
+diferencia insignificante produce un valor p brillante.
+
+La <Term k="potencia">potencia</Term> es la otra cara del diseño: la
+probabilidad de detectar el efecto si existe. Un estudio con poca
+potencia que no encuentra nada no probó la ausencia: era demasiado
+chico para ver. Y cuando sí encuentra algo, exagera. Aquí reaparece la
+ley de los números pequeños de M1 en su versión original: el artículo
+de Tversky y Kahneman (1971) trataba justamente de investigadores que
+confiaban en estudios sin potencia.
+
+La celda simula cinco mil estudios de un efecto real pero chico (0.2
+desviaciones estándar) con veinte personas por grupo, y «publica» solo
+los que salen significativos al 5%. Registra qué fracción pasa el
+filtro, cuánto vale en promedio el efecto publicado y cuántos
+publicados tienen el signo al revés. Compara ese promedio con el 0.2
+verdadero.
+
+<RCell
+  id="03/potencia-filtro"
+  title="Estudios chicos, filtro de significancia y efectos inflados"
+  code={`# 5000 estudios de un efecto real y chico (d = 0.2), 20 personas
+# por grupo. Solo se publica lo que da p < 0.05.
+set.seed(5)
+d <- 0.2
+n <- 20
+sim <- replicate(5000, {
+  control <- rnorm(n, mean = 0, sd = 1)
+  tratado <- rnorm(n, mean = d, sd = 1)
+  c(efecto = mean(tratado) - mean(control),
+    p      = t.test(tratado, control)$p.value)
+})
+publicado <- sim["p", ] < 0.05
+cat("Potencia (fraccion publicada):   ", round(mean(publicado), 3), "\n")
+cat("Efecto verdadero:                ", d, "\n")
+cat("Efecto medio de los publicados:  ", round(mean(sim["efecto", publicado]), 2), "\n")
+cat("Publicados con el signo al reves:", round(mean(sim["efecto", publicado] < 0), 3), "\n")`}
+/>
+
+El filtro de significancia, aplicado a estudios chicos, fabrica
+efectos inflados: Gelman y Carlin (2014) lo llaman error de magnitud.
+Es la sobreprecisión del inicio del módulo, ahora institucionalizada en
+las revistas. Cuando ninguna distribución teórica convence, queda el
+<Term k="bootstrap">bootstrap</Term>, que M6 desarrolla con calma.
+
+<Callout type="note" title="El mismo error en tu campo">
+El anclaje es el primer número en una evaluación de reservas, en la
+oferta inicial de una licitación minera, en el primer caudal que lee un
+hidrólogo. Y un valor p de 0.04 sobre veinte pozos perforados no
+significa «4% de probabilidad de que el yacimiento no exista»:
+significa que, si no existiera, datos así saldrían 4 de cada 100
+veces. La pregunta comercial es otra, y solo la responde la tasa base
+de tu zona junto con la evidencia nueva, como en M2.
+</Callout>
+
+<Quiz
+  question="Una mutación rara existe en 1 de cada 500 personas. El examen detecta al 90% de portadores y produce falsos positivos al 5%. Si tu examen sale positivo, ¿qué probabilidad aproximada hay de que seas portador?"
+  options={[
+    "Cerca del 90%, porque el examen acierta al 90% de portadores",
+    "Cerca del 4%: de cada 500 personas se espera 1 portador detectado contra unos 25 falsos positivos",
+    "Cerca del 50%, porque el examen tiene dos salidas posibles",
+    "Cerca del 95%, porque el examen es confiable"
+  ]}
+  correctIndex={1}
+  explanation="Es la falacia de tasa base de M2 con otro disfraz. De cada 500 personas, 0.9 portadores salen positivos contra unos 25 sanos: el valor predictivo ronda el 3.5%. La mutación es el doble de común que la enfermedad de M2, pero el examen es peor, y el resultado apenas se mueve."
+/>
+
+<Quiz
+  question="Un estudio reporta p = 0.03 para la diferencia entre dos tratamientos. ¿Qué afirmación es correcta?"
+  options={[
+    "Hay 3% de probabilidad de que la hipótesis nula sea cierta",
+    "Hay 97% de probabilidad de que el tratamiento funcione",
+    "Si la nula fuera cierta, una diferencia al menos tan grande aparecería cerca de 3 de cada 100 veces",
+    "El efecto es grande e importante en la práctica"
+  ]}
+  correctIndex={2}
+  explanation="El valor p es P(datos al menos tan extremos | nula); leerlo como P(nula | datos) es la inversión del test diagnóstico de M2. Tampoco mide tamaño ni importancia. Para hablar de la probabilidad de una hipótesis hace falta una prior, como en M7."
+/>
 
 ## Lo que sigue
 
-La siguiente iteración integra el juego de calibración con curva de
-confianza declarada contra acierto real, y el simulador de control de
-calidad donde reaccionar a cada fluctuación se revela como persecución
-del ruido. M4 toma esa misma pieza, la regresión a la media, y la
-lleva al terreno de la causalidad.
+Tres brechas quedaron medidas: el centro que se ancla, el ancho que
+promete más de lo que cubre y la dispersión que nadie audita. M4 toma
+la trampa que el ruido dejó planteada, reaccionar al azar como si
+fuera señal, y la lleva al terreno de la causalidad, donde confundir
+correlación con causa cobra sus víctimas más caras.
+
+**En una frase:** tu incertidumbre también se mide, y casi siempre sale más estrecha de lo que el mundo permite.

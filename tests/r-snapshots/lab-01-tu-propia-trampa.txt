@@ -1,0 +1,1 @@
+3 puertas, abre 1 cabra(s) -> quedarse: 0.335 | cambiar: 0.665n4 puertas, abre 1 cabra(s) -> quedarse: 0.251 | cambiar: 0.372n4 puertas, abre 2 cabra(s) -> quedarse: 0.245 | cambiar: 0.755nn =   10 -> sd(p) = 0.158 | P(70% o mas de caras) = 0.1742nn =  100 -> sd(p) = 0.050 | P(70% o mas de caras) = 0.0001nn = 1000 -> sd(p) = 0.016 | P(70% o mas de caras) = 0.0000n

@@ -17,7 +17,7 @@ export function ConsoleOutput({ text }: { text: string }) {
   if (!text.trim()) return null;
 
   return (
-    <div className="rounded-b bg-ink-900 text-ink-100">
+    <div className="rounded-b bg-code text-code-fg">
       <pre className="overflow-x-auto px-4 py-3 text-xs leading-relaxed font-mono whitespace-pre-wrap">
         {visible.join('\n')}
         {!expanded && isLong && '\n…'}
@@ -26,7 +26,7 @@ export function ConsoleOutput({ text }: { text: string }) {
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="w-full border-t border-ink-700 px-4 py-1.5 text-left text-xs font-medium text-brand-300 hover:text-brand-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-400"
+          className="w-full border-t border-white/10 px-4 py-1.5 text-left text-xs font-medium text-brand-300 hover:text-brand-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-400"
           aria-expanded={expanded}
         >
           {expanded ? '− Mostrar menos' : `+ Ver salida completa (${lines.length} líneas)`}

@@ -6,12 +6,30 @@ type MDXComponents = Record<string, ComponentType<any>>;
 import { Callout } from '@/components/Callout';
 import { CodeBlock } from '@/components/CodeBlock';
 import { Quiz } from '@/components/Quiz';
+import { CommitReveal } from '@/components/CommitReveal';
 import { Flashcard, Flashcards } from '@/components/Flashcard';
 import { DataTable } from '@/components/DataTable';
 import { ProcessSteps } from '@/components/ProcessSteps';
 import { RCell } from '@/components/RCell';
 import { LabExercise } from '@/components/LabExercise';
-import { MontyHallGame, LindaVenn, SmallNumbersLab } from '@/components/ReasoningSims';
+import {
+  MontyHallGame,
+  LindaVenn,
+  SmallNumbersLab,
+  DiagnosticTestExplorer,
+  CalibrationGame,
+  QualityControlSim,
+  SimpsonExplorer,
+  SpuriousCorrelationExplorer,
+  RandomWalkChallenge,
+  AvailabilityLab,
+  OutlierDragLab,
+  RankVsTExplorer,
+  BayesianUpdater,
+  LindleyExplorer,
+  AlgorithmicBiasLab,
+  NoisyJudgeSim,
+} from '@/components/ReasoningSims';
 import { SimReset } from '@/components/SimReset';
 import { FormulaPalette } from '@/components/FormulaPalette';
 import { Term } from '@/components/Term';
@@ -50,7 +68,7 @@ function MdxTd({ children }: { children?: ReactNode }) {
 
 function MdxPre({ children }: { children?: ReactNode }) {
   return (
-    <pre className="my-4 overflow-x-auto rounded-lg bg-code px-4 py-3 text-sm leading-relaxed text-gray-100 [&_code]:rounded-none [&_code]:bg-transparent [&_code]:px-0 [&_code]:py-0 [&_code]:text-inherit">
+    <pre className="my-4 overflow-x-auto rounded-lg bg-code px-4 py-3 text-sm leading-relaxed text-code-fg [&_code]:rounded-none [&_code]:bg-transparent [&_code]:px-0 [&_code]:py-0 [&_code]:text-inherit">
       {children}
     </pre>
   );
@@ -58,7 +76,7 @@ function MdxPre({ children }: { children?: ReactNode }) {
 
 function MdxInlineCode({ children }: { children?: ReactNode }) {
   return (
-    <code className="rounded bg-code px-1.5 py-0.5 text-[0.85em] font-mono text-gray-100">
+    <code className="rounded bg-code px-1.5 py-0.5 text-[0.85em] font-mono text-code-fg">
       {children}
     </code>
   );
@@ -75,25 +93,54 @@ const withReset = (C: ComponentType<any>) =>
     );
   };
 
+/**
+ * Marca un componente como no-legible por la lectura en voz alta
+ * (interactivos, código, paletas): ReadAloud excluye cualquier bloque
+ * bajo [data-lectura-ui]. El wrapper es neutro: sin estilos ni flujo.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const noLeer = (C: ComponentType<any>) =>
+  function NoLeer(props: Record<string, unknown>) {
+    return (
+      <div data-lectura-ui>
+        <C {...props} />
+      </div>
+    );
+  };
+
 export const mdxComponents: MDXComponents = {
   Callout,
-  CodeBlock,
-  Quiz,
-  Flashcard,
-  Flashcards,
-  DataTable,
+  CodeBlock: noLeer(CodeBlock),
+  Quiz: noLeer(Quiz),
+  CommitReveal,
+  Flashcard: noLeer(Flashcard),
+  Flashcards: noLeer(Flashcards),
+  DataTable: noLeer(DataTable),
   ProcessSteps,
-  RCell,
-  LabExercise,
-  MontyHallGame: withReset(MontyHallGame),
-  LindaVenn: withReset(LindaVenn),
-  SmallNumbersLab: withReset(SmallNumbersLab),
-  FormulaPalette,
+  RCell: noLeer(RCell),
+  LabExercise: noLeer(LabExercise),
+  MontyHallGame: noLeer(withReset(MontyHallGame)),
+  LindaVenn: noLeer(withReset(LindaVenn)),
+  SmallNumbersLab: noLeer(withReset(SmallNumbersLab)),
+  DiagnosticTestExplorer: noLeer(withReset(DiagnosticTestExplorer)),
+  CalibrationGame: noLeer(withReset(CalibrationGame)),
+  QualityControlSim: noLeer(withReset(QualityControlSim)),
+  SimpsonExplorer: noLeer(withReset(SimpsonExplorer)),
+  SpuriousCorrelationExplorer: noLeer(withReset(SpuriousCorrelationExplorer)),
+  RandomWalkChallenge: noLeer(withReset(RandomWalkChallenge)),
+  AvailabilityLab: noLeer(withReset(AvailabilityLab)),
+  OutlierDragLab: noLeer(withReset(OutlierDragLab)),
+  RankVsTExplorer: noLeer(withReset(RankVsTExplorer)),
+  BayesianUpdater: noLeer(withReset(BayesianUpdater)),
+  LindleyExplorer: noLeer(withReset(LindleyExplorer)),
+  AlgorithmicBiasLab: noLeer(withReset(AlgorithmicBiasLab)),
+  NoisyJudgeSim: noLeer(withReset(NoisyJudgeSim)),
+  FormulaPalette: noLeer(FormulaPalette),
   Term,
   MRef,
   Anexo,
   BlackboardAnchor,
-  BlackboardEmbed,
+  BlackboardEmbed: noLeer(BlackboardEmbed),
   table: MdxTable,
   thead: MdxThead,
   th: MdxTh,

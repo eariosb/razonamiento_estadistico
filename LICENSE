@@ -1,0 +1,18 @@
+That_Board — Aviso de titularidad
+
+Copyright (c) 2026 Esneider Ríos. Todos los derechos reservados.
+
+1. Plataforma. El código fuente de la plataforma That_Board incluido en este
+   repositorio (paquetes en packages/, componentes, hooks, utilidades, estilos,
+   scripts, pruebas y configuración en src/, scripts/ y tests/) es obra de
+   Esneider Ríos, desarrollada como proyecto personal e independiente. No se
+   concede licencia para usarlo, copiarlo, modificarlo, distribuirlo ni
+   sublicenciarlo sin autorización escrita del titular.
+
+2. Contenido. Los textos de los módulos, glosarios y ejemplos de Razonamiento
+   Estadístico son obra de Esneider Ríos y se publican bajo Creative Commons
+   Atribución-NoComercial-CompartirIgual 4.0 (CC BY-NC-SA 4.0). Esa licencia
+   cubre solo el contenido, no el código de la plataforma.
+
+3. Terceros. Las dependencias de terceros conservan sus propias licencias
+   (ver package.json).

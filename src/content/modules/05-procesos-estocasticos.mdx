@@ -8,53 +8,105 @@ duration: 90
 prerequisites: ["M4"]
 ---
 
-import { Callout } from '@/components/Callout'
 import { Quiz } from '@/components/Quiz'
 import { RCell } from '@/components/RCell'
+import { Callout } from '@/components/Callout'
 
-<Callout type="warning" title="Módulo en desarrollo">
-El marco conceptual está montado; el simulador de caminatas aleatorias
-con reto de predicción y el ejercicio de disponibilidad mediática se
-integran en la siguiente iteración.
-</Callout>
+## ¿Cuál salió de una moneda?
+
+Antes de leer, compromete tu respuesta. Una de estas dos secuencias
+salió de lanzar una moneda justa treinta veces. La otra la escribió
+una persona imitando al azar:
+
+```
+A: C C S S S C S S S S S C S C S S S S C C S C C C C S C C S C
+B: S C S S C S S C S C S C C S C C S C C S S C S C S C C S S C
+```
+
+<CommitReveal
+  question="¿Cuál de las dos secuencias salió de una moneda justa?"
+  options={[
+    "La A",
+    "La B",
+    "No se puede saber"
+  ]}
+  correctIndex={0}
+>
+
+La mayoría escoge la B y se equivoca. Cuenta los cambios: la A pasa
+de cara a sello 14 veces y tiene una racha de cinco sellos; la B
+cambia 21 veces y nunca repite más de dos. Una moneda justa cambia en
+promedio 14.5 veces en treinta lanzamientos, y en nueve de cada diez
+secuencias así aparece una racha de cuatro o más iguales. Quien imita
+al azar evita las rachas porque el ojo las lee como patrón, y por eso
+sobrealterna: esa es la huella que lo delata. La B imita a una mano
+humana; la A salió de un sorteo honesto.
+
+Es la representatividad de M1 a escala local: se espera que cada
+tramo corto de la secuencia se parezca al proceso entero. Este
+módulo lleva esa intuición a los procesos que se mueven en el tiempo.
+
+</CommitReveal>
 
 ## La caminata que parece ir a alguna parte
 
 Genera una <Term k="caminata aleatoria">caminata aleatoria</Term> pura:
-cada paso es un sorteo independiente, sin tendencia, sin memoria, sin
-destino. Grafícala. Ahora mírala con ojos de analista de mercado:
+cada paso es un sorteo independiente, sin tendencia y sin memoria; el
+nivel que dibujas, en cambio, acumula todo el pasado. Grafícala. Ahora mírala con ojos de analista de mercado:
 encontrarás tendencias claras, canales, soportes, rupturas de techo.
 Todo eso está en la gráfica. Nada de eso está en el proceso.
 
 La caminata aleatoria produce estructura aparente gratis porque
 acumula: unos cuantos pasos en la misma dirección bastan para dibujar
-una "tendencia" que dura meses en el gráfico. La varianza acumulada
+una «tendencia» que dura meses en el gráfico. La varianza acumulada
 crece con el tiempo, así que las excursiones lejanas del origen son lo
 normal, no la anomalía.
+
+El código dibuja exactamente eso: seis caminatas aleatorias de 365
+pasos, cada una la suma acumulada de pasos normales con deriva cero.
+La línea ocre es simplemente la primera de las seis; la pizarra
+punteada marca el origen. Busca la tendencia, el soporte, la ruptura:
+están todas ahí, y ninguna existe.
 
 <RCell
   id="05/caminata-aleatoria"
   title="Seis caminatas aleatorias: busca la tendencia"
   code={`# Seis random walks de 365 pasos: ninguno tiene tendencia real.
-set.seed(99)
+# La semilla fija ESTA figura; borra set.seed para caminatas nuevas.
+set.seed(7)
 n <- 365
+ocre    <- "#C8A11F"   # serie principal
+arena   <- "#8F7D5B"   # comparaciones
+pizarra <- "#6F7A85"   # linea base y ejes
 matplot(
   sapply(1:6, function(i) cumsum(rnorm(n))),
   type = "l", lty = 1,
+  col = c(ocre, rep(c(arena, pizarra), length.out = 5)),
   main = "Seis caminatas aleatorias (deriva cero)",
-  xlab = "paso", ylab = "valor"
+  xlab = "paso", ylab = "valor", bty = "n"
 )
-abline(h = 0, col = "gray60", lty = 3)`}
+abline(h = 0, col = pizarra, lty = 3)`}
 />
 
-Corre la celda unas cuantas veces. En cada una habrá una serie que
-"claramente sube" y otra que "claramente cae". La intuición le ofrece
+La figura sale fija porque la semilla la congela. Borra el `set.seed`
+y corre la celda unas cuantas veces: en cada una habrá una serie que
+«claramente sube» y otra que «claramente cae». La intuición le ofrece
 un relato a cada una. El proceso no tiene relato: tiene
 <Term k="ruido blanco">ruido blanco</Term> acumulado.
 
+Ponlo a prueba con dinero imaginario. El reto de abajo te muestra una
+caminata honesta, te dice exactamente cómo se genera, y te pide el
+valor final. Después te muestra lo que el proceso realmente prometía:
+un abanico de futuros en lugar de una dirección, más denso en el
+centro y con un ancho que crece como la raíz del tiempo.
+
+<RandomWalkChallenge />
+
 ## Tendencia, estacionalidad y ruido
 
-Una serie real mezcla tres ingredientes que el ojo separa mal:
+La caminata fabrica tendencias gratis. La pregunta siguiente es
+natural: si el azar dibuja estructura, ¿cómo se distingue la
+estructura verdadera? Una serie real mezcla tres ingredientes que el ojo separa mal:
 tendencia (la dirección de fondo), estacionalidad (los ciclos que se
 repiten) y ruido (todo lo demás). La descomposición es una decisión de
 modelado, no un hecho del gráfico: dos analistas honestos pueden partir
@@ -66,16 +118,23 @@ La propiedad que ordena el territorio es la
 <Term k="estacionariedad">estacionariedad</Term>: que el comportamiento
 estadístico del proceso no cambie con el tiempo. La caminata aleatoria
 no es estacionaria, y esa es la razón técnica de por qué sus
-"tendencias" son gratis.
+«tendencias» son gratis.
 
 ## Disponibilidad: el riesgo que sale en las noticias
+
+Hasta aquí el módulo midió ilusiones en los datos. Ahora mide una en
+tu memoria, y con ella se completa el trío de 1974: la
+representatividad te hizo fallar en M1, el anclaje en M3, y esta
+tercera heurística es la que quedaba.
 
 ¿Qué causa más muertes al año: los accidentes aéreos o los accidentes
 domésticos? La heurística de <Term k="disponibilidad">disponibilidad</Term>
 (Tversky y Kahneman, 1973) predice la respuesta típica y su error: lo
 que viene fácil a la mente se juzga frecuente. Los accidentes aéreos
 salen en las noticias todos los años; los domésticos matan más y no
-tienen corresponsalías.
+tienen corresponsalías. Lichtenstein y colegas (1978) lo midieron con
+decenas de causas de muerte: las dramáticas y mediáticas se
+sobreestiman, las silenciosas y frecuentes se subestiman.
 
 En series de tiempo, la disponibilidad tiene calendario: los analistas
 sobreestiman la probabilidad de lo que acaba de pasar (la última crisis,
@@ -83,10 +142,81 @@ la última falla del equipo) y subestiman la de lo que no ha ocurrido en
 el pasado reciente. El historial reciente se convierte en el modelo,
 y el modelo cobra en la siguiente sorpresa.
 
+Mídete. Cinco parejas de causas de muerte, una pregunta cada una: ¿cuál
+mata más? Tus respuestas, como las de casi todos, van a registrar los
+titulares en lugar de las tasas.
+
+<AvailabilityLab />
+
+## La mano caliente, recontada
+
+Cierre del arco del módulo. Las secuencias falsas de la apertura
+sobrealternaban; la caminata fabricaba tendencias. La mano caliente
+es el caso donde la ilusión del patrón se midió en serio, y donde la
+estadística misma cayó en una trampa del curso.
+
+El estudio clásico de Gilovich, Vallone y Tversky (1985) midió rachas
+en tiros de jugadores profesionales y en un experimento controlado con
+jugadores universitarios, y no encontró mano caliente: después de
+encestar, la probabilidad del siguiente acierto era la misma que
+después de fallar. Durante treinta años fue el ejemplo bandera de «la
+intuición ve patrones en el ruido».
+
+En 2018, Miller y Sanjurjo mostraron que el análisis tenía un sesgo
+propio. Si en cada secuencia finita calculas la proporción de aciertos
+que siguen a un acierto, y luego promedias entre secuencias, el
+resultado esperado queda por debajo de la probabilidad real aun para
+un tirador sin memoria. Con cuatro tiros al 50%, ese promedio esperado
+es 40.5%. Corregido el sesgo, los datos del experimento controlado
+muestran una mano caliente real.
+
+La lección se duplicó. La intuición colectiva puede exagerar el
+efecto, y la estadística que lo desmentía cometía el error que este
+curso repite desde M2: olvidar sobre qué conjunto se condiciona. Hoy
+el efecto se acepta en tiro controlado, y su tamaño en partido real
+sigue en discusión. Desconfiar del patrón era correcto; concluir
+«efecto cero» exigía una cuenta que se hizo mal.
+
+<Callout type="note" title="El mismo error en tu campo">
+Las rachas son tentación profesional: el operador que lleva tres
+turnos sin accidente «está en buena racha», el fondo que ganó seis
+trimestres seguidos «tiene al gestor correcto», el reclutador que
+acertó dos contrataciones «le encontró el truco». La pregunta de
+este módulo es siempre la misma: ¿la racha es señal de un proceso que
+cambió, o la firma normal de un proceso que no? Las rachas largas son
+lo esperable en secuencias independientes, y tratarlas como evidencia
+de momentum cuesta decisiones.
+</Callout>
+
+<Quiz
+  question="Mil fondos sin ninguna habilidad compiten contra el índice; cada año, cada uno le gana con probabilidad 1/2, de forma independiente. ¿Cuántos esperarías que le ganen cinco años seguidos?"
+  options={[
+    "Ninguno: cinco años seguidos exigen habilidad",
+    "Cerca de 31",
+    "Cerca de 100",
+    "Cerca de 500"
+  ]}
+  correctIndex={1}
+  explanation="Cinco aciertos seguidos tienen probabilidad (1/2)^5 = 1/32, así que de mil fondos se esperan unos 31 con la racha. Son los que salen en las revistas. La racha es real; su causa puede ser solo el tamaño del torneo."
+/>
+
+<Quiz
+  question="Un sensor detecta el 99% de las fallas reales de una máquina, pero da falsas alarmas al 5% de los días sanos. La máquina falla en promedio un día de cada doscientos. Hoy sonó la alarma. ¿Probabilidad aproximada de falla real?"
+  options={[
+    "Cerca del 99%, porque el sensor casi no se equivoca",
+    "Cerca del 50%, la alarma es un cara o sello",
+    "Cerca del 9%: en 200 días hay 1 falla detectada contra unas 10 falsas alarmas",
+    "Cerca del 5%, que es la tasa de falsas alarmas"
+  ]}
+  correctIndex={2}
+  explanation="Repaso de M2 con uniforme de planta: la tasa base de 1/200 hace que las falsas alarmas superen a las reales diez a uno, así que una alarma sonando sigue siendo probablemente ruido. La lección de este módulo añade la otra mitad: tampoco vale ignorar la alarma porque «las máquinas no fallan»."
+/>
+
 ## Lo que sigue
 
-La siguiente iteración trae el reto de predicción sobre caminatas
-generadas en vivo y el ejercicio de estimación de frecuencias
-mediáticas contra tasas reales. M6 baja del proceso al dato individual:
-qué hace un solo outlier con la media, y por qué la mediana sobrevive
-donde la media se rinde.
+Dos ilusiones quedaron medidas: la tendencia que el azar dibuja gratis
+y la frecuencia que la prensa infla. M6 baja del proceso al dato
+individual: qué hace un solo outlier con la media, y por qué la mediana
+sobrevive donde la media se rinde.
+
+**En una frase:** las rachas son el precio normal de la independencia; lo que parece momentum suele ser ruido acumulado.

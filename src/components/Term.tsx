@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
+import { useLocale } from 'next-intl';
 import { GLOSSARY } from '@/lib/glossary';
+import { GLOSSARY_EN } from '@/lib/glossary.en';
 
 interface TermProps {
   /** Clave del glosario de siglas (src/lib/glossary.ts). */
@@ -16,7 +18,8 @@ interface TermProps {
  * de pantalla vía el sr-only y el tabIndex.
  */
 export function Term({ k, tip, children }: TermProps) {
-  const text = tip ?? (k ? GLOSSARY[k] : undefined);
+  const glossary = useLocale() === 'en' ? GLOSSARY_EN : GLOSSARY;
+  const text = tip ?? (k ? glossary[k] : undefined);
   const label = children ?? k;
   return (
     <span
@@ -29,7 +32,7 @@ export function Term({ k, tip, children }: TermProps) {
           <span className="sr-only">({text})</span>
           <span
             role="note"
-            className="invisible pointer-events-none absolute bottom-full left-1/2 z-50 mb-1.5 w-64 max-w-[80vw] -translate-x-1/2 rounded-md bg-ink-900 px-3 py-2 text-left text-xs font-normal normal-case leading-snug tracking-normal text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
+            className="invisible pointer-events-none absolute bottom-full left-1/2 z-50 mb-1.5 w-64 max-w-[80vw] -translate-x-1/2 rounded-md bg-tinta-100 px-3 py-2 text-left text-xs font-normal normal-case leading-snug tracking-normal text-lienzo-100 opacity-0 shadow-lg transition-opacity duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
           >
             {text}
             <span className="absolute left-1/2 top-full -translate-x-1/2 border-[5px] border-transparent border-t-ink-900" />

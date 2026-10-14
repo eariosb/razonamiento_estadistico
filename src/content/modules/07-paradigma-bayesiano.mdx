@@ -8,15 +8,34 @@ duration: 90
 prerequisites: ["M2"]
 ---
 
-import { Callout } from '@/components/Callout'
 import { Quiz } from '@/components/Quiz'
+import { Callout } from '@/components/Callout'
 import { RCell } from '@/components/RCell'
 
-<Callout type="warning" title="Módulo en desarrollo">
-El marco epistemológico está montado; el actualizador bayesiano en vivo
-(prior beta más datos secuenciales) y el interactivo de la paradoja de
-Lindley se integran en la siguiente iteración.
-</Callout>
+## La moneda que necesita una prior
+
+Antes de leer, compromete tu respuesta. Una moneda cae en cara 14
+veces de 20 lanzamientos.
+
+<CommitReveal
+  question="¿Está cargada la moneda?"
+  options={[
+    "Sí: 70% de caras no es 50%",
+    "No: 20 lanzamientos no prueban nada",
+    "Depende de lo que creía antes de lanzarla"
+  ]}
+  correctIndex={2}
+>
+
+Las dos primeras respuestas comparten un defecto: pretenden que los
+datos hablen solos. La tercera es la del paradigma bayesiano entero.
+Si la moneda venía de tu bolsillo, 14 caras son ruido barato; si la
+sacó de un estuche un mago que apostaba contigo, 14 caras son casi
+una confesión. Mismos datos, veredictos distintos, y la diferencia
+vive fuera de la muestra. Este módulo muestra la maquinaria que
+hace esa diferencia explícita, honesta y computable.
+
+</CommitReveal>
 
 ## El razonamiento que la gente debería hacer
 
@@ -27,9 +46,9 @@ los datos; la <Term k="verosimilitud">verosimilitud</Term> es lo que
 los datos dicen de cada valor posible; la <Term k="posterior">
 posterior</Term> es la prior moldeada por la evidencia.
 
-La clave que distingue al marco: la creencia no es un número sino una
-distribución entera que se desplaza, se estrecha o se divide con cada
-observación. Bayes describe el movimiento de la incertidumbre, no solo
+La clave que distingue al marco: la creencia es una distribución
+entera, no un número suelto, que se desplaza, se estrecha o se divide con
+cada observación. Bayes describe el movimiento de la incertidumbre, no solo
 su veredicto.
 
 ## Prior, datos, posterior: la mecánica
@@ -37,39 +56,76 @@ su veredicto.
 Con una prior Beta(α, β) sobre una probabilidad y observaciones
 binarias, la actualización es conteo puro: cada éxito suma a α, cada
 fracaso suma a β. Una prior uniforme Beta(1, 1) y 20 lanzamientos con
-14 caras terminan en Beta(15, 7): el centro se movió a 14/20 y la
-dispersión se cerró. La evidencia arrastró a la creencia, que es lo que
-debería pasarle a cualquier mente razonable.
+14 caras terminan en Beta(15, 7): la moda quedó en 14/20, la media en
+15/22 y la dispersión se cerró. La evidencia arrastró a la creencia,
+que es lo que debería pasarle a cualquier mente razonable.
+
+El código dibuja ese movimiento: la prior Beta(1,1) plana en arena
+punteada, la posterior Beta(15,7) en ocre y una línea tinta en la
+moda posterior, 14/20. Debajo imprime la media posterior y su
+intervalo de credibilidad del 90%: la creencia actualizada con su
+incertidumbre honesta.
 
 <RCell
   id="07/beta-actualizacion"
-  title="La posterior tras 14 caras en 20 lanzamientos"
-  code={`# Prior Beta(1,1) + 14 caras en 20 -> posterior Beta(15,7).
+  title="La posterior tras 14 caras en 20 lanzamientos de moneda"
+  code={`# Una moneda de probabilidad p desconocida: prior Beta(1,1) +
+# 14 caras en 20 lanzamientos -> posterior Beta(15,7).
 x <- seq(0, 1, length.out = 400)
-plot(x, dbeta(x, 1, 1), type = "l", col = "gray50", lty = 2,
+ocre  <- "#C8A11F"  # posterior: la senal
+arena <- "#8F7D5B"  # prior: la base
+tinta <- "#2C3136"  # anotacion
+plot(x, dbeta(x, 1, 1), type = "l", col = arena, lty = 2,
      ylim = c(0, 5), main = "Prior (punteada) vs. posterior",
-     xlab = "p", ylab = "densidad")
-lines(x, dbeta(x, 15, 7), col = "steelblue", lwd = 2)
-abline(v = 14/20, col = "tomato", lty = 3)
-cat("Media posterior:", 15/22, "| IC 90%:",
+     xlab = "p", ylab = "densidad", bty = "n")
+lines(x, dbeta(x, 15, 7), col = ocre, lwd = 2)
+abline(v = 14/20, col = tinta, lty = 3)
+legend("topright", legend = c("Prior Beta(1,1)", "Posterior Beta(15,7)", "Observado 14/20"),
+       col = c(arena, ocre, tinta), lty = c(2, 1, 3), bty = "n", cex = 0.85)
+cat("Media posterior:", round(15/22, 3), "| credibilidad 90%:",
     round(qbeta(c(0.05, 0.95), 15, 7), 3), "\n")`}
 />
+
+Ahora míralo moverse. Elige una prior, alimenta lanzamientos de a uno
+o de a diez, y observa la posterior entera desplazarse y afilarse. La
+moneda tiene un sesgo real escondido: la escéptica, la uniforme y la
+entusiasta parten de lugares distintos y los datos las juntan a todas
+en el mismo sitio.
+
+<BayesianUpdater />
 
 ## La paradoja de Lindley
 
 Lindley (1957) mostró que un mismo dato puede llevar a los dos
-paradigmas a conclusiones opuestas. Con n grande y una previa muy
-dispersa, un resultado que el test frecuentista rechaza al 5% puede
-tener una posterior abrumadoramente a favor de la nula. El valor p
-evalúa el dato contra una sola hipótesis; Bayes compara lo que el dato
-dice de dos. No es una contradicción lógica: son preguntas distintas
-que casualmente usan el mismo experimento.
+paradigmas a conclusiones opuestas. La paradoja necesita una condición
+específica: la hipótesis nula es puntual (la moneda es exactamente
+justa, p = 0.5) y la prior le asigna masa de probabilidad positiva a
+ese punto exacto. Con n grande y una prior muy dispersa sobre las
+alternativas, un resultado que el test frecuentista rechaza al 5%
+puede tener una posterior abrumadoramente a favor de la nula. El valor
+p, la probabilidad de un dato al menos tan extremo si la nula fuera
+cierta, evalúa el dato contra una sola hipótesis; Bayes compara lo que
+el dato dice de dos. No es una contradicción lógica: son preguntas
+distintas que casualmente usan el mismo experimento.
 
-La moraleja del módulo no es elegir bando. Es ver que la elección entre
-paradigmas es epistemológica: qué cuenta como evidencia, qué papel
-tiene la creencia previa y quién tiene la carga de la prueba.
+La moraleja va más allá de elegir bando. La elección entre paradigmas
+es epistemológica: qué cuenta como evidencia, qué papel tiene la
+creencia previa y quién carga con la prueba.
 
-## El debate que el curso no resuelve: Kahneman contra Gigerenzer
+Mírala ocurrir. Clava la evidencia en el borde del rechazo (z = 1.96)
+y empuja n hacia un millón: el valor p no se inmuta y la posterior le
+regala todo a la nula. Mueve z o la dispersión de la prior y encuentra
+dónde los dos paradigmas vuelven a ponerse de acuerdo.
+
+<LindleyExplorer />
+
+## Kahneman contra Gigerenzer
+
+Llegó la hora de juzgar al juez. Todo el curso descansó en una tesis:
+la intuición sustituye preguntas y se equivoca de forma sistemática.
+Esta sección somete esa tesis a su prueba más dura, que es también el
+debate que ordenó el campo durante treinta años. ¿La mente está rota
+o el examen es injusto?
 
 Dos lecturas del mismo edificio experimental. Kahneman y Tversky:
 las heurísticas producen errores sistemáticos y medibles, ilusiones
@@ -77,17 +133,95 @@ cognitivas tan reales como las ópticas. <Term k="Gigerenzer">Gigerenzer</Term>
 responde: las heurísticas son adaptaciones ecológicas que funcionan en
 los ambientes para los que evolucionaron; el laboratorio las evalúa con
 normas estrechas y formatos antinaturales. Y tiene datos: las frecuencias
-naturales "curan" la falacia de tasa base sin instrucción.
+naturales reducen mucho la falacia de tasa base sin instrucción alguna.
+
+El intercambio escaló hasta un cara a cara en Psychological Review
+(1996). Gigerenzer acusó al programa de heurísticas y sesgos de
+denunciar errores sin una teoría de cuándo funciona cada heurística:
+etiquetas que explican poco porque lo cubren todo. Kahneman y Tversky
+respondieron que el formato reduce los errores sin eliminarlos, y que
+mostrar condiciones donde una ilusión se atenúa no prueba que no
+exista. Las dos cosas son ciertas, y esa es la parte que el debate
+suele perder: el error es real, y en buena medida se repara cambiando
+la presentación.
+
+Una colaboración adversarial posterior midió la brecha con método
+compartido. Mellers, Hertwig y Kahneman (2001) diseñaron juntos
+experimentos sobre la falacia de conjunción en formato de frecuencias:
+el formato redujo el error sin eliminarlo, y ninguna de las dos
+hipótesis salió confirmada del todo. Quedó además un método que vale
+para cualquier disputa: los rivales acuerdan de antemano qué resultado
+le daría la razón a cada uno.
+
+El tercer frente es técnico. Barbey y Sloman (2007) revisaron la
+evidencia y propusieron otra lectura del éxito de las frecuencias, la
+tesis de los <Term k="conjuntos anidados">conjuntos anidados</Term>:
+«diez de cien» funciona porque deja ver cómo se anidan los conjuntos,
+los enfermos dentro de los positivos, más que porque la mente sea
+frecuentista. Un diagrama con probabilidades logra el mismo efecto. Su
+conclusión inclina la balanza hacia los dos sistemas de Kahneman:
+cuando la estructura queda a la vista, el razonamiento deliberado
+puede entrar en juego.
+
+Y está el aporte positivo de la escuela de Gigerenzer: las heurísticas
+rápidas y frugales también son un catálogo de herramientas que a veces
+ganan. El reconocimiento, tomar la mejor pista y detenerse, repartir
+por igual: reglas que gastan poca información y que en ambientes con
+la estructura adecuada superan a modelos más pesados. DeMiguel,
+Garlappi y Uppal (2009) compararon la regla 1/N, dividir el dinero en
+partes iguales, con catorce modelos de portafolio optimizado: fuera de
+la muestra, ninguno le ganó de forma consistente. La razón es el
+sobreajuste de M8: con pocos datos, estimar menos cosas reduce la
+varianza más de lo que cuesta en sesgo. El programa no niega las ilusiones; sostiene que
+la misma mente que las produce también ejecuta inferencias eficaces,
+y que preguntar «¿es racional?» sin decir en qué ambiente no tiene
+respuesta.
 
 El curso adopta las dos posiciones como formación. El estudiante que
 puede decir cuándo la racionalidad formal y la ecológica coinciden y
 cuándo divergen entendió el módulo mejor que quien memorizó el veredicto
 de un bando.
 
+<Quiz
+  question="Antes del estudio, le asignabas a un yacimiento odds de 1:9 de contener reservas comerciales. El estudio sísmico sale favorable con razón de verosimilitud 5. ¿Cuáles son tus odds posteriores?"
+  options={[
+    "1:9, porque el estudio no cambia la geología",
+    "5:9 aproximadamente, odds previos por el factor de Bayes",
+    "9:1, porque un estudio favorable lo confirma",
+    "1:5, dividiendo los odds entre la verosimilitud"
+  ]}
+  correctIndex={1}
+  explanation="La forma de odds de M2: odds posteriores = odds previos × razón de verosimilitud = (1/9) × 5 ≈ 5/9, esto es, una probabilidad de cerca de 36%. Ni la euforia del «lo confirma» ni el escepticismo que ignora la evidencia."
+/>
+
+<Quiz
+  question="Con prior Beta(1,1) y 14 caras en 20 lanzamientos, el intervalo de credibilidad del 90% para p va de 0.51 a 0.83. ¿Qué puedes afirmar?"
+  options={[
+    "Si repitiera el experimento muchas veces, el 90% de los intervalos así construidos contendría a p",
+    "Con esta prior y estos datos, hay 90% de probabilidad de que p esté entre 0.51 y 0.83",
+    "Hay 90% de probabilidad de que la moneda sea justa",
+    "El 90% de los lanzamientos futuros caerá en cara"
+  ]}
+  correctIndex={1}
+  explanation="El intervalo de credibilidad habla de p directamente, condicionado a la prior y a los datos. La primera opción describe el intervalo de confianza de M3, que habla del método. Responden preguntas distintas, aunque con priors planas y muestras grandes suelen coincidir en los números."
+/>
+
+<Callout type="note" title="El mismo error en tu campo">
+El prior que nadie escribe es el que decide: la probabilidad que le
+das a «este pozo tendrá agua» antes de perforar, a «este reclamo es
+legítimo» antes de auditar, a «este cliente pagará» antes de
+aprobar. Cuando la evidencia llega débil, un prior fuerte domina el
+veredicto sin que nadie lo haya justificado, y cuando llega fuerte,
+un prior terco la desperdicia. Hacer explícito el prior, aunque sea
+un rango incómodo, es la mitad de la higiene bayesiana profesional.
+</Callout>
+
 ## Lo que sigue
 
-La siguiente iteración trae el actualizador en vivo con priors a elegir
-(escéptica, uniforme, entusiasta) y el interactivo de Lindley con n
-deslizable. M8 cierra el arco: cuando el estimador ya no es una persona
-sino un algoritmo entrenado con datos históricos, los sesgos no
-desaparecen. Se amplifican o se heredan.
+La posterior aprendió a moverse y la paradoja de Lindley mostró que
+dos estadísticos honestos pueden discrepar sin que ninguno calcule
+mal. M8 cierra el arco: cuando el estimador deja de ser una persona y
+pasa a ser un algoritmo entrenado con datos históricos, los sesgos no desaparecen.
+Se amplifican o se heredan.
+
+**En una frase:** la creencia es una distribución que se mueve; la prior, ponderada por la verosimilitud, da la posterior.

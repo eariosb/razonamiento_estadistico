@@ -21,6 +21,12 @@ const components = {
   DataTable: stub, ProcessSteps: stub, RCell: stub, LabExercise: stub,
   FormulaPalette: stub, BlackboardAnchor: stub, BlackboardEmbed: stub,
   MontyHallGame: stub, LindaVenn: stub, SmallNumbersLab: stub,
+  DiagnosticTestExplorer: stub, CalibrationGame: stub, QualityControlSim: stub,
+  SimpsonExplorer: stub, SpuriousCorrelationExplorer: stub,
+  RandomWalkChallenge: stub, AvailabilityLab: stub,
+  OutlierDragLab: stub, RankVsTExplorer: stub,
+  BayesianUpdater: stub, LindleyExplorer: stub,
+  AlgorithmicBiasLab: stub, NoisyJudgeSim: stub,
   Anexo: stub,
   // Term se renderiza de verdad: label + tooltip, para validar el texto.
   Term: ({ k, tip, children }) =>

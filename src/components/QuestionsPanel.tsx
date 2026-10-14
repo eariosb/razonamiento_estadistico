@@ -35,7 +35,7 @@ export function QuestionsPanel() {
             className={`flex items-start gap-2 rounded border p-2 ${
               q.resolved
                 ? 'border-ink-100 bg-ink-50 text-ink-400'
-                : 'border-ink-200 bg-white'
+                : 'border-ink-200 bg-surface'
             }`}
           >
             <input
@@ -79,7 +79,7 @@ export function QuestionsPanel() {
             type="button"
             onClick={handleAdd}
             disabled={!draft.trim()}
-            className="rounded bg-brand-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+            className="rounded bg-ocre-100 px-3 py-1.5 text-xs font-medium text-on-accent hover:bg-ocre-100 disabled:opacity-50"
           >
             Añadir
           </button>

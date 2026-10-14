@@ -1,4 +1,7 @@
 import type { NextConfig } from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 /**
  * Fase 2: pizarra digital integrada (réplica del curso MLM).
@@ -16,6 +19,9 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@cursos/blackboard'],
+  // Dev: el proxy de preview abre la app desde 127.0.0.1; sin esto Next
+  // bloquea/recela de los assets /_next en esa origen (warning 15.5).
+  allowedDevOrigins: ['127.0.0.1', 'localhost'],
   outputFileTracingExcludes: {
     '*': ['node_modules/webr/**/*'],
   },
@@ -37,4 +43,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

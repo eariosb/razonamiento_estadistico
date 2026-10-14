@@ -16,7 +16,7 @@ export function SimReset({ children }: { children: ReactNode }) {
         type="button"
         onClick={() => setK(k + 1)}
         title="Reiniciar el interactivo"
-        className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded border border-ink-200 bg-white/90 px-2 py-0.5 text-[10px] font-medium text-ink-500 shadow-sm hover:bg-ink-50 hover:text-ink-700"
+        className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded border border-ink-200 bg-surface/90 px-2 py-0.5 text-[10px] font-medium text-ink-500 shadow-sm hover:bg-ink-50 hover:text-ink-700"
       >
         <RotateCcw className="h-3 w-3" aria-hidden />
         Reiniciar

@@ -1,0 +1,239 @@
+---
+title: "Probability and the Bayes problem"
+slug: "02-bayes-y-la-tasa-base"
+objective: "Diagnose the base-rate fallacy in a diagnostic test, correct it with natural frequencies, and read Bayes' theorem as bookkeeping for beliefs"
+order: 2
+datasets: []
+duration: 90
+prerequisites: ["M1"]
+---
+
+import { Quiz } from '@/components/Quiz'
+import { RCell } from '@/components/RCell'
+import { Callout } from '@/components/Callout'
+
+## The test almost everyone reads wrong
+
+A disease affects 1 in 1000 people. A test exists with 99%
+<Term k="sensibilidad">sensitivity</Term> and 95%
+<Term k="especificidad">specificity</Term>. You take it and it comes
+back positive.
+
+<CommitReveal
+  question="What is the probability that you're sick?"
+  options={[
+    "Around 95%: the test is almost always right",
+    "Around 50%: the positive leaves it at a coin flip",
+    "Around 2%: the positive does not erase how rare the disease was"
+  ]}
+  correctIndex={2}
+>
+
+In the original study (Casscells et al., 1978), run on staff and
+students at Harvard Medical School, about 45% answered 95%. The
+correct answer sits far closer to 2% than to 95%. The error is a
+factor of fifty, and seasoned physicians make it. The explorer below
+does the count with a thousand people, one by one: it rings every
+positive so you can see the denominator your intuition skipped, and
+lets you move prevalence, sensitivity, and specificity.
+
+</CommitReveal>
+
+<DiagnosticTestExplorer />
+
+## Natural frequencies: Gigerenzer's remedy
+
+The problem turns transparent when counted in people instead of
+percentages. Out of every 1000 people:
+
+- 1 is sick. The test catches her with 99% probability: 1 true
+  positive (almost always).
+- 999 are healthy. The test fails on 5% of them: about 50 false
+  positives.
+
+Total positives: roughly 51. Sick among them: 1. The probability we
+want, the <Term k="VPP">positive predictive value</Term>, is
+1/51 ≈ 0.02.
+
+Gigerenzer and Hoffrage (1995) showed this format,
+<Term k="frecuencias naturales">natural frequencies</Term>, improves
+answers substantially: correct responses rose from about 16% to 46%.
+A big gain, but not a cure: most people still got it wrong. What the
+experiment proves is that the format of the information weighs as
+much as the ability to reason about it. This finding is the first
+act of the debate module M7 takes seriously.
+
+<Callout type="note" title="Minimal notation">
+Three symbols and nothing more repeat through the whole course.
+**P(A)** is the probability that A happens: a number between 0 and
+1. **P(A | B)** is the probability of A *given that* B already
+happened: the bar reads "given that" and shrinks the world to the
+cases where B occurred. **P(A ∩ B)** is the probability of both
+happening at once. That's enough to read every formula in the
+course: P(sick | +) reads "probability of being sick given that the
+test came back positive".
+</Callout>
+
+## Bayes' theorem as bookkeeping
+
+The formula sorts exactly the same count:
+
+$$
+P(\text{sick} \mid +) = \frac{\text{sens} \cdot \text{prev}}
+{\text{sens} \cdot \text{prev} + (1 - \text{spec}) \cdot (1 - \text{prev})}
+$$
+
+In words: up top go the sick people the test catches; down below,
+all the positives, true plus false. The fraction is "of everyone who
+tested positive, what share is actually sick".
+
+The <Term k="prior">prior</Term> is the <Term k="prevalencia">prevalence</Term>:
+what you believed before the test. The <Term k="verosimilitud">likelihood</Term>
+is what the test says about each hypothesis. The <Term k="posterior">posterior</Term>
+is the updated belief. Bayes doesn't guess: it keeps the books of
+belief.
+
+The code writes that bookkeeping as a function of prevalence and
+draws it twice. On the left, the PPV curve over a logarithmic axis,
+announced on the label, with the test pinned at its two ends:
+prevalence of 1/1000 and of 50%. On the right, the concrete
+question: out of every hundred positives, how many are truly sick
+and how many are false alarms. The test doesn't change between
+panels; what changes is the base rate.
+
+<RCell
+  id="02/bayes-prevalencia"
+  title="Positive predictive value as a function of prevalence"
+  code={`# The same theorem, two views: the PPV curve and who makes up
+# the positives. The base rate rules.
+
+sens <- 0.99
+spec <- 0.95
+ppv  <- function(prev) sens * prev / (sens * prev + (1 - spec) * (1 - prev))
+
+# Course palette: ochre = the real signal, sand = basal noise,
+# ink = readings and annotations, slate = axes.
+ocre    <- "#C8A11F"
+tinta   <- "#2C3136"
+arena   <- "#8F7D5B"
+pizarra <- "#6F7A85"
+
+prevs <- 10^seq(-4, 0, length.out = 400)
+y     <- sapply(prevs, ppv)
+
+par(mfrow = c(1, 2), mar = c(4.2, 4.4, 2.6, 1.2), bg = "white")
+
+# --- Panel 1: PPV as a function of prevalence (log x axis) ---
+plot(prevs, y, type = "l", lwd = 2.5, col = ocre, log = "x",
+     ylim = c(0, 1), bty = "n",
+     xlab = "Prevalence (log scale)",
+     ylab = "P(sick | +) = PPV",
+     main = "The same test,\nunder different base rates",
+     col.main = tinta, col.lab = tinta, col.axis = pizarra)
+abline(h = c(0.25, 0.5, 0.75), col = "#E6E8EA", lty = 1)
+points(0.001, ppv(0.001), pch = 19, cex = 1.5, col = tinta)
+text(0.001, 0.14, "prev = 1/1000\nPPV = 2%", pos = 4, cex = 0.85, col = tinta)
+points(0.5, ppv(0.5), pch = 19, cex = 1.5, col = tinta)
+text(0.5, 0.84, "prev = 50%\nPPV = 95%", pos = 2, cex = 0.85, col = tinta)
+
+# --- Panel 2: of every 100 positives, how many are sick ---
+sel <- c(0.0001, 0.001, 0.01, 0.10)
+vp  <- sapply(sel, ppv)
+m   <- rbind(real = vp, false_alarm = 1 - vp)
+colnames(m) <- c("1/10 000", "1/1000", "1/100", "1/10")
+
+bp <- barplot(m, col = c(ocre, arena), border = NA, ylim = c(0, 1),
+              xlab = "Prevalence", ylab = "Composition of positives",
+              main = "Of every 100 positives,\nhow many are sick",
+              col.main = tinta, col.lab = tinta, col.axis = pizarra)
+pct     <- paste0(round(vp * 100, 1), "%")
+inside  <- vp > 0.08
+text(bp, ifelse(inside, vp / 2, 0.05), pct,
+     col = ifelse(inside, "white", tinta), cex = 0.85)
+legend("bottomleft", legend = c("Sick", "False alarms"),
+       fill = c(ocre, arena), bty = "n", cex = 0.85)`}
+/>
+
+Look at the graph, not just the numbers. On the left, the PPV curve:
+the same test that is "95% accurate" is worth 2% at a prevalence of
+one in a thousand and 95% at one in two. On the right, the concrete
+question: of every 100 positives, how many are sick? At a prevalence
+of 1/10 000 the ochre band nearly vanishes beneath the sand: 99.8%
+of positives are false alarms. The test didn't change between
+panels. The <Term k="tasa base">base rate</Term> did, and with it the
+whole meaning of a positive result.
+
+## The odds shortcut
+
+The same bookkeeping has a pocket version, the most portable one for
+a professional: count in <Term k="odds">odds</Term> instead of
+probabilities. The prior odds of being sick are 1 to 999 (prevalence
+1/1000). The test states how much more likely a positive is in a
+sick person than in a healthy one: 0.99 / 0.05 = 19.8. The rule is a
+multiplication:
+
+$$
+\text{posterior odds} = \text{prior odds} \times
+\text{likelihood ratio}
+$$
+
+1 to 999 times 19.8 gives odds of 1 to 50: one sick person for every
+fifty healthy among the positives, the same 2% as before without
+touching the full formula. Kahneman recommends exactly this mental
+move: anchor on the base rate and adjust only for the diagnostic
+power of the evidence.
+
+When the count gets inverted, the consequence stops being academic.
+In 1999 Sally Clark was convicted of killing her two sons on expert
+testimony that calculated "1 in 73 million": the probability of two
+independent crib deaths in one family. The error was double. That
+figure multiplied probabilities that were not independent, and above
+all it confused P(deaths | innocence) with P(innocence | deaths):
+the <Term k="falacia del fiscal">prosecutor's fallacy</Term>. Clark
+was freed on appeal, destroyed, and died four years later. A
+forgotten base rate can cost you points on an exam; an inverted
+conditional cost her far more.
+
+## When intuition misses the scale
+
+The pattern is general and repeats wherever there is detection:
+bank fraud (legitimate transactions swamp the fraudulent ones),
+screening for rare diseases, security alarms, doping tests. Whenever
+the sought-after class is rare, the false positives of the big group
+outnumber the true positives of the small one. The test can be
+excellent and the result still be, most of the time, a false alarm.
+
+<Quiz
+  question="A disease has prevalence 1/1000, sensitivity 99% and specificity 95%. Of every 1000 people tested, roughly how many positives are expected and how many are true?"
+  options={[
+    "~50 positives, ~50 true",
+    "~51 positives, 1 true",
+    "~10 positives, 1 true",
+    "~950 positives, 50 true"
+  ]}
+  correctIndex={1}
+  explanation="Out of 1000 people: 1 sick person the test catches (99% sensitivity) plus 5% of the 999 healthy who test false positive (~50). Total ~51 positives, of which only 1 is real: PPV ≈ 2%."
+/>
+
+<Callout type="note" title="The same error in your field">
+Screening is the same theorem in another uniform: a drug test with
+99% accuracy at a company where 1 in 500 employees uses produces
+more marked innocents than guilty; a credit score that approves the
+segment where default is rare will inflate its false positives in
+the rare segment. And the courtroom version costs freedom: the
+probability of the evidence given innocence, not of innocence given
+the evidence, is the number the expert should report and almost
+never does.
+</Callout>
+
+## What comes next
+
+You've now seen the same problem in two formats: probabilities that
+confuse and natural frequencies that clarify. The icon array and the
+PPV curve above are two faces of the same theorem. Come back to them
+when you finish the module and compare your new estimate with the
+one you recorded on entry: the distance between them is the measure
+of what you learned. M3 moves from calculation to calibration: how
+good your own confidence intervals are.
+
+**In one sentence:** the probability of the evidence given the case is not the probability of the case given the evidence; the base rate is the denominator nobody skips.

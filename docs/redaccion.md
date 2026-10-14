@@ -116,7 +116,35 @@ Concreto antes que abstracto. "La media se mueve como veleta" antes de "la media
 
 Preguntas ocasionales. Una pregunta bien puesta activa al lector. "¿Y si la muestra hubiera sido de cinco?" hace más que tres líneas de explicación.
 
-7. Lista de verificación antes de publicar un texto
+7. Ejemplos y ejercicios: el código comunica con la misma claridad
+Una simulación mal explicada produce el mismo daño que un párrafo confuso: el lector ejecuta código, mira números y no sabe qué acaba de ver. Toda celda de código del curso se comunica en tres capas coherentes: el preámbulo, los comentarios y las tareas. Las tres dicen la verdad y no se repiten.
+
+El preámbulo define el experimento. Antes del primer RCell se escribe qué se sortea, con qué probabilidad conocida, cuántas veces y qué se registra. Si el modelo usa una moneda justa, se dice por qué: es el proceso aleatorio más limpio que existe, la probabilidad real se conoce de antemano y toda desviación solo puede ser azar. Si el clasificador usa un umbral idéntico para dos grupos, se dice qué eso aísla. El lector no debe deducir las reglas del juego desde el código.
+
+El evento medido se nombra con su escala. «70% de caras» solo es una frase completa si se dice de qué tamaño: 7 caras en 10 lanzamientos o 700 en 1000 son la misma proporción y fenómenos distintos. Toda probabilidad condicional lleva su denominador explícito. Una etiqueta que dice «tasa de falsos positivos» debe calcular P(marcado | negativo), no P(marcado y negativo): la etiqueta es un contrato con el lector.
+
+La tarea no regala el resultado. Si el enunciado dice «ocurre el 17% de las veces», la simulación se convierte en trámite. La tarea pide leer la salida, comparar los números entre sí y explicar la diferencia. La simulación es la revelación; el enunciado solo prepara la pregunta.
+
+El código honesto enseña la mecánica. Se prefieren simulaciones que modelan el proceso real (el presentador que sabe y abre cabras) sobre atajos algebraicos que dan el número correcto por casualidad. El atajo que funciona en tres puertas falla en cuatro, y enseña la abstracción equivocada.
+
+Ejemplo de reescritura:
+Antes:
+La simulación usa una moneda justa: sacar 7 o más caras en 10 lanzamientos ocurre cerca del 17% de las veces, pero sacar 700 o más en 1000 lanzamientos prácticamente nunca.
+
+Después:
+La segunda parte simula una moneda justa porque es el proceso aleatorio más limpio que existe: la probabilidad real de cara se conoce (0.5), así que cualquier desviación del 50% solo puede ser azar. El evento medido es «llegar al 70% de caras», que significa 7 caras si lanzaste 10 veces y 700 si lanzaste 1000: la misma proporción a distinta escala. Compara lo que la simulación reporta para cada n y explica por qué el mismo 70% pasa de rutina a escándalo.
+
+8. Lista de verificación antes de publicar un texto
+¿El proceso aleatorio de cada ejemplo está definido (qué se sortea, con qué probabilidad, cuántas veces) antes de llegar al código?
+
+¿Cada celda de código lleva un preámbulo que dice qué hace, cómo lo hace y qué mirar en la salida?
+
+¿Las tareas piden interpretar la salida en lugar de regalar el resultado?
+
+¿Cada etiqueta coincide con el estadístico calculado (conjunta, condicional, marginal)?
+
+¿Todo evento medido declara su escala y su denominador?
+
 ¿Hay tres oraciones seguidas con la misma estructura? Cambiar una.
 
 ¿Aparece el guion largo? Reemplazar.
@@ -137,7 +165,7 @@ Preguntas ocasionales. Una pregunta bien puesta activa al lector. "¿Y si la mue
 
 ¿Cada párrafo aporta una idea nueva? Si no, borrar.
 
-8. Una nota sobre la coherencia
+9. Una nota sobre la coherencia
 La voz del curso debe reconocerse de un módulo a otro. Eso no significa uniformidad. El módulo sobre paradojas puede permitirse más juego; el de machine learning, más sobriedad. Lo que se mantiene constante es la actitud: alguien que sabe, conversa y respeta el tiempo del lector.
 
 Cuando dudes entre dos formas de decir algo, escoge la que sonaría natural en una buena conversación con alguien inteligente que no es especialista. Esa prueba sencilla resuelve la mayoría de los casos.

@@ -161,7 +161,7 @@ export function FormulaPalette() {
   };
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded border border-ink-200 bg-white shadow-sm">
+    <div className="flex h-full flex-col overflow-hidden rounded border border-ink-200 bg-surface shadow-sm">
       <div className="border-b border-ink-200 bg-ink-50 px-4 py-2">
         <p className="text-sm font-semibold text-ink-800">Paleta de fórmulas</p>
       </div>
@@ -175,7 +175,7 @@ export function FormulaPalette() {
             className={clsx(
               'rounded px-2 py-0.5 text-xs font-medium transition-colors',
               activeCategory === cat
-                ? 'bg-brand-100 text-brand-700'
+                ? 'bg-brand-100 text-brand-800'
                 : 'text-ink-500 hover:bg-ink-100'
             )}
           >
@@ -206,27 +206,27 @@ export function FormulaPalette() {
               <code className="text-xs text-ink-600">{item.latex}</code>
             </div>
             <div className="flex items-center justify-between">
-              <code className="font-mono text-xs text-brand-700">{item.rCode}</code>
+              <code className="font-mono text-xs text-brand-800">{item.rCode}</code>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => handleInsert(item)}
                   disabled={insertingId === item.id}
-                  className="text-[10px] text-ink-400 hover:text-brand-600 disabled:opacity-50"
+                  className="text-[10px] text-ink-400 hover:text-brand-800 disabled:opacity-50"
                 >
                   {insertingId === item.id ? '…' : 'Insertar en pizarra'}
                 </button>
                 <button
                   type="button"
                   onClick={() => handleCopy(item, 'latex')}
-                  className="text-[10px] text-ink-400 hover:text-brand-600"
+                  className="text-[10px] text-ink-400 hover:text-brand-800"
                 >
                   {copiedId === `${item.id}-latex` ? '✓' : 'Copiar LaTeX'}
                 </button>
                 <button
                   type="button"
                   onClick={() => handleCopy(item, 'rCode')}
-                  className="text-[10px] text-ink-400 hover:text-brand-600"
+                  className="text-[10px] text-ink-400 hover:text-brand-800"
                 >
                   {copiedId === `${item.id}-rCode` ? '✓' : 'Copiar R'}
                 </button>
@@ -241,7 +241,7 @@ export function FormulaPalette() {
           <button
             type="button"
             onClick={() => setShowForm(true)}
-            className="w-full rounded border border-brand-200 bg-white px-3 py-1.5 text-sm font-medium text-brand-600 transition-colors hover:bg-brand-50"
+            className="w-full rounded border border-brand-200 bg-surface px-3 py-1.5 text-sm font-medium text-brand-800 transition-colors hover:bg-brand-50"
           >
             + Nueva fórmula
           </button>
@@ -281,7 +281,7 @@ export function FormulaPalette() {
               <button
                 type="button"
                 onClick={handleAdd}
-                className="rounded bg-brand-500 px-3 py-1 text-xs font-medium text-white hover:bg-brand-600"
+                className="rounded bg-ocre-100 px-3 py-1 text-xs font-medium text-on-accent hover:bg-ocre-100"
               >
                 Guardar
               </button>

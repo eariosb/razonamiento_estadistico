@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import matter from 'gray-matter';
 import { z } from 'zod';
@@ -8,11 +8,31 @@ import { z } from 'zod';
  * `src/content/modules/*.mdx` (mismo patrón DIP que el curso MLM:
  * las páginas dependen de este módulo, no del filesystem).
  *
+ * Bilingüe (docs/bilingue.md): el español es la fuente y vive en
+ * `src/content/modules`; las transcreaciones viven en
+ * `src/content/<locale>/modules` con el MISMO nombre de archivo y el
+ * MISMO slug (decisión registrada en docs/produccion.md). Si la pieza
+ * no existe en el locale pedido, se cae al español: nada se sirve roto,
+ * y el checker de paridad reporta las piezas faltantes.
+ *
  * El frontmatter se valida con Zod: un módulo con metadatos incompletos
  * rompe el build, no la experiencia del estudiante.
  */
 
 const MODULES_DIR = join(process.cwd(), 'src', 'content', 'modules');
+
+/** Directorios alternativos por locale (es = fuente, en `MODULES_DIR`). */
+const LOCALE_DIRS: Record<string, string> = {
+  en: join(process.cwd(), 'src', 'content', 'en', 'modules'),
+};
+
+function localizedFilePath(fileName: string, locale?: string): string {
+  if (locale && LOCALE_DIRS[locale]) {
+    const candidate = join(LOCALE_DIRS[locale], fileName);
+    if (existsSync(candidate)) return candidate;
+  }
+  return join(MODULES_DIR, fileName);
+}
 
 export const moduleMetaSchema = z.object({
   title: z.string().min(1),
@@ -42,15 +62,16 @@ export function blockForOrder(order: number) {
   return COURSE_BLOCKS.find((b) => order >= b.from && order <= b.to) ?? COURSE_BLOCKS[0];
 }
 
-let cachedEntries: ModuleEntry[] | null = null;
+const cachedEntries = new Map<string, ModuleEntry[]>();
 
-function readModuleFile(fileName: string): ModuleEntry {
-  const raw = readFileSync(join(MODULES_DIR, fileName), 'utf-8');
+function readModuleFile(fileName: string, locale?: string): ModuleEntry {
+  const filePath = localizedFilePath(fileName, locale);
+  const raw = readFileSync(filePath, 'utf-8');
   const { data } = matter(raw);
   const parsed = moduleMetaSchema.safeParse(data);
   if (!parsed.success) {
     throw new Error(
-      `Frontmatter inválido en ${fileName}: ${parsed.error.issues
+      `Frontmatter inválido en ${filePath}: ${parsed.error.issues
         .map((i) => `${i.path.join('.')}: ${i.message}`)
         .join('; ')}`
     );
@@ -58,25 +79,32 @@ function readModuleFile(fileName: string): ModuleEntry {
   return { meta: parsed.data, fileName };
 }
 
-/** Todos los módulos, ordenados por `order`. */
-export function getAllModules(): ModuleEntry[] {
-  // En dev no se cachea: el frontmatter puede cambiar sin reiniciar el server.
-  if (cachedEntries && process.env.NODE_ENV === 'production') return cachedEntries;
+/**
+ * Todos los módulos, ordenados por `order`. Con `locale` distinto de
+ * 'es', cada pieza usa su transcreación si existe (mismo fileName);
+ * el slugs debe coincidir en ambos frontmatter para que las rutas
+ * `/es|cursos|en/...` permanezcan estables.
+ */
+export function getAllModules(locale?: string): ModuleEntry[] {
+  const key = locale ?? 'es';
+  if (cachedEntries.get(key) && process.env.NODE_ENV === 'production') {
+    return cachedEntries.get(key)!;
+  }
   const files = readdirSync(MODULES_DIR).filter((f) => f.endsWith('.mdx'));
-  const entries = files.map(readModuleFile);
+  const entries = files.map((f) => readModuleFile(f, locale));
   entries.sort((a, b) => a.meta.order - b.meta.order);
-  cachedEntries = entries;
+  cachedEntries.set(key, entries);
   return entries;
 }
 
-/** Busca un módulo por su `slug`. */
-export function findModule(slug: string): ModuleEntry | undefined {
-  return getAllModules().find((entry) => entry.meta.slug === slug);
+/** Busca un módulo por su `slug` (estable entre locales). */
+export function findModule(slug: string, locale?: string): ModuleEntry | undefined {
+  return getAllModules(locale).find((entry) => entry.meta.slug === slug);
 }
 
-/** Fuente MDX cruda (sin frontmatter) de un módulo. */
-export function getModuleSource(fileName: string): string {
-  const raw = readFileSync(join(MODULES_DIR, fileName), 'utf-8');
+/** Fuente MDX cruda (sin frontmatter) de un módulo, en su locale si existe. */
+export function getModuleSource(fileName: string, locale?: string): string {
+  const raw = readFileSync(localizedFilePath(fileName, locale), 'utf-8');
   const { content } = matter(raw);
   return content;
 }
@@ -87,8 +115,8 @@ export interface AdjacentModules {
 }
 
 /** Módulos anterior/siguiente relativo a un slug, por `order`. */
-export function getAdjacentModules(slug: string): AdjacentModules {
-  const modules = getAllModules();
+export function getAdjacentModules(slug: string, locale?: string): AdjacentModules {
+  const modules = getAllModules(locale);
   const idx = modules.findIndex((entry) => entry.meta.slug === slug);
   if (idx === -1) return {};
   return {

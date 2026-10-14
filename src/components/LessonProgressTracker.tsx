@@ -32,7 +32,7 @@ export function LessonProgressTracker({ current, total = 20 }: LessonProgressTra
   const coursePercent = Math.round((current / total) * 100);
 
   return (
-    <div className="sticky top-0 z-30 border-b border-ink-200 bg-white/90 backdrop-blur-sm">
+    <div className="sticky top-0 z-30 border-b border-ink-200 bg-surface/90 backdrop-blur-sm">
       <div className="mx-auto flex max-w-3xl items-center gap-3 px-6 py-2 lg:px-10">
         <span className="text-xs font-medium text-ink-500">
           Módulo {current} / {total}
@@ -43,7 +43,7 @@ export function LessonProgressTracker({ current, total = 20 }: LessonProgressTra
             style={{ width: `${coursePercent}%` }}
           />
         </div>
-        <span className="text-xs font-medium text-brand-700">{coursePercent}%</span>
+        <span className="text-xs font-medium text-brand-800">{coursePercent}%</span>
       </div>
       <div className="h-0.5 bg-brand-200">
         <div

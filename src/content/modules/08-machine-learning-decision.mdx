@@ -8,15 +8,36 @@ duration: 90
 prerequisites: ["M7"]
 ---
 
-import { Callout } from '@/components/Callout'
 import { Quiz } from '@/components/Quiz'
 import { RCell } from '@/components/RCell'
+import { Callout } from '@/components/Callout'
 
-<Callout type="warning" title="Módulo en desarrollo">
-El cierre conceptual está montado; el laboratorio de sesgo algorítmico
-con regresión logística en vivo y el simulador de jueces ruidosos se
-integran en la siguiente iteración.
-</Callout>
+## Un 95% de exactitud
+
+Antes de leer, compromete tu respuesta. Un banco entrena un modelo
+antifraude con exactitud del 95% sobre un millón de operaciones, de
+las cuales una de cada mil es fraudulenta. El modelo marca tu
+transacción como fraude.
+
+<CommitReveal
+  question="¿Qué probabilidad hay de que tu transacción efectivamente sea fraude?"
+  options={[
+    "Cerca del 95%: el modelo es casi siempre certero",
+    "Cerca del 50%: es una moneda al aire",
+    "Bastante menos: la tasa base manda"
+  ]}
+  correctIndex={2}
+>
+
+Si elegiste algo cerca de 95%, confundiste la exactitud con el valor
+predictivo: la sustitución de M2 con uniforme de banco. La cuenta: un
+modelo que acierta el 95% de las veces se equivoca en unas 50 de cada
+mil operaciones. Aunque atrape el único fraude, deja cerca de 50
+falsas alarmas por cada captura, y tu probabilidad ronda el 2%. Peor
+aún, la exactitud ni siquiera sirve para comparar modelos aquí: uno
+que nunca marca nada acierta el 99.9%.
+
+</CommitReveal>
 
 ## Los sesgos no desaparecen con más datos
 
@@ -27,11 +48,18 @@ lo que hay: si los datos cargan la tasa base de una sociedad desigual,
 el modelo la aprende con más precisión y la aplica a más escala.
 
 El caso que lo puso en la portada fue COMPAS (Angwin et al., 2016,
-*Machine Bias*): el software que puntúa riesgo de reincidencia marcaba
-a acusados negros como de alto riesgo el doble que a blancos. Ninguna
-línea de código mencionaba raza. El <Term k="sesgo algorítmico">sesgo
-algorítmico</Term> no necesita racismo explícito: le basta con una
-tasa base diferencial entre grupos y variables proxy honestas.
+*Machine Bias*): entre los acusados que **no reincidieron**, el
+software marcó como de alto riesgo al 45% de los acusados negros contra
+el 23% de los blancos. La cifra es condicional, sobre los negativos reales,
+y ahí duele. La respuesta de Northpointe fue igual de seria: el modelo
+estaba igual de calibrado en los dos grupos; un «alto riesgo» valía lo
+mismo para ambos. Las dos afirmaciones son ciertas a la vez, y ese es
+el núcleo del debate. Ninguna línea de código mencionaba raza. El
+<Term k="sesgo algorítmico">sesgo algorítmico</Term> no necesita
+racismo explícito: le basta con una tasa base diferencial entre grupos
+y variables correlacionadas con el grupo. Y la propia tasa base puede
+venir torcida: el modelo aprende reincidencia registrada, un nuevo
+arresto, que depende también de dónde y cuánto se patrulla.
 
 ## Las dos culturas de Breiman
 
@@ -43,42 +71,223 @@ Las <Term k="dos culturas">dos culturas</Term> producen criterios de
 que predice sin explicar puede estar discriminando; uno que explica sin
 predecir puede estar contando una buena historia.
 
-El AUC resume discriminación, no justicia ni
-<Term k="calibración">calibración</Term>: un modelo puede rankear bien
-en promedio y aun así asignar riesgos sistemáticamente inflados a un
-grupo, exactamente lo que Barocas, Hardt y Narayanan formalizan al
-mostrar que las definiciones de equidad son mutuamente incompatibles
-salvo en casos especiales.
+El <Term k="AUC">AUC</Term> mide qué tan bien ordena el modelo: la
+probabilidad de que un positivo elegido al azar reciba más puntaje que
+un negativo elegido al azar. No dice si los puntajes son
+probabilidades correctas, la <Term k="calibración">calibración</Term>,
+ni cómo se reparte el error entre grupos. Un modelo con buen AUC puede
+inflar sistemáticamente el riesgo de un grupo. Barocas, Hardt y
+Narayanan ordenan esas definiciones de equidad y muestran por qué
+chocan entre sí; el final del módulo te deja verlo con las manos.
+
+## Predecir bien: sobreajuste y validación
+
+El sobreajuste es la falacia de los números pequeños con silicio:
+un modelo con suficientes grados de libertad memoriza el ruido de la
+muestra y lo reporta como señal. El síntoma es siempre el mismo,
+desempeño brillante sobre los datos que ya vio y desplome sobre los
+que no. La defensa es igualmente uniforme y vale más que cualquier
+algoritmo: medir el desempeño sobre datos que el modelo no tocó.
+La <Term k="validación">validación cruzada</Term> institucionaliza esa
+desconfianza, rotando qué parte de la muestra entrena y qué parte
+juzga, de modo que ningún acierto cuente si fue visto durante el
+aprendizaje.
+
+La celda lo muestra con el modelo más simple que sobreajusta. Sortea
+treinta puntos de una curva conocida, una onda seno, más ruido normal
+con desviación 0.3, y ajusta polinomios de grado 1 a 12. Para cada
+grado mide el error cuadrático medio en los treinta datos de
+entrenamiento y en mil datos nuevos del mismo proceso, dentro del
+mismo rango. La línea punteada marca el piso, la varianza del ruido
+(0.09): ningún modelo puede bajar de ahí en datos nuevos. Mira en qué
+grado se separan las dos curvas.
+
+<RCell
+  id="08/sobreajuste"
+  title="Más complejidad: mejor en lo visto, peor en lo nuevo"
+  code={`# 30 puntos de una onda seno con ruido; polinomios de grado 1 a 12.
+# Error en los datos de entrenamiento vs. en mil datos nuevos.
+set.seed(8)
+ocre    <- "#C8A11F"   # datos nuevos: lo que importa
+arena   <- "#8F7D5B"   # entrenamiento
+pizarra <- "#6F7A85"   # piso del ruido y ejes
+tinta   <- "#2C3136"   # titulos
+curva <- function(x) sin(2 * pi * x)
+x  <- runif(30)
+y  <- curva(x) + rnorm(30, sd = 0.3)
+xn <- runif(1000, min(x), max(x))
+yn <- curva(xn) + rnorm(1000, sd = 0.3)
+grados <- 1:12
+ecm <- sapply(grados, function(g) {
+  m <- lm(y ~ poly(x, g))
+  c(entrena = mean(resid(m)^2),
+    nuevos  = mean((yn - predict(m, data.frame(x = xn)))^2))
+})
+plot(grados, ecm["nuevos", ], type = "b", pch = 19, col = ocre, lwd = 2,
+     log = "y", ylim = range(ecm, 0.09), bty = "n",
+     xlab = "grado del polinomio (complejidad)",
+     ylab = "error cuadratico medio (escala log)",
+     main = "Mas complejidad: mejor en lo visto, peor en lo nuevo",
+     col.main = tinta, col.lab = tinta, col.axis = pizarra)
+lines(grados, ecm["entrena", ], type = "b", pch = 1, col = arena, lwd = 2)
+abline(h = 0.09, col = pizarra, lty = 3)
+legend("right", legend = c("Datos nuevos", "Entrenamiento", "Varianza del ruido"),
+       col = c(ocre, arena, pizarra), lty = c(1, 1, 3), pch = c(19, 1, NA),
+       bty = "n", cex = 0.85)
+print(round(ecm, 3))`}
+/>
+
+El error de entrenamiento baja con cada grado y termina por debajo del
+piso, cosa imposible para un modelo honesto: esa diferencia es ruido
+memorizado. El de datos nuevos toca fondo en un grado bajo y desde ahí
+empeora.
+
+El segundo error profesional es creer que el modelo decide. El modelo
+asigna un número; quien decide eres tú al fijar el
+<Term k="umbral de decisión">umbral</Term>, y ese umbral lo fijan los
+costos. Si un falso positivo cuesta $C_{FP}$ y un falso negativo
+$C_{FN}$, conviene marcar cuando la probabilidad estimada supera
+$C_{FP}/(C_{FP}+C_{FN})$. Si dejar pasar un fraude cuesta cincuenta
+veces más que bloquear una operación legítima, el umbral queda cerca
+del 2%, y el 2% de M2 deja de ser una mala noticia: marcar a esa
+probabilidad es la decisión correcta. Dos hospitales con el mismo
+modelo y costos distintos deberían usar umbrales distintos; el modelo
+es el mismo, y la decisión cambia con quien paga las consecuencias.
+
+Aquí regresa la teoría prospectiva de M1, porque los costos que se
+sienten difieren de los que se pagan. El fraude que sale en el
+periódico pesa como pérdida vívida; los clientes legítimos que se van
+sin reclamar apenas se registran. Escribir los dos costos en números,
+antes de mirar el modelo, obliga al umbral a responder a las
+consecuencias y no al susto.
+
+## El deep learning y la promesa que queda
+
+Las redes profundas cambiaron el panorama porque aprenden la
+representación misma de los datos, además de la frontera sobre ella.
+Su capacidad de memorizar es casi ilimitada: Zhang y colegas (2017)
+entrenaron redes estándar con imágenes cuyas etiquetas se habían
+asignado al azar, y llegaron a error de entrenamiento cero. Lo que
+generalizan de verdad solo se mide afuera, con datos que no vieron.
+
+Su punto débil mejor documentado tiene un nombre que este curso ya
+conoce. Geirhos y colegas (2020) reunieron casos de aprendizaje por
+atajos: la red acierta por una razón más fácil que la pedida, como el
+clasificador que reconoce vacas por el pasto y falla ante una vaca en
+la playa. Es la sustitución de atributos de M1, ahora en silicio.
+Mientras el contexto no cambia, el atajo pasa todas las pruebas; cuando
+cambia, falla sin aviso. Por eso, cuando la decisión afecta a personas
+y el entorno se mueve, predecir muy bien y explicar mal es una
+combinación riesgosa. La lección de las dos culturas de Breiman se
+endurece.
+
+## Meehl, setenta años antes
+
+El debate entre juicio humano y algoritmo no nació con el machine
+learning. Meehl (1954) comparó la predicción clínica, el experto que
+sopesa el caso entero, con la predicción actuarial, una regla
+estadística sobre las mismas variables. El resultado fue incómodo y
+ha resistido setenta años: el metaanálisis de Grove y colegas (2000)
+reunió 136 comparaciones, y la regla ganó o empató en casi todas; el
+experto ganó en ocho. Dawes (1979) fue más lejos: incluso modelos
+«impropios», con pesos iguales para cada variable, superan al juicio
+experto.
+
+La lectura honesta tiene dos caras y ambas importan. Contra el
+entusiasmo humano: si vas a ignorar al algoritmo, la carga de la
+prueba es tuya, no suya. Contra el entusiasmo algorítmico: las reglas
+de Meehl eran simples, auditables y estables; el modelo moderno gana
+margen de precisión a cambio de exactamente las fragilidades que este
+módulo lista. El criterio de cierre del curso decide dónde confiar:
+entorno con regularidades y retroalimentación, el método sistemático;
+entorno irregular, ninguna de las dos intuiciones está exenta de
+revisión.
+
+<Callout type="note" title="El mismo error en tu campo">
+El modelo de siniestros con 96% de exactitud que nunca marca nada en
+una cartera con 1% de reclamos está jugando el juego del inicio:
+ganarle a la mayoría sin mirar a nadie. El score de crédito que pasa
+la validación interna pero se desploma en el segmento que la muestra
+no cubrió repite el sobreajuste con ropa institucional. Y quien fija
+el umbral de aprobación crediticia está tomando una decisión de costos
+con disfraz estadístico: cada punto del corte cambia cuántos buenos
+clientes se pierden contra cuántos malos se aceptan.
+</Callout>
 
 ## El ruido, ahora algorítmico
 
 El <Term k="ruido">ruido</Term> de *Noise* tiene traducción directa:
-donde diez jueces humanos divergían, un modelo diverge de su propio
-historial de entrenamiento, del pipeline de limpieza y de la semilla del
-generador aleatorio. La promesa algorítmica es consistente: eliminar el
-ruido inter-juez. La realidad es más modesta: se elimina un ruido y se
-instala otro, este peor documentado porque nadie audita al algoritmo
-con la vara con que se audita al humano.
+donde diez jueces humanos divergían, diez entrenamientos del «mismo»
+modelo divergen. El propio *Noise* pide una
+precisión: una regla mecánica ya entrenada no tiene ruido en el
+momento de decidir, porque al mismo caso le da siempre el mismo
+número. La variabilidad aparece antes, en la construcción: la semilla,
+el pipeline de limpieza, la muestra de entrenamiento. Es ruido real,
+de otra categoría. El algoritmo elimina el ruido de juicio; el de
+construcción sigue ahí, y solo se ve si alguien audita al modelo con
+la misma vara que al humano.
+
+Míralo en dos carriles. El mismo caso pasa por diez jueces humanos y
+por diez versiones del «mismo» modelo: distinta semilla, distinto
+pipeline, mismo propósito. El ruido humano se ve a simple vista; el
+de construcción exige entrenar diez veces para verlo.
+
+<NoisyJudgeSim />
+
+El código reduce el mecanismo del sesgo algorítmico a su esqueleto:
+dos grupos de cinco mil personas con prevalencias distintas del
+desenlace (50% y 10%), un score que sí mira al individuo (media 1.5
+para quien reincide, 0 para quien no) y un umbral idéntico para
+ambos. Después calcula tres tasas condicionales por grupo: a quién
+marca siendo negativo, a quién marca siendo positivo y qué fracción
+de los marcados es positivo de verdad. El modelo nunca leyó el nombre
+del grupo. Aun así, una de las tasas sale distinta.
 
 <RCell
   id="08/tasa-base-diferencial"
   title="El mismo clasificador, dos grupos, dos tasas de error"
-  code={`# Simulacion: dos grupos con distinta prevalencia del desenlace.
+  code={`# El mismo clasificador sobre dos grupos con prevalencias distintas.
+# El score si mira al individuo: media 1.5 si reincide, 0 si no.
+# Entre grupos, el score de un reincidente (o de un no reincidente)
+# se distribuye igual: FPR y TPR salen iguales; lo que se rompe es el VPP.
 set.seed(21)
 n <- 10000
 grupo <- rep(c("A", "B"), each = n / 2)
 prevalencia <- ifelse(grupo == "A", 0.5, 0.1)
-score <- rnorm(n, mean = 2 * prevalencia, sd = 1)  # el modelo ve la tasa base
-pred_pos <- score > 1
 y <- rbinom(n, 1, prevalencia)
+score <- rnorm(n, mean = 1.5 * y, sd = 1)  # informado por el individuo
+pred_pos <- score > 1                       # umbral identico en ambos
 
-tapply(pred_pos & y == 0, grupo, mean)  # falsos positivos por grupo`}
+# Tasas condicionales por grupo: no basta contar aciertos, hay que
+# mirar quien paga el error.
+fpr <- tapply(pred_pos[y == 0], grupo[y == 0], mean)   # falsos positivos entre negativos
+tpr <- tapply(pred_pos[y == 1], grupo[y == 1], mean)   # verdaderos positivos entre positivos
+vpp <- tapply(y[pred_pos], grupo[pred_pos], mean)      # precision entre los marcados
+
+cat("P(marcado | negativo) por grupo:", round(fpr, 3), "\n")
+cat("P(marcado | positivo) por grupo:", round(tpr, 3), "\n")
+cat("P(positivo | marcado) por grupo:", round(vpp, 3), "\n")`}
 />
 
-El modelo no sabe nada de justicia. Aprende que el grupo B casi nunca
-produce el evento, y cuando se equivoca lo hace en la dirección que la
-tasa base le marcó. La falacia de tasa base del módulo M2, ahora con
-nómina de servidores.
+El resultado contradice lo que la intuición espera. El score ignora el
+grupo y mira solo al individuo, así que las tasas de falsos y
+verdaderos positivos salen iguales. Aun así, «marcado» no significa lo
+mismo: en el grupo A cerca de ocho de cada diez marcados reinciden; en
+el B, cerca de tres. Es el teorema de Bayes de M2 convertido en
+sistema: las mismas tasas de error, con prevalencias distintas, dan
+valores predictivos distintos. COMPAS ocupaba la esquina opuesta,
+calibrado por grupo y con falsos positivos desiguales. Kleinberg,
+Mullainathan y Raghavan (2016) y Chouldechova (2017) probaron que no
+hay una tercera esquina: salvo que las prevalencias coincidan o la
+predicción sea perfecta, calibración y tasas de error iguales no
+pueden cumplirse a la vez.
+
+Aquí está el mecanismo completo. Dos grupos, el mismo clasificador, el
+mismo umbral; solo cambia la prevalencia. Mueve la tasa base del grupo
+B y mira qué métrica se rompe. Después intenta repararla con el umbral:
+encontrarás que puedes igualar una métrica, nunca todas a la vez.
+
+<AlgorithmicBiasLab />
 
 ## Cierre del curso: la competencia de saber cuándo dudar
 
@@ -91,20 +300,48 @@ conjunciones que seducen, medias que el azar devuelve, tendencias que
 el ruido dibuja, algoritmos que heredan la historia que no debían.
 
 La estadística es una tecnología cognitiva. Existe porque la mente no
-la trae de fábrica, y la IA que llegó después corre la misma carrera
-con peores hábitos documentados: amplifica la mala pregunta y el mal
-dato con más eficiencia que ningún humano. El profesional que el curso
-quería formar no es quien calcula mejor. Es quien sabe cuándo
+la trae de fábrica, y la IA que llegó después corre la misma carrera:
+amplifica la buena pregunta y también la mala, el buen dato y el
+sesgado, con una eficiencia que ningún humano iguala. La persona que el curso
+quiere formar calcula bien, desde luego, pero sobre todo sabe cuándo
 desconfiar de su propia certeza, humana o computada.
 
+Y aquí conviene el último matiz, porque un curso que solo enseña a
+dudar produce otro sesgo, la desconfianza universal. Kahneman y Klein
+(2009), los dos capitanes de bandos opuestos, se sentaron a definir
+cuándo la intuición sí es experta y llegaron a un criterio de dos
+condiciones: el entorno tiene regularidades válidas que aprender, y la
+persona tuvo práctica prolongada con retroalimentación rápida e
+inequívoca. El bombero que lee un incendio y la enfermera que detecta una
+infección en un neonato antes que el laboratorio cumplen las dos; el
+analista que pronostica mercados, el juez que estima reincidencias y
+quien evalúa a un desconocido en una entrevista fallan al menos una.
+Ese es el criterio de cierre: antes de confiar en una intuición,
+revisa dónde se formó.
+
+Mirado de lejos, las trampas del curso pueden leerse como una sola,
+la que Kahneman y Frederick nombraron en M1: la mente responde la
+pregunta fácil en lugar de la difícil. Linda cambió probabilidad por
+parecido; el test de M2, enfermo dado positivo por positivo dado
+enfermo; el intervalo de M3, la precisión que la evidencia justifica
+por la que se siente; la mejora de M4, azar por causa; la racha de M5,
+lo que el azar produce por lo que el ojo ve; la prima de M6, el costo
+total por el caso típico; el valor p, la probabilidad de la hipótesis
+por la de los datos; y el algoritmo de este módulo, la decisión por la
+exactitud. La higiene final cabe en una pregunta que se puede repetir
+en voz alta en cualquier terreno: ¿a qué pregunta estoy respondiendo
+de verdad?
+
 <Quiz
-  question="Un modelo de scoring discrimina contra un grupo sin usar la variable protegida. ¿Cuál es la explicación más consistente con el curso?"
+  question="Un modelo iguala sus tasas de falsos y verdaderos positivos entre dos grupos con prevalencias distintas, pero el valor predictivo sigue desigual. ¿Por qué?"
   options={[
-    "El modelo fue programado con sesgo explícito",
-    "La tasa base diferencial entre grupos y las variables proxy bastan para producir discriminación, como la falacia de tasa base del juicio humano",
-    "Los datos eran insuficientes para entrenar",
-    "El AUC del modelo era demasiado alto"
+    "El modelo fue programado con sesgo explícito en el código",
+    "El umbral está mal elegido: otro umbral común igualaría todas las métricas",
+    "Con prevalencias distintas y un umbral común, ninguna clasificación puede igualar todas las métricas a la vez: igualar una rompe otra",
+    "Los datos eran insuficientes para entrenar"
   ]}
-  correctIndex={1}
-  explanation="El sesgo algorítmico no necesita variables prohibidas: una prevalencia diferente entre grupos y correlatos honestos bastan. Es el mismo mecanismo de la falacia de tasa base, automatizado y a escala."
+  correctIndex={2}
+  explanation="Es la imposibilidad demostrada por Kleinberg y colegas (2016) y Chouldechova (2017). Con las mismas tasas de error y prevalencias distintas, el valor predictivo difiere por pura aritmética de Bayes: «marcado» pesa distinto según la tasa base del grupo, como en la prueba diagnóstica de M2. Ningún umbral común lo arregla."
 />
+
+**En una frase:** el modelo asigna un número y los datos cuentan su historia; la decisión, con sus costos, sigue siendo tuya.

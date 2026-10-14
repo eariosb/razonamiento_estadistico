@@ -1,0 +1,1 @@
+Media:     73.6 hnMediana:   48.1 hnSD:        120.6 hnMAD:       4.4 hnnDE bootstrap de la media:   25.3 nDE bootstrap de la mediana: 1.2 n

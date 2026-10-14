@@ -1,0 +1,189 @@
+---
+title: "Nonparametric and robust statistics"
+slug: "06-estadistica-robusta"
+objective: "See the outlier as information rather than error, measure the fragility of the mean against the resistance of the median, and understand the bootstrap as inference without a distribution"
+order: 6
+datasets: []
+duration: 90
+prerequisites: ["M5"]
+---
+
+import { Quiz } from '@/components/Quiz'
+import { RCell } from '@/components/RCell'
+import { Callout } from '@/components/Callout'
+
+## The premium that picks the estimator
+
+Before reading, commit to an answer. You run an insurance company
+and must set this line's premium. Last year's claims have a median
+of two million and a mean of eleven, because a single catastrophic
+claim dragged the average.
+
+<CommitReveal
+  question="Which of the two summaries do you price the premium with?"
+  options={[
+    "The median: the extreme claim is an accident, not the typical case",
+    "The mean: the extreme claim is also paid by the portfolio"
+  ]}
+  correctIndex={1}
+>
+
+The mean. The premium does not ask about the typical claim but about
+the portfolio's total cost, and the catastrophic claim comes out of
+that account. Whoever prices with the median charges two million per
+policy and goes broke the first time the two-hundred-million one
+arrives. But the answer dismantles an idea this very module is about
+to build first: that the median is the most honest summary. Honest
+for what: that is the question that decides everything, and the
+answer changes with what you mean to protect.
+
+</CommitReveal>
+
+## The outlier that drags the mean
+
+Take twenty honest delivery times, around 48 hours. Add one bad day:
+a lost package that took 600. The mean jumps from 48 to nearly 75.
+The <Term k="mediana">median</Term> barely moves.
+
+The mean has <Term k="punto de quiebre">breakdown point</Term> zero:
+a single contaminated data point, however extreme, can take it to
+any value. The median resists until almost half the data is
+corrupted before giving in. That difference is far more than a
+technicality: it's the formal answer to a defective intuition. The
+direction of the bias depends on how the risk arrives: when extremes
+are known by description, people overweight them; when they arrive
+through firsthand experience, like a data sample, people
+underestimate them. Hertwig and colleagues (2004) documented that
+gap between decisions from description and decisions from
+experience. Robust statistics corrects the second case: data arrive
+undescribed and the extremes pass as rare, which they are not.
+
+Feel it with your hands. The ochre dot below is the lost package:
+drag it upward with your finger or the arrow keys and watch the mean
+chase it live while the median stays put.
+
+<OutlierDragLab />
+
+## Real data don't read textbooks
+
+If the median holds where the mean falls, the right question comes
+up: why not always use it? Because protection has a price, and the
+price is treating the extreme as noise. The normal rules intuition because it rules the examples. Working
+data have <Term k="colas pesadas">heavy tails</Term>: delivery times,
+financial returns, insured claims, extreme rainfall. In a heavy
+tail, outliers are the most important information in the
+distribution, far from being measurement errors to clean up. Deleting
+them destroys the data point carrying the most decision weight.
+
+The companion measures change with the distribution. The standard
+deviation squares deviations and the extremes inflate it; the
+<Term k="MAD">median absolute deviation</Term> counts them head-on
+and survives.
+
+The same thing happens to hypothesis tests. The comparator below
+pits the t-test against the rank test under the same experiment,
+four hundred times per level. With clean data the t wins, as it
+should. Raise the tail slider and watch which of the two still sees
+the difference once normality leaves.
+
+<RankVsTExplorer />
+
+## The question picks the estimator
+
+Here the opening premium gets resolved, and with it the module's
+apparent tension. If robust statistics "corrects" by summarizing
+with the median, how can it say two paragraphs later that the
+extreme point is the most important information? Both statements
+are true because they answer different questions.
+
+If the question is "what happens to the typical case?", the median:
+an individual customer, the ordinary delivery time, the common
+claim. If the question is "what does the phenomenon cost in
+total?", the mean: the portfolio's aggregate cost, the annual
+budget, the premium. The insurer pricing with the median charges
+two million where the expected claim is eleven, and goes broke in
+the first bad year. The extreme the median ignores so elegantly is
+exactly the one the premiums pay for.
+
+And there's a technical caveat that closes the circle: the
+bootstrap in the next section estimates a statistic's uncertainty
+by resampling the data, but for the mean it fails precisely where
+it would matter most, in tails so heavy that the true variance is
+infinite. No finite resample reaches it. Robustness is not an
+ideology in favor of the median: it's knowing what each statistic
+protects and what price that protection charges.
+
+<Callout type="note" title="The same error in your field">
+Pricing premiums with the median claim, budgeting a mining project
+with the typical cost, sizing water reserves with the median
+rainfall: in all three cases the robust summary of the typical case
+answers the wrong question, because the risk lives in the tail. And
+conversely: summarizing a neighborhood's income with the mean
+contaminates the typical case with a few extremes. Question first,
+statistic second.
+</Callout>
+
+## The bootstrap: inference without a distribution
+
+When no theoretical distribution convinces, the
+<Term k="bootstrap">bootstrap</Term> remains: resample your own data
+with replacement, recompute the statistic thousands of times, and
+use the resulting spread as the empirical sampling distribution.
+Efron formalized it in 1979 and it is, at bottom, the course's lab
+turned into method: when intuition and theory fail, simulate.
+
+The code does both things in one run. First it builds the scene:
+twenty honest delivery times plus a lost 600-hour package, and pits
+mean and standard deviation against median and MAD. Then it
+resamples those twenty-one data points with replacement five
+thousand times and computes the bootstrap standard error of each
+estimator, the measure of how much each can dance from one sample
+to another. The mean dances a lot; the median, barely.
+
+<RCell
+  id="06/media-vs-mediana"
+  title="One outlier against mean and median"
+  code={`# 20 honest times + one lost package.
+set.seed(3)
+deliveries <- c(rnorm(20, mean = 48, sd = 4), 600)
+
+cat("Mean:   ", round(mean(deliveries), 1), "h\n")
+cat("Median: ", round(median(deliveries), 1), "h\n")
+cat("SD:     ", round(sd(deliveries), 1), "h\n")
+cat("MAD:    ", round(mad(deliveries), 1), "h\n")
+
+# Bootstrap of the mean and the median.
+B <- 5000
+b <- replicate(B, {
+  x <- sample(deliveries, replace = TRUE)
+  c(mean(x), median(x))
+})
+cat("\nBootstrap SE of the mean:  ", round(sd(b[1, ]), 1), "\n")
+cat("Bootstrap SE of the median:", round(sd(b[2, ]), 1), "\n")`}
+/>
+
+The mean reaches 74 hours because of a single package; the median
+stays at 48. And the bootstrap shows the second effect: under
+contamination, the mean also varies far more across resamples. The
+outlier doesn't just move the number, it makes it unstable.
+
+<Quiz
+  question="A city wants to report the 'representative' household income and, separately, budget total subsidy spending. There are twenty thousand households and a few very high incomes. Which statistic does each task use?"
+  options={[
+    "The mean for both, because it summarizes all the data",
+    "The median for both, because it's more robust",
+    "The median for the representative case and the mean for the budget, because the question picks the estimator",
+    "The mode for both, since it's the most frequent value"
+  ]}
+  correctIndex={2}
+  explanation="It's the opening premium in another costume: the median describes the typical case; the mean accumulates the total cost. Choosing the question first and the statistic second is the module's whole lesson."
+/>
+
+## What comes next
+
+The fragility is now measured: a single point moves the mean, a
+fraction of tail brings down the t-test, and the order of the data
+withstands both attacks. M7 changes paradigms entirely: from the
+resistant estimator to the updated belief.
+
+**In one sentence:** question first, statistic second; the median describes the typical case and the mean accumulates the cost.

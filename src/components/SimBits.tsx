@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 
 /* Leyenda explícita: mapea color/forma -> significado de cada curva.   */
@@ -10,7 +13,7 @@ export function SimLegend({
 }) {
   return (
     <div
-      className={`flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] leading-snug text-ink-600 ${className}`}
+      className={`flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] leading-snug text-pizarra-100 ${className}`}
     >
       {items.map((it, i) => (
         <span key={i} className="inline-flex items-center gap-1.5">
@@ -40,9 +43,10 @@ export function SimLegend({
 
 /* Guía de lectura: qué observar y cómo interpretar el interactivo.     */
 export function SimGuide({ children }: { children: ReactNode }) {
+  const t = useTranslations('sims');
   return (
     <p className="mt-2 rounded-lg border border-warning-200 bg-warning-50/80 px-3 py-1.5 text-[11px] leading-snug text-warning-900">
-      <strong className="mr-1 font-semibold">Qué mirar:</strong>
+      <strong className="mr-1 font-semibold">{t('guideLabel')}</strong>
       {children}
     </p>
   );

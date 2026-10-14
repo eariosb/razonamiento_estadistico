@@ -8,16 +8,36 @@ duration: 90
 prerequisites: ["M3"]
 ---
 
-import { Callout } from '@/components/Callout'
 import { Quiz } from '@/components/Quiz'
 import { RCell } from '@/components/RCell'
+import { Callout } from '@/components/Callout'
+import { Flashcard } from '@/components/Flashcard'
 
-<Callout type="warning" title="Módulo en desarrollo">
-Los conceptos centrales están montados; el simulador de control de
-calidad con intervención falsa, el generador de correlaciones espurias
-y la paradoja de Simpson interactiva se integran en la siguiente
-iteración.
-</Callout>
+## Los colegios que mejoraron solos
+
+Antes de leer, compromete tu respuesta. Los diez colegios con peor
+promedio en el Saber 11 entran a un programa de mejoramiento. Un año
+después suben doce puntos de media.
+
+<CommitReveal
+  question="¿Funcionó el programa?"
+  options={[
+    "Sí: doce puntos de mejora son evidencia suficiente",
+    "No: el programa no hizo nada",
+    "No se puede saber con esta información sola"
+  ]}
+  correctIndex={2}
+>
+
+La respuesta honesta es la tercera, y contiene la trampa que este
+módulo desarma: elegir por el extremo garantiza que la siguiente
+medición se vea mejor, con intervención o sin ella. Doce puntos de
+subida no distinguen un programa eficaz de un programa decorativo,
+porque los peores de cualquier medición con una parte de azar
+mejoran después sin ayuda. Generaciones de directivos, entrenadores y consultores han
+cobrado con esta confusión.
+
+</CommitReveal>
 
 ## Los pilotos que desmentían la psicología
 
@@ -28,7 +48,7 @@ castigo funcionaba y el elogio no: tras gritarle a un piloto por una
 mala maniobra, la siguiente salía mejor; tras elogiar una buena, la
 siguiente salía peor.
 
-La explicación no era psicológica. El desempeño de vuelo tiene un
+La explicación era estadística. El desempeño de vuelo tiene un
 componente de habilidad y uno de azar. Una maniobra excepcionalmente
 mala es, por definición, un extremo: lo más probable es que la siguiente
 sea mejor, con castigo o sin él. Una excepcionalmente buena, al revés.
@@ -36,20 +56,46 @@ El elogio no estropeaba nada y el grito no curaba nada. La media
 reclamaba su lugar y los instructores le atribuían la hazaña a sus
 propias voces.
 
+La versión gerencial del mismo fenómeno: un proceso de calidad
+estable y una dirección que interviene cada vez que una línea se
+desvía. Premia y castiga tú: las unidades intervenidas «mejoran»
+siempre, y la intervención se apunta un mérito que pertenece al azar.
+
+<QualityControlSim />
+
 ## Correlaciones que no cuentan nada
 
-Tyler Vigen colecciona <Term k="correlación espuria">correlaciones
+El patrón que acabas de ver tiene una regla general: la mente no lee
+asociación, lee historias. Los instructores atribuían la mejora al
+grito; aquí atribuimos la asociación a la causa. Cuando la mente
+encuentra dos curvas que se mueven juntas, no se pregunta qué mecanismo
+las une: fabrica uno. Tyler Vigen colecciona <Term k="correlación espuria">correlaciones
 espurias</Term>: el consumo per cápita de queso correlaciona con los
 doctorados otorgados en ingeniería civil; los ahogamientos en piscinas
 correlacionan con el número de películas de Nicolas Cage estrenadas ese
-año. Coeficientes de correlación de 0.9 y más, entre variables que no
+año. Coeficientes que van de 0.66 a más de 0.9, entre variables que no
 tienen nada que ver.
 
 Con suficientes series y suficiente tiempo, el azar produce asociaciones
 perfectas. La falacia se llama *cum hoc ergo propter hoc*: con esto,
-luego por esto. La <Term k="representatividad">representatividad</Term>
-ayuda al desastre porque el Sistema 1 no acepta bien la asociación sin
-historia, y siempre encuentra una.
+luego por esto. El Sistema 1 está hecho para leer causas; Kahneman lo
+resume en que las causas pesan más que las estadísticas. Una
+asociación sin historia le resulta intolerable, y siempre encuentra
+una.
+
+No hace falta creerlo: fabrícalo. El explorador de abajo genera parejas
+de caminatas aleatorias independientes y les pone nombres del archivo
+real de Vigen. Cuenta cuántas salen con correlación «fuerte» sin tener
+absolutamente nada que ver.
+
+<SpuriousCorrelationExplorer />
+
+La cosecha tiene explicación. Dos caminatas aleatorias independientes,
+como las que estudia M5, producen correlaciones altas con mucha más
+frecuencia que dos series estables, porque cada una arrastra su propia
+deriva. Granger y Newbold (1974) llamaron a esto regresión espuria, y
+por eso las series con tendencia exigen tratamiento antes de
+correlacionarlas.
 
 ## La paradoja de Simpson
 
@@ -61,45 +107,118 @@ y dentro de cada departamento las tasas eran parecidas o favorables a
 ellas.
 
 La <Term k="paradoja de Simpson">paradoja de Simpson</Term> es la
-inversión de una asociación al desagregar por un confusor. El número
-agregado y el número por estratos cuentan historias opuestas, y las dos
-son correctas: lo que cambia es la pregunta que cada una responde.
+inversión de una asociación al desagregar por una tercera variable. En
+Berkeley esa variable es un mediador: el género influye en la elección
+de departamento, y el departamento decide la admisión. Las dos vistas
+son correctas y responden preguntas distintas. Si la pregunta es si
+los comités discriminan, manda la vista por departamento; si es
+cuántas mujeres logran entrar, manda el agregado. Pearl usa este caso
+para enseñar que estratificar o no depende del grafo causal: con un
+colisionador, estratificar fabrica asociaciones que no existen.
+
+Manéjala con las manos. Las barras apiladas del explorador muestran el
+mediador de una vez: dónde aplica cada grupo. Alterna las vistas y la
+brecha se invierte; desliza «las mujeres aplican como los hombres»
+hasta el 100% y la brecha agregada se disuelve sin tocar una sola
+tasa.
+
+<SimpsonExplorer />
 
 ## El puente hacia la causalidad formal
+
+Tres trampas, un solo mecanismo. La regresión a la media, las
+correlaciones de Vigen y la paradoja de Simpson son la misma
+sustitución de M1 con otro disfraz: la mente cambia «¿qué proceso
+generó esto?» por «¿qué historia lo explica?». La corrección formal
+existe precisamente porque la pregunta difícil se puede escribir.
 
 Pearl (2009) da el marco matemático de todo esto: los diagramas causales
 dirigidos distinguen confusores, mediadores y colisionadores, y el
 criterio back-door dice cuándo una asociación admite lectura causal.
-El módulo deja la formalización para su segunda iteración; la moraleja
-ya se puede decir: ver asociación es ver sombra, no mecanismo. La
-causalidad exige un modelo del proceso generador, no un coeficiente
-más bonito.
+La moraleja ya se puede decir sin esperar la formalización completa:
+ver asociación es ver sombra, no mecanismo. La causalidad exige un
+modelo del proceso generador, no un coeficiente más bonito.
+
+El código recrea la trampa de los instructores en dos rondas de datos:
+cada unidad tiene un nivel estable (su habilidad) más el azar de la
+ronda. Selecciona el decil inferior como si fuera el grupo «que
+necesita intervención» y mide a esas mismas unidades en la ronda
+siguiente. Sin que nadie haya tocado nada, el peor decil «mejora»
+hacia la media. La intervención imaginaria cobra un mérito que
+pertenece al azar.
 
 <RCell
   id="04/regresion-media"
   title="Regresión a la media: la intervención que no existe"
-  code={`# Proceso con media 100: intervenir el peor decil "mejora" sin causa.
+  code={`# Cada unidad tiene un nivel estable (habilidad) mas el azar de la
+# ronda. Seleccionar el decil peor y "intervenir" mejora sin causa.
 set.seed(11)
-proceso <- rnorm(200, mean = 100, sd = 5)
+habilidad <- rnorm(200, mean = 100, sd = 10)
+med1 <- habilidad + rnorm(200, 0, 15)
+med2 <- habilidad + rnorm(200, 0, 15)
 
-# Seleccionar el 10% peor y "intervenir" (no hacemos nada).
-peores <- order(proceso)[1:20]
-ronda2 <- rnorm(200, mean = 100, sd = 5)
+# Seleccionar el 10% peor de la ronda 1 y "intervenir" (no hacemos nada).
+peores <- order(med1)[1:20]
 
-cat("Media del decil peor, ronda 1:", round(mean(proceso[peores]), 2), "\n")
-cat("Mismas unidades, ronda 2:  ", round(mean(ronda2[peores]), 2), "\n")
-cat("Media del proceso:         ", round(mean(ronda2), 2), "\n")`}
+cat("Media del decil peor, ronda 1:", round(mean(med1[peores]), 2), "\n")
+cat("Mismas unidades, ronda 2:  ", round(mean(med2[peores]), 2), "\n")
+cat("Media de todas, ronda 2:   ", round(mean(med2), 2), "\n")
+cat("Correlacion entre rondas:  ", round(cor(med1, med2), 2), "\n")`}
 />
 
-Las unidades intervenidas mejoraron casi 6 puntos. La intervención fue
-ninguna. Ese efecto gratuito es el que cobran las consultoras de
-reentrenamiento, los programas de recuperación y los castigos del
-instructor de vuelo.
+Las unidades intervenidas mejoran varios puntos sin que nadie haya
+hecho nada, y aun así siguen por debajo de la media: conservan su
+habilidad y pierden su mala suerte. La correlación entre rondas mide
+cuánto regresan; con correlación r, lo esperable en la ronda siguiente
+es la media más r veces la distancia observada. Ese efecto gratuito
+puede explicar parte del éxito que reportan programas de recuperación,
+consultorías y castigos de instructor: intervenir lo peor garantiza
+mejoría aparente, tenga mérito la intervención o no.
+
+<Callout type="note" title="El mismo error en tu campo">
+Un pozo con la peor producción del campo entra a un programa de
+estimulación y al trimestre bombea mejor. ¿La estimulación funcionó?
+Con pacientes de UCI: los más graves de ayer hoy están mejor, la
+terapia o la regresión. Con siniestros: la cartera con la peor
+siniestralidad del año mejora al siguiente, con recargo o sin él. La
+teoría actuarial de la credibilidad es la corrección formal: pondera la
+experiencia propia con la del colectivo, Z·propia + (1 − Z)·colectiva,
+precisamente porque sabe que el extremo regresa. Seleccionar por el
+extremo y medir después hace parecer eficaz a casi cualquier
+intervención; la pregunta correcta exige un grupo de comparación.
+</Callout>
+
+<Quiz
+  question="Una aerolínea revisa a los cinco aviones con más fallas del trimestre y les cambia varios componentes. El siguiente trimestre reportan menos fallas. ¿Qué conclusión sostiene mejor la evidencia?"
+  options={[
+    "El cambio de componentes funcionó",
+    "Los aviones ya no sirven y deben darse de baja",
+    "El programa empeoró las cosas",
+    "Sin un grupo de control no se puede separar el efecto del programa de la regresión a la media: los peores siempre mejoran solos"
+  ]}
+  correctIndex={3}
+  explanation="Seleccionar los casos extremos garantiza una mejora posterior por azar puro, el mismo mecanismo de los pilotos y de los colegios del Saber 11. La evaluación honesta necesita comparar contra unidades parecidas no intervenidas."
+/>
 
 ## Lo que sigue
 
-La siguiente iteración trae el simulador con el botón de intervención
-falsa, el explorador de Simpson con vista agregada y desagregada, y el
-generador de correlaciones por puro azar. M5 sube la apuesta: de pares
-de variables a procesos enteros, donde la ilusión de tendencia hace
-carreras en finanzas.
+El simulador de la intervención que no hace nada, al inicio de este
+módulo, es la misma trampa con uniforme de empresa: la media reclama
+a sus extremos mientras la gestión cobra el mérito. Aquí quedaron las
+otras dos caras de la misma moneda: la asociación que el azar fabrica
+gratis y la que se invierte cuando aparece el mediador. M5 sube la apuesta: de pares de variables
+a procesos enteros, donde la ilusión de tendencia hace carreras en
+finanzas.
+
+<Flashcard
+  title="El mapa en tarjetas"
+  items={[
+    { front: 'Regresión a la media', back: 'Seleccionar por el extremo garantiza mejora posterior sin causa: la medida tiene un componente estable y uno de azar, y el azar no se repite.' },
+    { front: 'Correlación espuria', back: 'Con suficientes series, el azar produce asociaciones perfectas entre variables sin relación: cum hoc no implica propter hoc.' },
+    { front: 'Paradoja de Simpson', back: 'Una asociación se invierte al desagregar: en Berkeley el departamento era un mediador; la vista por departamento respondía si los comités discriminaban, y el agregado, cuántas mujeres entraban.' },
+    { front: 'Mediador vs confusor', back: 'El confusor causa las dos variables y exige ajuste; el mediador está en la ruta causal y ajustarlo responde otra pregunta. Decidir exige el grafo, no el número.' },
+    { front: 'Intervención evaluada', back: 'Un antes y un después sobre casos extremos no prueba efecto: la evaluación honesta necesita un grupo de comparación.' },
+  ]}
+/>
+
+**En una frase:** seleccionar por el extremo garantiza una mejoría que no necesita causa; antes de atribuir, descuenta al azar.

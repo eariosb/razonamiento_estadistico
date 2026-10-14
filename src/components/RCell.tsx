@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useRef, type JSX } from 'react';
+import { useTranslations } from 'next-intl';
 import { Play, Camera, Send, ChartColumn, FileText, ChevronDown, ChevronUp, Terminal } from 'lucide-react';
 import CodeMirror from '@uiw/react-codemirror';
+import { oneDark } from '@codemirror/theme-one-dark';
 import { StreamLanguage } from '@codemirror/language';
 import { r as rMode } from '@codemirror/legacy-modes/mode/r';
 import { toPng } from 'html-to-image';
@@ -22,6 +24,7 @@ const rLanguage = StreamLanguage.define(rMode);
  * plots and R-level errors below the editor.
  */
 export function RCell({ id, title, code: initialCode, defaultOpen = false }: Readonly<RCellProps>) {
+  const t = useTranslations('rcell');
   const [code, setCode] = useState(initialCode);
   const [open, setOpen] = useState(defaultOpen);
   const { state, result, webRStatus, webRError, run } = useRCell();
@@ -128,7 +131,7 @@ export function RCell({ id, title, code: initialCode, defaultOpen = false }: Rea
         className="inline-flex items-center gap-1.5 rounded border border-ink-300 px-3 py-1.5 text-sm font-medium text-ink-600 transition-colors hover:bg-ink-100 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
       >
         <ChartColumn aria-hidden className="h-3.5 w-3.5" />
-        {sendingPlots ? 'Enviando…' : 'Enviar gráficos'}
+        {sendingPlots ? t('sending') : t('sendPlots')}
       </button>
     );
   } else if (result?.text) {
@@ -139,17 +142,17 @@ export function RCell({ id, title, code: initialCode, defaultOpen = false }: Rea
         className="inline-flex items-center gap-1.5 rounded border border-ink-300 px-3 py-1.5 text-sm font-medium text-ink-600 transition-colors hover:bg-ink-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
       >
         <FileText aria-hidden className="h-3.5 w-3.5" />
-        Enviar resultado
+        {t('sendResult')}
       </button>
     );
   }
 
   return (
     <div ref={cellRef} className="my-6 overflow-hidden rounded border border-ink-200 bg-ink-50 shadow-sm transition-shadow hover:shadow-md">
-      <div className="flex items-center justify-between gap-2 border-b border-ink-200 bg-white px-4 py-2">
+      <div className="flex items-center justify-between gap-2 border-b border-ink-200 bg-surface px-4 py-2">
         <span className="inline-flex min-w-0 items-center gap-2 text-sm font-medium text-ink-700">
           <Terminal aria-hidden className="h-3.5 w-3.5 shrink-0 text-ink-400" />
-          <span className="truncate">{title ?? 'Código R'}</span>
+          <span className="truncate">{title ?? t('defaultTitle')}</span>
         </span>
         <button
           type="button"
@@ -160,12 +163,12 @@ export function RCell({ id, title, code: initialCode, defaultOpen = false }: Rea
           {open ? (
             <>
               <ChevronUp aria-hidden className="h-3 w-3" />
-              Ocultar
+              {t('hide')}
             </>
           ) : (
             <>
               <ChevronDown aria-hidden className="h-3 w-3" />
-              Explorar código
+              {t('exploreCode')}
             </>
           )}
         </button>
@@ -176,29 +179,30 @@ export function RCell({ id, title, code: initialCode, defaultOpen = false }: Rea
       <CodeMirror
         value={code}
         height="auto"
+        theme={oneDark}
         extensions={[rLanguage]}
         onChange={(value) => setCode(value)}
         basicSetup={{ lineNumbers: true, foldGutter: false, highlightActiveLine: false }}
         className="text-sm"
-        aria-label={title ? `Editor de código R: ${title}` : 'Editor de código R'}
+        aria-label={title ? `${t('editorAria')}: ${title}` : t('editorAria')}
       />
 
-      <div className="flex items-center gap-2 border-t border-ink-200 bg-white px-3 py-2">
+      <div className="flex items-center gap-2 border-t border-ink-200 bg-surface px-3 py-2">
         <button
           type="button"
           onClick={() => run(code)}
           disabled={isRunning}
-          className="inline-flex items-center gap-1.5 rounded bg-brand-500 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+          className="inline-flex items-center gap-1.5 rounded bg-ocre-100 px-3 py-1.5 text-sm font-medium text-on-accent transition-colors hover:bg-ocre-100 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
         >
           {isRunning ? (
             <>
-              <span className="h-2 w-2 animate-pulse rounded-full bg-white" aria-hidden />
-              {isBooting ? 'Cargando R…' : 'Ejecutando…'}
+              <span className="h-2 w-2 animate-pulse rounded-full bg-surface" aria-hidden />
+              {isBooting ? t('booting') : t('running')}
             </>
           ) : (
             <>
               <Play aria-hidden className="h-3.5 w-3.5" />
-              Ejecutar
+              {t('run')}
             </>
           )}
         </button>
@@ -208,7 +212,7 @@ export function RCell({ id, title, code: initialCode, defaultOpen = false }: Rea
           disabled={code === initialCode}
           className="rounded border border-ink-300 px-3 py-1.5 text-sm font-medium text-ink-600 transition-colors hover:bg-ink-100 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
         >
-          Restaurar código original
+          {t('restoreCode')}
         </button>
         <button
           type="button"
@@ -217,7 +221,7 @@ export function RCell({ id, title, code: initialCode, defaultOpen = false }: Rea
           className="inline-flex items-center gap-1.5 rounded border border-ink-300 px-3 py-1.5 text-sm font-medium text-ink-600 transition-colors hover:bg-ink-100 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
         >
           <Camera aria-hidden className="h-3.5 w-3.5" />
-          {capturing ? 'Capturando…' : 'Capturar'}
+          {capturing ? t('capturing') : t('capture')}
         </button>
         <button
           type="button"
@@ -226,7 +230,7 @@ export function RCell({ id, title, code: initialCode, defaultOpen = false }: Rea
           className="inline-flex items-center gap-1.5 rounded border border-ink-300 px-3 py-1.5 text-sm font-medium text-ink-600 transition-colors hover:bg-ink-100 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
         >
           <Send aria-hidden className="h-3.5 w-3.5" />
-          {sendingCode ? 'Enviando…' : 'Enviar código'}
+          {sendingCode ? t('sending') : t('sendCode')}
         </button>
         {extraButton}
         {captureError && (
@@ -236,7 +240,7 @@ export function RCell({ id, title, code: initialCode, defaultOpen = false }: Rea
         )}
         {isBooting && (
           <output className="text-xs text-ink-500">
-            Iniciando entorno R (WebAssembly), solo la primera vez puede tardar unos segundos…
+            {t('bootingNote')}
           </output>
         )}
       </div>
@@ -245,9 +249,9 @@ export function RCell({ id, title, code: initialCode, defaultOpen = false }: Rea
 
       {webRStatus === 'error' && (
         <div className="px-4 py-2 text-sm text-danger-700 bg-danger-50 border-t border-ink-200" role="alert">
-          <strong>No se pudo iniciar el entorno R (WebAssembly).</strong>
+          <strong>{t('webrError')}</strong>
           <div className="mt-1 text-xs">
-            {webRError ?? 'Error desconocido al cargar WebR.'}
+            {webRError ?? t('webrErrorUnknown')}
           </div>
           {typeof window !== 'undefined' && !window.crossOriginIsolated && (
             <div className="mt-1 text-xs">

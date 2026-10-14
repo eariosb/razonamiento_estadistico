@@ -26,12 +26,12 @@ function Card({ front, back }: FlashcardItem) {
       )}
     >
       <span className="flashcard-inner relative block h-full w-full">
-        <span className="flashcard-face absolute inset-0 flex items-center justify-center rounded border border-brand-200 bg-brand-700 shadow-md">
-          <span className="px-4 text-center text-2xl font-bold tracking-wide text-white">
+        <span className="flashcard-face absolute inset-0 flex items-center justify-center rounded border border-brand-200 bg-ocre-100 text-on-accent shadow-md">
+          <span className="px-4 text-center text-2xl font-bold tracking-wide">
             <MathText text={front} />
           </span>
         </span>
-        <span className="flashcard-face flashcard-back absolute inset-0 flex items-center justify-center overflow-y-auto rounded border border-ink-200 bg-white p-5 text-left shadow-md">
+        <span className="flashcard-face flashcard-back absolute inset-0 flex items-center justify-center overflow-y-auto rounded border border-ink-200 bg-surface p-5 text-left shadow-md">
           <span className="text-sm leading-relaxed text-ink-700">
             <MathText text={back} />
           </span>

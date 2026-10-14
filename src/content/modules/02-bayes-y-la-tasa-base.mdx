@@ -8,31 +8,51 @@ duration: 90
 prerequisites: ["M1"]
 ---
 
-import { Callout } from '@/components/Callout'
 import { Quiz } from '@/components/Quiz'
 import { RCell } from '@/components/RCell'
-
-<Callout type="warning" title="Módulo en desarrollo">
-La estructura y el ejemplo ancla están montados; el laboratorio completo
-de frecuencias naturales y los interactivos de prevalencia variable se
-integran en la siguiente iteración. El núcleo conceptual ya está aquí.
-</Callout>
+import { Callout } from '@/components/Callout'
 
 ## El test que casi todos leen mal
 
 Una enfermedad afecta a 1 de cada 1000 personas. Existe un test con
 99% de <Term k="sensibilidad">sensibilidad</Term> y 95% de
 <Term k="especificidad">especificidad</Term>. Te hacen el test y sale
-positivo. ¿Cuál es la probabilidad de que estés enfermo?
+positivo.
 
-Anota tu respuesta antes de seguir. En los experimentos originales, la
-mayoría de los estudiantes, y buena parte del personal médico encuestado
-después, contesta algo cercano al 95%. La respuesta correcta está más
-cerca del 2% que del 95%. El error es de un factor cincuenta.
+<CommitReveal
+  question="¿Cuál es la probabilidad de que estés enfermo?"
+  options={[
+    "Cerca del 95%: el test acierta casi siempre",
+    "Cerca del 50%: el positivo deja la duda a medias",
+    "Cerca del 2%: el positivo no borra lo rara que era la enfermedad"
+  ]}
+  correctIndex={2}
+>
+
+Casscells, Schoenberger y Graboys (1978) plantearon una versión casi
+idéntica a sesenta médicos y estudiantes de la Escuela de Medicina de
+Harvard. La respuesta más común fue 95%, la dio casi la mitad, y solo
+11 de los 60 llegaron a la correcta, que ronda el 2%. Un error de un
+factor cercano a cincuenta, cometido por gente que interpreta pruebas
+cada semana. El explorador de abajo hace el recuento con mil
+personas, una por una: anilla a todos los positivos para que veas el
+denominador que tu intuición saltó, y te deja mover prevalencia,
+sensibilidad y especificidad.
+
+</CommitReveal>
+
+<DiagnosticTestExplorer />
 
 ## Frecuencias naturales: la cura de Gigerenzer
 
-El problema se vuelve transparente si lo contamos en personas en lugar
+¿Por qué falla la mayoría, médicos incluidos? M1 dio el
+mecanismo: la mente sustituyó la pregunta difícil, «probabilidad de
+enfermo dado positivo», por una más fácil, «probabilidad de positivo
+dado enfermo». Las dos suenan parecido y responden cosas muy distintas; la
+diferencia entre ellas es la tasa base que la sustitución borró.
+
+La reparación pide otro formato antes que más inteligencia. El problema
+se vuelve transparente si lo contamos en personas en lugar
 de porcentajes. De cada 1000 personas:
 
 - 1 está enferma. El test la detecta con 99% de probabilidad: 1 positivo
@@ -45,20 +65,38 @@ probabilidad buscada, el <Term k="VPP">valor predictivo positivo</Term>,
 es 1/51 ≈ 0.02.
 
 Gigerenzer y Hoffrage (1995) mostraron que este formato, las
-<Term k="frecuencias naturales">frecuencias naturales</Term>, eleva
-drásticamente las respuestas correctas sin instrucción formal alguna.
-El problema no era la capacidad bayesiana del cerebro: era el formato
-en que se le entregaba la información. Este hallazgo es el primer acto
-del debate que el módulo M7 retoma en serio.
+<Term k="frecuencias naturales">frecuencias naturales</Term>, mejora
+las respuestas de forma sustancial: los aciertos pasaron de cerca del
+16% al 46%. Mejora grande, pero no una cura: la mayoría seguía
+fallando. Lo que el experimento demuestra es que el formato de la
+información pesa tanto como la capacidad de razonarla. Este hallazgo
+es el primer acto del debate que el módulo M7 retoma en serio.
+
+<Callout type="note" title="Notación mínima">
+Tres símbolos y nada más se repiten en todo el curso. **P(A)** es la
+probabilidad de que ocurra A: un número entre 0 y 1. **P(A | B)** es
+la probabilidad de A *dado que* B ya ocurrió: la barra se lee «dado
+que» y reduce el mundo a los casos donde B pasó. **P(A ∩ B)** es la
+probabilidad de que ocurran las dos cosas a la vez. Con eso basta para
+leer cada fórmula del curso: P(enfermo | +) se lee «probabilidad de
+estar enfermo dado que el test salió positivo».
+</Callout>
 
 ## El teorema de Bayes como contabilidad
 
-La fórmula ordena exactamente el mismo conteo:
+El conteo que acabas de hacer es el teorema de Bayes sin disfraz. La
+fórmula no añade nada que no hayas calculado ya: ordena las mismas
+cantidades y les pone símbolo. Llega al final, cuando ya hiciste el
+trabajo con personas:
 
 $$
 P(\text{enfermo} \mid +) = \frac{\text{sens} \cdot \text{prev}}
 {\text{sens} \cdot \text{prev} + (1 - \text{esp}) \cdot (1 - \text{prev})}
 $$
+
+En palabras: arriba van los enfermos que el test atrapa; abajo, todos
+los positivos, los verdaderos más los falsos. La fracción es «de
+todos los que dieron positivo, qué proporción está enferma».
 
 La <Term k="prior">prior</Term> es la <Term k="prevalencia">prevalencia</Term>:
 lo que creías antes del test. La <Term k="verosimilitud">verosimilitud</Term>
@@ -66,25 +104,116 @@ es lo que el test dice de cada hipótesis. La <Term k="posterior">posterior</Ter
 es la creencia actualizada. Bayes no adivina: lleva la contabilidad de
 las creencias.
 
+El código escribe esa contabilidad como función de la prevalencia y la
+dibuja dos veces. A la izquierda, la curva del VPP sobre un eje
+logarítmico, anunciado en el rótulo, con el test clavado en sus dos
+extremos: prevalencia de 1/1000 y de 50%. A la derecha, la pregunta
+concreta: de cada cien positivos, cuántos son enfermos de verdad y
+cuántos falsas alarmas. El test no cambia en ningún panel; lo que
+cambia es la tasa base.
+
 <RCell
   id="02/bayes-prevalencia"
   title="El valor predictivo positivo en función de la prevalencia"
-  code={`# VPP en funcion de la prevalencia: la tasa base manda.
+  code={`# El mismo teorema, dos vistas: la curva del VPP y quien compone
+# los positivos. La tasa base manda.
+
 sens <- 0.99
-esp <- 0.95
+esp  <- 0.95
+vpp  <- function(prev) sens * prev / (sens * prev + (1 - esp) * (1 - prev))
 
-vpp <- function(prev) sens * prev / (sens * prev + (1 - esp) * (1 - prev))
+# Paleta del curso: ocre = la senal real, arena = el ruido basal,
+# tinta = lecturas y anotaciones, pizarra = ejes.
+ocre    <- "#C8A11F"
+tinta   <- "#2C3136"
+arena   <- "#8F7D5B"
+pizarra <- "#6F7A85"
 
-prevs <- c(0.0001, 0.001, 0.01, 0.05, 0.10, 0.50)
-data.frame(prevalencia = prevs, VPP = round(sapply(prevs, vpp), 4))`}
+prevs <- 10^seq(-4, 0, length.out = 400)
+y     <- sapply(prevs, vpp)
+
+par(mfrow = c(1, 2), mar = c(4.2, 4.4, 2.6, 1.2), bg = "white")
+
+# --- Panel 1: el VPP como funcion de la prevalencia (eje x log) ---
+plot(prevs, y, type = "l", lwd = 2.5, col = ocre, log = "x",
+     ylim = c(0, 1), bty = "n",
+     xlab = "Prevalencia (escala log)",
+     ylab = "P(enfermo | +) = VPP",
+     main = "El mismo test,\nsegun la tasa base",
+     col.main = tinta, col.lab = tinta, col.axis = pizarra)
+abline(h = c(0.25, 0.5, 0.75), col = "#E6E8EA", lty = 1)
+points(0.001, vpp(0.001), pch = 19, cex = 1.5, col = tinta)
+text(0.001, 0.14, "prev = 1/1000\nVPP = 2%", pos = 4, cex = 0.85, col = tinta)
+points(0.5, vpp(0.5), pch = 19, cex = 1.5, col = tinta)
+text(0.5, 0.84, "prev = 50%\nVPP = 95%", pos = 2, cex = 0.85, col = tinta)
+
+# --- Panel 2: de cada 100 positivos, cuantos son enfermos ---
+sel <- c(0.0001, 0.001, 0.01, 0.10)
+vp  <- sapply(sel, vpp)
+m   <- rbind(real = vp, falsa_alarma = 1 - vp)
+colnames(m) <- c("1/10 000", "1/1000", "1/100", "1/10")
+
+bp <- barplot(m, col = c(ocre, arena), border = NA, ylim = c(0, 1),
+              xlab = "Prevalencia", ylab = "Composicion de positivos",
+              main = "De cada 100 positivos,\ncuantos son enfermos",
+              col.main = tinta, col.lab = tinta, col.axis = pizarra)
+pct     <- paste0(round(vp * 100, 1), "%")
+inside  <- vp > 0.08
+text(bp, ifelse(inside, vp / 2, 0.05), pct,
+     col = ifelse(inside, "white", tinta), cex = 0.85)
+legend("bottomleft", legend = c("Enfermos", "Falsas alarmas"),
+       fill = c(ocre, arena), bty = "n", cex = 0.85)`}
 />
 
-Mira la tabla. Con prevalencia de uno en diez mil el VPP apenas pasa del
-2%; con prevalencia del 50% el mismo test vale 95%. El test no cambió.
+Mira el gráfico, no solo los números. A la izquierda, la curva del
+VPP: el mismo test que «acierta 95%» vale 2% con prevalencia de uno en
+mil y 95% con prevalencia de uno en dos. A la derecha, la pregunta
+concreta: de cada 100 positivos, ¿cuántos son enfermos? Con prevalencia
+de 1/10 000 la franja ocre casi desaparece bajo la arena: 99.8% de los
+positivos son falsas alarmas. El test no cambió entre panel y panel.
 Cambió la <Term k="tasa base">tasa base</Term>, y con ella todo el
 significado del resultado positivo.
 
+## El atajo de los odds
+
+La misma contabilidad tiene una versión de bolsillo, la más portátil
+para un profesional: en lugar de probabilidades, cuenta en
+<Term k="odds">odds</Term>. Los odds previos de estar enfermo son
+1 a 999 (prevalencia 1/1000). La prueba dice cuánto más probable es un
+positivo en un enfermo que en un sano: 0.99 / 0.05 = 19.8. La regla es
+una multiplicación:
+
+$$
+\text{odds posteriores} = \text{odds previos} \times
+\text{razón de verosimilitud}
+$$
+
+1 a 999 por 19.8 da odds de 1 a 50: un enfermo por cada cincuenta
+sanos entre los positivos, el mismo 2% de antes sin pasar por la
+fórmula entera. Kahneman resume la disciplina en dos reglas que
+esta cuenta vuelve explícitas: ancla tu juicio en una tasa base
+plausible y pregúntate qué tan diagnóstica es la evidencia.
+
+Cuando la cuenta se invierte, la consecuencia deja de ser académica.
+En 1999 Sally Clark fue condenada en Inglaterra por la muerte de sus
+dos hijos, tras un testimonio experto que estimó en «1 entre 73
+millones» la probabilidad de dos muertes de cuna en una familia como
+la suya. La cifra tenía tres fallas. Multiplicaba probabilidades que
+no son independientes, porque la muerte de cuna se agrupa en familias.
+Confundía P(dos muertes | inocencia) con P(inocencia | dos muertes):
+la <Term k="falacia del fiscal">falacia del fiscal</Term>. Y omitía la
+comparación que importaba, entre dos explicaciones raras, porque el
+doble homicidio también es rarísimo: Hill (2004) estimó los odds a
+favor de la muerte de cuna entre cuatro y nueve a uno. Clark fue
+absuelta en segunda apelación en 2003, tras más de tres años presa, y
+murió en 2007. La tasa base olvidada puede costar una nota en un
+examen; invertir una condicional le costó a ella mucho más.
+
 ## Cuando la intuición se equivoca de escala
+
+La sustitución es la misma de M1; lo que cambia es el precio. Allá
+costaba un coche de concurso, aquí un diagnóstico, un veredicto o una
+libertad.
 
 El patrón es general y se repite donde haya detección: fraude bancario
 (transacciones legítimas abruman a las fraudulentas), cribado de
@@ -106,11 +235,26 @@ veces, una falsa alarma.
   explanation="De 1000 personas: 1 enferma que el test detecta (sensibilidad 99%) más el 5% de los 999 sanos que dan falso positivo (~50). Total ~51 positivos, de los cuales solo 1 es verdadero: VPP ≈ 2%."
 />
 
+<Callout type="note" title="El mismo error en tu campo">
+El tamizaje es el mismo teorema con otro uniforme. Un examen de drogas
+que acierta el 99% de las veces, con consumidores y con no
+consumidores, en una empresa donde 1 de cada 500 empleados consume,
+marca a unos cinco inocentes por cada consumidor real. Una alerta de
+lavado de activos en un banco donde el lavado es raro entrega, por
+construcción, muchas más alertas falsas que casos. Y en el estrado, el
+perito debería reportar cuánto más probable es la evidencia bajo una
+hipótesis que bajo la otra, la razón de verosimilitud, y dejar al
+tribunal el resto de la cuenta.
+</Callout>
+
 ## Lo que sigue
 
-La próxima iteración de este módulo trae el laboratorio completo:
-el diagrama de 1000 iconos que se colorea en vivo, el slider de
-prevalencia que mueve la curva del VPP en tiempo real y la comparación
-lado a lado del mismo problema en probabilidades y en frecuencias
-naturales. M3 pasa del cálculo a la calibración: qué tan buenos son
+Ya viste el mismo problema en dos formatos: probabilidades que
+confunden y frecuencias naturales que aclaran. El icon array y la curva
+del VPP de arriba son las dos caras del mismo teorema. Vuelve a ellos
+cuando termines el módulo y compara tu estimación nueva con la que
+registraste al entrar: la distancia entre ambas es la medida de lo que
+aprendiste. M3 pasa del cálculo a la calibración: qué tan buenos son
 tus propios intervalos de confianza.
+
+**En una frase:** la probabilidad de la evidencia dado el caso no es la probabilidad del caso dada la evidencia; la tasa base es el denominador que nadie se salta.

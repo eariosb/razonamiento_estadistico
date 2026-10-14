@@ -1,0 +1,1 @@
+con z = 1.96:      0.943 ncon t de Student:  0.952 n

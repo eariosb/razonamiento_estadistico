@@ -2,10 +2,16 @@ import type { Config } from 'tailwindcss';
 import typography from '@tailwindcss/typography';
 
 /**
- * Sistema de diseño heredado de los cursos interactivos UNAL (paleta `ink`
- * de grises, tipografía Inter, radios 0.5rem, animaciones sutiles), con el
- * acento en verde azulado #2aa9a3 como identidad del curso de Epidemiología
- * (accent-500 = color base). El verde #2e7d32 se reserva como éxito.
+ * Sistema de diseño del curso — docs/diseno.md es la fuente de verdad.
+ *
+ * Las cinco familias (ocre/tinta/pizarra/arena/lienzo) se exponen con los
+ * pasos de alfa del doc (10/25/50/75/100) y sus canales viven en
+ * globals.css, lo que habilita la reinterpretación de modo oscuro (§2.4).
+ *
+ * Puentes legacy: `brand` y `accent` derivan ahora del ocre, e `ink` es la
+ * rampa neutra anclada en lienzo (200), pizarra (500) y tinta (900). Todo
+ * componente nuevo usa las familias del doc; los puentes desaparecen al
+ * terminar la migración (docs/produccion.md, F2).
  */
 const config: Config = {
   content: [
@@ -20,29 +26,79 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        accent: {
-          50: '#eafaf9',
-          100: '#d0f3f1',
-          200: '#a3e6e3',
-          300: '#6fd5d2',
-          400: '#3fc2be',
-          500: '#2aa9a3',
-          600: '#209089',
-          700: '#1d7670',
-          800: '#185d58',
-          900: '#123f3c',
+        /* ---- Las cinco familias (diseno.md §2.1, §12.1) ---- */
+        ocre: {
+          10: 'rgb(var(--ocre) / 0.1)',
+          25: 'rgb(var(--ocre) / 0.25)',
+          50: 'rgb(var(--ocre) / 0.5)',
+          75: 'rgb(var(--ocre) / 0.75)',
+          100: 'rgb(var(--ocre) / <alpha-value>)',
+          DEFAULT: 'rgb(var(--ocre) / <alpha-value>)',
         },
+        tinta: {
+          5: 'rgb(var(--tinta) / 0.05)',
+          10: 'rgb(var(--tinta) / 0.1)',
+          25: 'rgb(var(--tinta) / 0.25)',
+          50: 'rgb(var(--tinta) / 0.5)',
+          75: 'rgb(var(--tinta) / 0.75)',
+          100: 'rgb(var(--tinta) / <alpha-value>)',
+          DEFAULT: 'rgb(var(--tinta) / <alpha-value>)',
+        },
+        pizarra: {
+          10: 'rgb(var(--pizarra) / 0.1)',
+          15: 'rgb(var(--pizarra) / 0.15)',
+          25: 'rgb(var(--pizarra) / 0.25)',
+          30: 'rgb(var(--pizarra) / 0.3)',
+          50: 'rgb(var(--pizarra) / 0.5)',
+          75: 'rgb(var(--pizarra) / 0.75)',
+          100: 'rgb(var(--pizarra) / <alpha-value>)',
+          DEFAULT: 'rgb(var(--pizarra) / <alpha-value>)',
+        },
+        arena: {
+          10: 'rgb(var(--arena) / 0.1)',
+          25: 'rgb(var(--arena) / 0.25)',
+          50: 'rgb(var(--arena) / 0.5)',
+          75: 'rgb(var(--arena) / 0.75)',
+          100: 'rgb(var(--arena) / <alpha-value>)',
+          DEFAULT: 'rgb(var(--arena) / <alpha-value>)',
+        },
+        lienzo: {
+          25: 'rgb(var(--lienzo) / 0.25)',
+          50: 'rgb(var(--lienzo) / 0.5)',
+          100: 'rgb(var(--lienzo) / <alpha-value>)',
+          DEFAULT: 'rgb(var(--lienzo) / <alpha-value>)',
+        },
+        /* Superficie elevada (tarjetas/sidebar §5.1): lienzo en claro,
+         * tinta elevada en oscuro — reinterpretación §2.4. */
+        surface: 'rgb(var(--surface) / <alpha-value>)',
+        'surface-hover': 'rgb(var(--surface-hover) / <alpha-value>)',
+        /* ---- Puentes legacy (deprecados, ver produccion.md F2) ---- */
+        accent: {
+          50: '#fbf6e7',
+          100: '#f5ebc8',
+          200: '#ebd88f',
+          300: '#dec158',
+          400: '#d1ae33',
+          500: '#c8a11f',
+          600: '#a98819',
+          700: '#8a6e14',
+          800: '#6b5410',
+          900: '#4c3b0b',
+        },
+        /* Rampa neutra puente (legacy): canales --ink-N en globals.css;
+         * en .dark la rampa se invierte (diseno.md §2.4), así todo uso
+         * ink-* se reinterpreta sin variantes manuales. */
         ink: {
-          50: '#f8f9fa',
-          100: '#f1f3f5',
-          200: '#e9ecef',
-          300: '#dee2e6',
-          400: '#ced4da',
-          500: '#adb5bd',
-          600: '#868e96',
-          700: '#495057',
-          800: '#343a40',
-          900: '#212529',
+          50: 'rgb(var(--ink-50) / <alpha-value>)',
+          100: 'rgb(var(--ink-100) / <alpha-value>)',
+          200: 'rgb(var(--ink-200) / <alpha-value>)',
+          300: 'rgb(var(--ink-300) / <alpha-value>)',
+          400: 'rgb(var(--ink-400) / <alpha-value>)',
+          500: 'rgb(var(--ink-500) / <alpha-value>)',
+          600: 'rgb(var(--ink-600) / <alpha-value>)',
+          700: 'rgb(var(--ink-700) / <alpha-value>)',
+          800: 'rgb(var(--ink-800) / <alpha-value>)',
+          900: 'rgb(var(--ink-900) / <alpha-value>)',
         },
         positive: {
           50: '#e8f5e9',
@@ -130,11 +186,15 @@ const config: Config = {
           900: 'rgb(var(--info-900) / <alpha-value>)',
         },
         code: 'rgb(var(--code) / <alpha-value>)',
+        /* Texto sobre superficies siempre oscuras (terminal/código):
+         * no se reinterpreta en .dark. */
+        'code-fg': 'rgb(var(--code-fg) / <alpha-value>)',
+        'on-accent': 'rgb(var(--on-accent) / <alpha-value>)',
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
         display: ['var(--font-display)', 'Georgia', 'serif'],
-        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       borderRadius: {
         DEFAULT: '0.5rem',
@@ -147,6 +207,8 @@ const config: Config = {
        * ---------------------------------------------------------- */
       transitionTimingFunction: {
         'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
+        /* Aproximación spring suave (diseno.md §7.1: física natural). */
+        spring: 'cubic-bezier(0.34, 1.4, 0.64, 1)',
       },
       keyframes: {
         'fade-in': { from: { opacity: '0' }, to: { opacity: '1' } },

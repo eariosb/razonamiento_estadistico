@@ -1,0 +1,133 @@
+{
+  "meta": {
+    "title": "Statistical Reasoning | Interactive Course",
+    "description": "An interactive course on statistical reasoning with R in the browser: heuristics and biases, base-rate fallacy, regression to the mean, Simpson's paradox, robust statistics, the Bayesian paradigm and algorithmic decision-making."
+  },
+  "nav": {
+    "courseIndex": "Course index",
+    "school": "School of Statistics",
+    "campus": "UNAL · Medellín",
+    "openMenu": "Open course index",
+    "closeMenu": "Close index",
+    "block": "Block",
+    "review": "Review",
+    "resources": "Resources",
+    "anexos": "Appendix files",
+    "bibliografia": "Bibliography & readings",
+    "glosario": "Glossary"
+  },
+  "blocks": {
+    "I": "Intuition and its traps",
+    "II": "The formal correction",
+    "III": "Bayes and the algorithmic age"
+  },
+  "home": {
+    "eyebrow": "Universidad Nacional de Colombia · Medellín",
+    "title": "Statistical Reasoning",
+    "tagline": "Eight modules on learning when to distrust your own intuition. You get it wrong first, then you see the trap, and only then does the formal tool arrive. Actually, the error is the method.",
+    "quote": "We are prone to overestimate how much we understand about the world and to underestimate the role of chance in events.",
+    "quoteAuthor": "Daniel Kahneman.",
+    "modulesAria": "Module index"
+  },
+  "course": {
+    "moduleOf": "Module {order} of {total}",
+    "data": "Data:",
+    "navAria": "Module navigation"
+  },
+  "quiz": {
+    "verify": "Check",
+    "correct": "✓ Correct!",
+    "wrong": "✗ Not quite.",
+    "tryAgain": "Try again",
+    "optionsLegend": "Answer options"
+  },
+  "commitReveal": {
+    "commit": "Lock in my answer",
+    "optionsLegend": "Answer options",
+    "revealed": "Answer locked in. Keep reading.",
+    "revealedCorrect": "Locked in, and right. Keep reading.",
+    "revealedWrong": "Locked in. The reveal continues below."
+  },
+  "callout": {
+    "tip": "Tip",
+    "note": "Note",
+    "warning": "Watch out",
+    "curiosity": "For the curious",
+    "success": "Good practice"
+  },
+  "sims": {
+    "guideLabel": "What to watch:"
+  },
+  "rcell": {
+    "defaultTitle": "R code",
+    "hide": "Hide",
+    "exploreCode": "Explore code",
+    "editorAria": "R code editor",
+    "run": "Run",
+    "running": "Running…",
+    "booting": "Loading R…",
+    "restoreCode": "Restore original code",
+    "capture": "Capture",
+    "capturing": "Capturing…",
+    "sendCode": "Send code",
+    "sendPlots": "Send plots",
+    "sendResult": "Send result",
+    "sending": "Sending…",
+    "bootingNote": "Starting the R environment (WebAssembly); only the first load can take a few seconds…",
+    "webrError": "The R environment (WebAssembly) could not start.",
+    "webrErrorUnknown": "Unknown error while loading WebR."
+  },
+  "footer": {
+    "credit": "Esneider Ríos · That_Board platform © 2026 · Content © 2026 Esneider Ríos, under"
+  },
+  "localeSwitcher": {
+    "label": "Language",
+    "es": "Español",
+    "en": "English"
+  },
+  "theme": {
+    "label": "Color theme",
+    "light": "Light",
+    "auto": "Automatic",
+    "dark": "Dark"
+  },
+  "bibliografia": {
+    "eyebrow": "Course appendix",
+    "title": "Bibliography, links and recommended readings",
+    "intro": "{total} references organized around the course themes: the debate over statistical intuitions (Kahneman, Tversky, Gigerenzer) and the readings behind each module (probability and Bayes, inference, causality, stochastic processes, robust methods, the Bayesian paradigm and decision under uncertainty). Each entry says what the course uses it for.",
+    "verification": "References are checked against the source before each release; volume and page details may need minor correction.",
+    "linksHeading": "Links and resources",
+    "metaTitle": "Bibliography · Statistical Reasoning",
+    "metaDescription": "Course appendix of bibliography, links and recommended readings, organized by topic."
+  },
+  "glosario": {
+    "eyebrow": "Course appendix",
+    "title": "Glossary",
+    "intro": "{total} terms the course uses without re-explaining: heuristics, biases, probability, Bayes and inference. Search by name or browse the eight families.",
+    "search": "Search terms…",
+    "count": "{visible} terms",
+    "empty": "Nothing matches “{q}”. Try another word.",
+    "metaTitle": "Glossary · Statistical Reasoning",
+    "metaDescription": "Short definitions of the terms, heuristics, biases and statistical concepts used across the course."
+  },
+  "lectura": {
+    "barra": "Read aloud",
+    "rotulo": "Audio",
+    "escuchar": "Listen",
+    "pausa": "Pause",
+    "seguir": "Resume",
+    "detener": "Stop",
+    "anterior": "Previous paragraph",
+    "siguiente": "Next paragraph",
+    "velocidad": "Speed",
+    "voz": "Voice",
+    "automatica": "Automatic",
+    "seleccion": "Read selection",
+    "seleccionCorta": "Selection",
+    "parrafo": "Paragraph {actual} of {total}",
+    "fin": "End",
+    "vozFallo": "The voice “{voz}” did not respond; switched to “{otra}”.",
+    "sinAudio": "The browser is not producing audio. Check the volume and output device, or try Edge or Chrome with the page open in a normal tab.",
+    "pista": "Tip: while listening, click any paragraph to jump to it. You can also select any text and listen to just that."
+  }
+}

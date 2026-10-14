@@ -1,0 +1,1 @@
+P(marcado | negativo) por grupo: 0.168 0.167 nP(marcado | positivo) por grupo: 0.702 0.694 nP(positivo | marcado) por grupo: 0.823 0.307 n

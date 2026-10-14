@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "description": "Razonamiento Estadístico: curso interactivo sobre heurísticas, sesgos y corrección formal de la intuición, con R en el navegador (webR), simulaciones y laboratorio de errores cognitivos. En la tradición de Kahneman y Tversky. Universidad Nacional de Colombia, sede Medellín.",
+  "author": "Esneider Ríos",
+  "license": "UNLICENSED",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -34,6 +36,7 @@
     "katex": "^0.16.11",
     "lucide-react": "^1.52.0",
     "next": "^15.1.6",
+    "next-intl": "^4.14.9",
     "next-mdx-remote": "^6.0.0",
     "prism-react-renderer": "^2.4.1",
     "react": "^19.0.0",

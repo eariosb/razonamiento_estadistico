@@ -77,16 +77,16 @@ export function CodeBlock({ id, code, language = 'r', title, precomputed }: Code
 
   return (
     <div
-      className="my-6 overflow-hidden rounded border border-ink-200 bg-ink-50 shadow-sm transition-shadow hover:shadow-md"
+      className="my-6 overflow-hidden rounded border border-ink-200 bg-ink-50"
       data-codeblock-id={id}
     >
-      <div className="flex items-center justify-between border-b border-ink-200 bg-white px-4 py-2">
+      <div className="flex items-center justify-between border-b border-ink-200 bg-surface px-4 py-2">
         <button
           type="button"
           onClick={() => setShowCode((v) => !v)}
           aria-expanded={showCode}
           aria-controls={`code-${id}`}
-          className="flex items-center gap-2 text-sm font-medium text-ink-700 transition-colors hover:text-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+          className="flex items-center gap-2 text-sm font-medium text-ink-700 transition-colors hover:text-brand-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
         >
           <span
             aria-hidden
@@ -140,7 +140,7 @@ export function CodeBlock({ id, code, language = 'r', title, precomputed }: Code
             >
               {tokens.map((line, i) => (
                 <div key={i} {...getLineProps({ line })}>
-                  <span className="mr-4 inline-block w-6 select-none text-right text-xs text-gray-500">
+                  <span className="mr-4 inline-block w-6 select-none text-right text-xs text-code-fg/60">
                     {i + 1}
                   </span>
                   {line.map((token, key) => (
@@ -159,7 +159,7 @@ export function CodeBlock({ id, code, language = 'r', title, precomputed }: Code
             type="button"
             onClick={() => setShowResult((v) => !v)}
             aria-expanded={showResult}
-            className="flex w-full items-center gap-2 bg-white px-4 py-2 text-left text-sm font-medium text-brand-700 transition-colors hover:bg-brand-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+            className="flex w-full items-center gap-2 bg-surface px-4 py-2 text-left text-sm font-medium text-brand-800 transition-colors hover:bg-surface-hover dark:text-brand-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
           >
             <span
               aria-hidden
@@ -173,7 +173,7 @@ export function CodeBlock({ id, code, language = 'r', title, precomputed }: Code
           {showResult && (
             <div className="animate-fade-in">
               {precomputed.console && (
-                <div className="bg-ink-900 text-ink-100">
+                <div className="bg-code text-code-fg">
                   <pre className="overflow-x-auto whitespace-pre-wrap px-4 py-3 font-mono text-xs leading-relaxed">
                     {visibleConsole.join('\n')}
                     {!consoleExpanded && consoleIsLong && '\n…'}
@@ -183,7 +183,7 @@ export function CodeBlock({ id, code, language = 'r', title, precomputed }: Code
                       type="button"
                       onClick={() => setConsoleExpanded((v) => !v)}
                       aria-expanded={consoleExpanded}
-                      className="w-full border-t border-ink-700 px-4 py-1.5 text-left text-xs font-medium text-brand-300 hover:text-brand-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-400"
+                      className="w-full border-t border-white/10 px-4 py-1.5 text-left text-xs font-medium text-brand-300 hover:text-brand-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-400"
                     >
                       {consoleExpanded ? '− Ver menos' : '+ Ver salida completa'}
                     </button>

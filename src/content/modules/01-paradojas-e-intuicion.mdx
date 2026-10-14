@@ -16,20 +16,22 @@ import { LabExercise } from '@/components/LabExercise'
 import { ProcessSteps } from '@/components/ProcessSteps'
 
 <Callout type="tip" title="El método de este curso">
-Aquí nadie te va a pedir que confíes en las fórmulas. El trato es otro:
+Aquí nadie te va a pedir que confíes en las fórmulas. El trato es otro,
 primero vas a responder con tu intuición, después vas a ver el resultado,
 y solo entonces llega la explicación formal. Los errores que cometas en
 este módulo son el material de trabajo. Kahneman y Tversky construyeron
-una carrera entera sobre esa idea: la estadística existe porque la mente
-humana no razona estadísticamente de forma natural.
+buena parte de su obra sobre una observación incómoda: la mente humana
+no razona estadísticamente de forma natural, ni siquiera la de los
+estadísticos.
 </Callout>
 
-Este módulo no empieza con definiciones. Empieza con cuatro problemas
-diseñados para que falles: tres puertas, una mujer llamada Linda, una
+Este módulo arranca con cuatro problemas diseñados para que falles: tres puertas, una mujer llamada Linda, una
 cuerda dentro de un círculo y una moneda que se niega a portarse bien.
 La idea es que sientas el tropiezo en tu propia cabeza antes de que
-alguien te explique por qué ocurrió. Los psicólogos llaman a eso
-tensión cognitiva. Nosotros le llamamos el punto de partida.
+alguien te explique por qué ocurrió. Ese tropiezo sentido es el punto
+de partida, y tiene respaldo: intentar una respuesta antes de estudiar,
+aun fallando, mejora lo que se recuerda después (Kornell, Hays y Bjork,
+2009).
 
 ## Tres puertas, un coche y dos cabras
 
@@ -40,15 +42,18 @@ una cabra. Entonces te hace la pregunta que ha roto amistades:
 ¿te quedas con tu puerta o cambias a la que sigue cerrada?
 
 La respuesta que casi todo el mundo da es que da igual. Dos puertas
-cerradas, un coche, cincuenta por ciento cada una. Juega unas rondas
-y mira tu propio historial antes de seguir leyendo.
+cerradas, un coche, cincuenta por ciento cada una. Antes de seguir,
+deja registrada la tuya.
 
-<MontyHallGame />
-
-¿Ya jugaste? Mira tus números. Si cambiaste, deberías haber ganado más
-seguido. Si te quedaste, lo normal es haber perdido dos de cada tres
-veces. La simulación masiva lo deja aún más claro: diez mil rondas no
-mienten.
+<CommitReveal
+  question="Sin más información, ¿qué estrategia te da más probabilidad de ganar el coche?"
+  options={[
+    "Quedarme con mi puerta",
+    "Cambiar a la puerta cerrada",
+    "Da igual: son dos puertas, cincuenta cincuenta"
+  ]}
+  correctIndex={1}
+>
 
 ## La trampa explicada
 
@@ -76,21 +81,41 @@ En probabilidad, la regla del juego es parte del problema, aunque el
 problema no la grite.
 </Callout>
 
-Verifícalo con R. Mil rondas simuladas separan las dos estrategias sin
-dejar espacio a la duda:
+</CommitReveal>
+
+Ahora juega unas rondas y mira tu historial.
+
+<MontyHallGame />
+
+Lo más probable es que no veas una diferencia clara entre quedarte y
+cambiar: con un puñado de rondas el azar tapa la ventaja. Esperar que
+tu historial la revele es la ley de los números pequeños, la última
+trampa de este módulo, actuando por adelantado. Separar la señal del
+ruido pide volumen.
+
+Verifícalo con R. El código simula la mecánica completa del concurso:
+sortea la puerta del premio y tu primera elección, deja que el
+presentador abra una cabra que no es la tuya (él sabe dónde está el
+coche) y registra qué habría ganado cada estrategia en la misma ronda.
+Diez mil rondas después, las proporciones de victoria de «quedarse» y
+«cambiar» convergen a sus valores teóricos:
 
 <RCell
   id="01/monty-hall"
   title="Monty Hall simulado: quedarse vs. cambiar"
-  code={`# Monty Hall: 10000 rondas con semilla fija.
+  code={`# Monty Hall: 10000 rondas modelando el mecanismo completo.
 set.seed(2024)
 
+# Ojo: sample(x) con x de un solo elemento muestrea de 1:x, no de x.
+elige <- function(x) if (length(x) == 1) x else sample(x, 1)
+
 jugar <- function() {
-  premio <- sample(1:3, 1)
+  premio  <- sample(1:3, 1)
   primera <- sample(1:3, 1)
-  # El presentador abre una puerta que no es la elegida ni la del premio.
-  # Quedarse gana si primera == premio; cambiar gana en el caso contrario.
-  c(quedarse = primera == premio, cambiar = primera != premio)
+  # El presentador abre una cabra que no es tu puerta (sabe donde esta).
+  abre    <- elige(setdiff(1:3, c(primera, premio)))
+  segunda <- setdiff(1:3, c(primera, abre))  # la unica cerrada restante
+  c(quedarse = primera == premio, cambiar = segunda == premio)
 }
 
 resultados <- replicate(10000, jugar())
@@ -98,7 +123,7 @@ rowMeans(resultados)`}
 />
 
 <Quiz
-  question="Tras elegir una puerta, el presentador abre otra con una cabra. ¿Por qué cambiar duplica tus opciones de ganar?"
+  question="Tras elegir una puerta, el presentador abre otra que él sabe que esconde una cabra. ¿Por qué cambiar duplica tus opciones de ganar?"
   options={[
     "Porque al abrir una cabra, la probabilidad se reparte de nuevo entre las dos puertas cerradas",
     "Porque tu puerta conserva su 1/3 inicial y el 2/3 restante se concentra en la otra puerta cerrada",
@@ -114,8 +139,16 @@ rowMeans(resultados)`}
 Segunda trampa, otro formato. Lee la descripción con calma antes de
 responder.
 
-Tversky y Kahneman le presentaron este problema a estudiantes de
-posgrado en 1983 y los resultados fueron incómodos. Ahora te toca.
+Tversky y Kahneman (1983) se lo plantearon a estudiantes sin
+formación estadística y a doctorandos en ciencias de la decisión con
+varios cursos de probabilidad encima. Los dos grupos ordenaron mal en
+proporciones parecidas, más de ocho de cada diez. Ahora te toca.
+
+Linda tiene 31 años, es soltera, directa y muy brillante. Estudió
+filosofía, se preocupó por temas de discriminación y justicia social,
+y participó en manifestaciones antinucleares. ¿Qué es más probable?
+Primero: Linda es cajera en un banco. Segundo: Linda es cajera en un
+banco y además es activa en el movimiento feminista.
 
 <LindaVenn />
 
@@ -146,28 +179,53 @@ La probabilidad mide otra cosa.
 
 ## Otras dos puertas del mismo vestíbulo
 
-Antes de seguir, conviene ver que el problema no son las puertas. El
-problema es lo que la intuición hace con la probabilidad misma.
+Antes de seguir, conviene ver que las puertas son solo el escenario:
+el verdadero problema es lo que la intuición hace con la probabilidad
+misma.
 
 **La paradoja de Bertrand** (1889). Toma un círculo, dibuja una cuerda
 al azar y pregúntate: ¿cuál es la probabilidad de que la cuerda sea más
 larga que el lado del triángulo equilátero inscrito? Hay al menos tres
-formas legítimas de entender «al azar»: por el punto medio, por el
-ángulo, por la distancia al centro. Cada una da una respuesta distinta:
-$1/3$, $1/2$ o $1/4$. Las tres son correctas. La paradoja no es un error
-de cálculo, es un error de pregunta: «al azar» no se define solo.
+formas legítimas de entender «al azar»: por el ángulo de los extremos,
+por la distancia de la cuerda al centro, por la posición del punto
+medio dentro del círculo. Cada una da una respuesta distinta, en ese
+orden: $1/3$, $1/2$ y $1/4$. Las tres son correctas. La paradoja
+habita en la pregunta, no en el cálculo: «al azar» no se define solo.
 
 **La paradoja de San Petersburgo** (Bernoulli, 1738). Una moneda se
 lanza hasta que sale cara. Si sale en el primer intento te pagan 2, en
 el segundo 4, en el tercero 8, y así duplicando. El valor esperado del
-juego es infinito. ¿Cuánto pagarías por jugar? Casi nadie ofrece más de
-20 unidades, y tiene razón en no hacerlo: la ganancia astronómica que
-infla el promedio casi nunca llega. El valor esperado es un resumen,
-no una guía universal.
+juego es infinito. ¿Cuánto pagarías por jugar? Pocas personas ofrecen más que unas
+cuantas unidades, y tienen razón: la ganancia astronómica que infla el
+promedio casi nunca llega, y la mitad de las veces el juego paga 2. El
+valor esperado resume; decidir pide algo más.
+
+La salida de Bernoulli a su propia paradoja inventó un concepto que
+este curso necesitaba definir: la <Term k="utilidad">utilidad</Term>,
+lo que el dinero vale para quien lo recibe y no lo que pesa en la
+balanza. Mil unidades más le cambian la vida a quien tiene poco y casi
+nada a quien tiene mucho, así que la utilidad crece más lento que la
+riqueza. Con utilidad logarítmica el juego deja de valer infinito: equivale a
+4 unidades seguras para quien no tiene nada más y a unas 21 para un
+millonario. Cifras finitas y modestas, del orden de lo que la gente
+ofrece. Dos siglos y medio después, Kahneman y Tversky cambiaron la
+pregunta: dejaron de lado cómo debería decidirse y midieron cómo se
+decide. La
+<Term k="teoría prospectiva">teoría prospectiva</Term> (1979), la obra
+del Nobel, recoge cuatro hallazgos: las decisiones se toman desde un
+punto de referencia y no desde la riqueza total; una pérdida pesa
+cerca del doble que una ganancia del mismo tamaño (la aversión a la
+pérdida); el mismo resultado se elige o se rechaza según cómo se
+encuadre, ganando vidas o perdiéndolas; y las probabilidades no pesan
+lineal: las muy pequeñas se exageran, las muy grandes se desinflan.
+La tasa base de M2 y el ancla de M3 son errores al estimar; la teoría
+prospectiva describe cómo se elige, y el encuadre muestra que la
+elección puede contradecirse a sí misma sin que nadie lo note. M8
+vuelve a ella cuando la estadística se convierte en decisión.
 
 Las dos paradojas enseñan lo mismo desde ángulos distintos: la
-probabilidad solo existe una vez que el espacio de posibilidades está
-definido, y un promedio puede esconder todo lo que importa. La
+probabilidad solo existe una vez que se define cómo se sortea, y un
+promedio puede esconder todo lo que importa. La
 intuición salta esos dos detalles con facilidad pasmosa.
 
 ## La ley de los números pequeños
@@ -184,8 +242,8 @@ n veces, con n a tu elección:
 
 <SmallNumbersLab />
 
-Con n = 10, sacar 7 caras no es noticia, es martes. Con n = 1000, la
-misma proporción sería un escándalo de veinte desviaciones. El azar no
+Con n = 10, sacar 7 caras no es noticia, es rutina. Con n = 1000, la
+misma proporción sería un escándalo de más de doce desviaciones estándar. El azar no
 se corrige rápido; se diluye lento. La intuición confunde esas dos
 cosas y espera que la muestra chica se comporte como la grande.
 
@@ -207,7 +265,7 @@ nuestra.
   explanation="La variabilidad de una proporción decrece con n. Con 15 nacimientos, superar el 60% de niños solo exige un desvío moderado; con 45 exige uno mucho mayor. Las muestras pequeñas producen extremos con mucha más frecuencia, el corazón de la ley de los números pequeños."
 />
 
-## El reparto del trabajo: Sistema 1 y Sistema 2
+## Sistema 1 y Sistema 2
 
 Las cuatro trampas de este módulo parecen distintas. Comparten el mismo
 mecanismo. <Term k="Kahneman">Kahneman</Term> lo describe como el
@@ -225,13 +283,45 @@ Toda la formación estadística consiste, en el fondo, en entrenar al
 Sistema 2 para que se presente a trabajar en los momentos exactos en
 que el Sistema 1 está a punto de fallar.
 
-<Callout type="warning" title="El sesgo no se cura con inteligencia">
-Los experimentos originales se hicieron con estudiantes de posgrado,
-médicos y estadísticos profesionales. Fallaron igual que todos. La
-conclusión incómoda de Kahneman: el sesgo no es ignorancia que la
-formación elimina, es la respuesta por defecto de una mente que
-evolucionó para otras tareas. Por eso este curso te hace fallar en
-vivo: el concepto se recuerda mejor cuando costó.
+Debajo del reparto hay un mecanismo más preciso que une todas las
+trampas del curso. Kahneman y Frederick (2002) lo llamaron
+<Term k="sustitución de atributos">sustitución de atributos</Term>:
+cuando la pregunta es difícil, la mente responde otra más fácil y
+entrega esa respuesta como si fuera la pedida. Linda cambia
+«probabilidad» por «parecido». Monty Hall cambia «qué información
+aporta que él sepa» por «cuántas puertas quedan». La ley de los
+números pequeños cambia «qué tan variable es una muestra chica» por
+«se parece a la grande». El propio Kahneman llamaba a los dos sistemas
+«ficciones útiles», personajes para contar la mente; la sustitución
+describe con más precisión lo que esos personajes hacen.
+
+Guárdate esa idea: es la llave maestra del curso. Cada módulo que
+viene es la misma sustitución con otro disfraz. La tasa base se
+olvida porque «qué tan bueno es el test» es más fácil que «qué tan
+probable es estar enfermo». La disponibilidad de M5 cambia «qué tan
+frecuente es» por «qué tan fácil lo recuerdo». Y en
+M8 vas a ver que el algoritmo hereda la misma operación: responde la
+pregunta fácil que le escribieron en lugar de la difícil que el caso
+pedía.
+
+<Callout type="warning" title="El sesgo no se cura con conocimientos">
+El conocimiento ayuda menos de lo que uno quisiera. El primer artículo
+de Tversky y Kahneman (1971) encuestó a psicólogos investigadores en
+congresos profesionales, y ellos mismos confiaban demasiado en muestras
+chicas. En Linda, los doctorandos en ciencias de la decisión cayeron
+casi tanto como los novatos; en el test diagnóstico de M2, también los
+médicos. El sesgo es la respuesta por defecto de una mente hecha para
+otras tareas, y la formación lo atenúa sin borrarlo. Por eso este curso
+te hace fallar en vivo: el concepto se recuerda mejor cuando costó.
+</Callout>
+
+<Callout type="note" title="Honestidad sobre la evidencia">
+Este curso usa hallazgos que resistieron la replicación. No todos los
+capítulos de *Pensar rápido, pensar despacio* corrieron esa suerte: el
+priming social no sobrevivió las réplicas a gran escala, y Kahneman lo
+reconoció en público en 2017. Su diagnóstico fue, con ironía, la ley de
+los números pequeños de este mismo módulo: había confiado en estudios
+con muestras demasiado chicas.
 </Callout>
 
 ## Lo que te llevas
@@ -239,11 +329,21 @@ vivo: el concepto se recuerda mejor cuando costó.
 <ProcessSteps
   steps={[
     { title: 'Fallar', description: 'El problema se presenta sin aviso y el Sistema 1 responde primero. La intuición queda registrada.' },
-    { title: 'Ver el error', description: 'La simulación o la geometría muestran la brecha entre tu respuesta y la respuesta correcta. Sin sermón, con números.' },
+    { title: 'Ver el error', description: 'Notar la brecha entre la respuesta intuitiva y la respuesta correcta.' },
     { title: 'Nombrar la trampa', description: 'Cada error tiene nombre propio y mecanismo conocido: representatividad, conjunción, números pequeños.' },
     { title: 'Corregir', description: 'La herramienta formal llega al final, cuando ya se siente la necesidad. La fórmula no persuade, cierra.' },
   ]}
 />
+
+<Callout type="note" title="El mismo error en tu campo">
+La ley de los números pequeños tiene nómina propia: el fondo que
+acertó cuatro trimestres seguidos, el pozo que produjo bien un mes,
+la técnica de mantenimiento que funcionó tres veces. Y la falacia del
+jugador cobra en ambas direcciones: quien vende porque «ya subió mucho»
+y quien compra porque «ya es hora de que suba» cometen el mismo error
+con signo contrario, tratar a un proceso sin memoria como si tuviera
+deudas pendientes.
+</Callout>
 
 <Flashcard
   title="El mapa en tarjetas"
@@ -252,10 +352,22 @@ vivo: el concepto se recuerda mejor cuando costó.
     { front: 'Falacia de conjunción', back: 'P(A y B) ≤ P(A): la intersección nunca supera al conjunto. Linda es cajera con más probabilidad que cajera y feminista, por muy feminista que parezca.' },
     { front: 'Representatividad', back: 'Juzgar probabilidad por parecido a un estereotipo: explica Linda, la tasa base olvidada y la creencia en muestras típicas.' },
     { front: 'Ley de los números pequeños', back: 'Esperar que n = 10 se comporte como n = 1000. La varianza de la proporción es p(1−p)/n: las muestras chicas producen extremos, no verdad.' },
-    { front: 'Paradoja de Bertrand', back: 'Al azar necesita definirse: el mismo círculo da 1/3, 1/2 o 1/4 según cómo se elija la cuerda. La probabilidad no existe sin espacio muestral.' },
+    { front: 'Paradoja de Bertrand', back: 'Al azar necesita definirse: el mismo círculo da 1/3, 1/2 o 1/4 según cómo se elija la cuerda. La probabilidad no existe sin una regla de sorteo.' },
     { front: 'Sistema 1 / Sistema 2', back: 'Rápido e intuitivo vs. lento y analítico. El Sistema 1 siempre gana si el Sistema 2 no se entrena para aparecer.' },
+    { front: 'Sustitución de atributos', back: 'Ante una pregunta difícil, la mente responde una fácil sin notarlo: probabilidad por parecido, frecuencia por facilidad de recordar. Es el mecanismo común de las trampas del curso.' },
+    { front: 'Utilidad y teoría prospectiva', back: 'Bernoulli: el dinero vale menos cuanto más se tiene. Kahneman y Tversky: se decide desde un punto de referencia, las pérdidas pesan cerca del doble y el encuadre cambia la elección.' },
   ]}
 />
+
+El laboratorio lleva la simulación un paso más allá. La primera parte
+repite Monty Hall con cuatro puertas y dos reglas distintas del
+presentador (abrir una cabra o abrir dos) para que veas que la ventaja
+de cambiar no es un número mágico: es la probabilidad que el
+presentador concentra en las puertas cerradas. La segunda parte lanza
+una moneda justa (el caso en que la probabilidad real se conoce de
+antemano) y repite veinte mil veces el experimento de lanzarla n
+veces, con n = 10, 100 y 1000. En cada repetición anota si la muestra
+llegó al 70% de caras.
 
 <LabExercise
   id="lab-01-tu-propia-trampa"
@@ -263,31 +375,47 @@ vivo: el concepto se recuerda mejor cuando costó.
   code={`# Laboratorio: reproduce las trampas del modulo con R.
 set.seed(42)
 
-# 1. Monty Hall con un giro: que pasa si hay cuatro puertas
-#    y el presentador abre una cabra?
-jugar4 <- function() {
-  premio <- sample(1:4, 1)
-  primera <- sample(1:4, 1)
-  c(quedarse = primera == premio, cambiar = primera != premio)
-}
-res4 <- replicate(10000, jugar4())
-cat("Cuatro puertas -> quedarse:", mean(res4["quedarse", ]),
-    "| cambiar:", mean(res4["cambiar", ]), "\n")
+# 1. Monty Hall bien simulado: el presentador ABRE cabras a sabiendas.
+#    Quedarse conserva 1/N; cada puerta que el presentador deja cerrada
+#    hereda una parte igual de la probabilidad que tu eleccion no capturo.
+# Ojo: sample(x) con x de un solo elemento muestrea de 1:x, no de x.
+elige <- function(x, n = 1) if (length(x) == 1) rep(x, n) else sample(x, n)
 
-# 2. La ley de los numeros pequenos, en numeros.
+jugar <- function(n_puertas, n_reveladas) {
+  premio     <- sample.int(n_puertas, 1)
+  primera    <- sample.int(n_puertas, 1)
+  candidatas <- setdiff(seq_len(n_puertas), primera)
+  abiertas   <- elige(setdiff(candidatas, premio), n_reveladas)
+  segunda    <- elige(setdiff(candidatas, abiertas))  # cambias a una cerrada
+  c(quedarse = primera == premio, cambiar = segunda == premio)
+}
+for (caso in list(c(3, 1), c(4, 1), c(4, 2))) {
+  res <- replicate(20000, jugar(caso[1], caso[2]))
+  cat(sprintf("%d puertas, abre %d cabra(s) -> quedarse: %.3f | cambiar: %.3f\n",
+              caso[1], caso[2], mean(res["quedarse", ]), mean(res["cambiar", ])))
+}
+
+# 2. La ley de los numeros pequenos: una moneda justa (p = 0.5) es el
+#    caso limpio: la probabilidad real se conoce, asi que toda
+#    desviacion del 50% es azar puro. rbinom(20000, n, 0.5) repite
+#    20000 veces el experimento de lanzarla n veces; cada elemento de p
+#    es la proporcion de caras de una repeticion, y mean(p >= 0.7)
+#    cuenta con que frecuencia una muestra llega al 70% de caras.
 for (n in c(10, 100, 1000)) {
-  p <- rbinom(10000, n, 0.5) / n
-  cat(sprintf("n = %4d -> sd empirica %.3f | teorica %.3f | P(p en [0.45,0.55]) = %.2f\n",
-              n, sd(p), sqrt(0.25 / n), mean(p >= 0.45 & p <= 0.55)))
+  p <- rbinom(20000, n, 0.5) / n
+  cat(sprintf("n = %4d -> sd(p) = %.3f | P(70%% o mas de caras) = %.4f\n",
+              n, sd(p), mean(p >= 0.7)))
 }`}
   tasks={[
-    "Explica por qué con cuatro puertas cambiar gana más que quedarse, y calcula a mano la probabilidad teórica de cada estrategia antes de mirar la salida.",
-    "Compara la desviación empírica con la teórica σ/√n en cada n: ¿en cuál se nota más la diferencia entre lo que esperabas y lo que sale?",
-    "Modifica la simulación de Monty Hall para que el presentador abra una puerta al azar (puede abrir el premio): ¿qué pasa con la ventaja de cambiar y por qué?",
+    "Verifica la simulación a mano: quedarse gana 1/N y cambiar gana (N−1)/N repartido entre las puertas que quedan cerradas. Explica por qué con 4 puertas y una cabra abierta el cambio llega a 3/8, pero si el presentador abre dos cabras llega a 3/4.",
+    "La segunda parte simula una moneda justa porque es el proceso aleatorio más limpio que existe: la probabilidad real de cara se conoce (0.5), así que cualquier desviación del 50% solo puede ser azar. El evento medido es «llegar al 70% de caras», que significa 7 caras si lanzaste 10 veces y 700 si lanzaste 1000: la misma proporción a distinta escala. Compara lo que la simulación reporta para cada n y explica por qué el mismo 70% pasa de rutina a escándalo. ¿Qué le responderías a quien generaliza a partir de diez observaciones?",
+    "Modifica la simulación para que el presentador elija al azar qué puerta abrir (podría mostrar el premio): ¿qué pasa con la ventaja de cambiar y por qué?",
   ]}
-  hint="Con cuatro puertas, tu elección inicial acierta 1/4; si el presentador abre una cabra, el 3/4 restante se reparte entre dos puertas cerradas: cada una hereda 3/8, que sigue siendo mejor que 1/4. Si el presentador abriera al azar, ver una cabra sí cambia tu probabilidad, porque ahora podría haber abierto el coche."
+  hint="Con cuatro puertas, tu elección inicial acierta 1/4; si el presentador abre una cabra, el 3/4 restante se reparte entre dos puertas cerradas: cada una hereda 3/8, que sigue siendo mejor que 1/4. La ventaja de cambiar existe siempre, pero su tamaño depende de cuánta probabilidad el presentador concentre en las puertas cerradas. Si abriera al azar, ver una cabra sí cambia tu probabilidad, porque pudo haber abierto el coche."
 />
 
 El módulo siguiente, M2, lleva estas trampas al terreno donde más daño
 hacen: las pruebas diagnósticas y el teorema de Bayes. Ahí la intuición
 que falla no te cuesta un coche de concurso. Te cuesta un diagnóstico.
+
+**En una frase:** la primera respuesta que llega es la más fácil de dar; anótala, y después haz la cuenta.

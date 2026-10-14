@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { CircleHelp } from 'lucide-react';
 import clsx from 'clsx';
 import { MathText } from '@/lib/math-text';
@@ -19,17 +20,18 @@ export interface QuizProps {
 export function Quiz({ question, options, correctIndex, explanation }: QuizProps) {
   const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const t = useTranslations('quiz');
 
   const isCorrect = submitted && selected === correctIndex;
 
   return (
-    <div className="my-6 rounded border border-ink-200 bg-white p-5 shadow-sm">
+    <div className="my-6 rounded border border-ink-200 bg-surface p-5 shadow-sm">
       <p className="mb-3 flex items-start gap-2 font-medium text-ink-900">
         <CircleHelp aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-ink-500" />
         <MathText text={question} />
       </p>
       <fieldset disabled={submitted} className="space-y-2">
-        <legend className="sr-only">Opciones de respuesta</legend>
+        <legend className="sr-only">{t('optionsLegend')}</legend>
         {options.map((opt, i) => (
           <label
             key={i}
@@ -58,9 +60,9 @@ export function Quiz({ question, options, correctIndex, explanation }: QuizProps
           type="button"
           disabled={selected === null}
           onClick={() => setSubmitted(true)}
-          className="mt-4 rounded bg-brand-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+          className="mt-4 rounded bg-ocre-100 px-4 py-1.5 text-sm font-medium text-on-accent transition-colors hover:bg-ocre-75 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
         >
-          Verificar
+          {t('verify')}
         </button>
       ) : (
         <div
@@ -70,7 +72,7 @@ export function Quiz({ question, options, correctIndex, explanation }: QuizProps
           )}
           role="status"
         >
-          <p className="mb-1 font-semibold">{isCorrect ? '✓ ¡Correcto!' : '✗ No exactamente.'}</p>
+          <p className="mb-1 font-semibold">{isCorrect ? t('correct') : t('wrong')}</p>
           <p><MathText text={explanation} /></p>
           <button
             type="button"
@@ -80,7 +82,7 @@ export function Quiz({ question, options, correctIndex, explanation }: QuizProps
             }}
             className="mt-2 text-xs font-medium underline hover:no-underline"
           >
-            Intentar de nuevo
+            {t('tryAgain')}
           </button>
         </div>
       )}

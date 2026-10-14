@@ -1,0 +1,402 @@
+---
+title: "Paradoxes and founding intuitions"
+slug: "01-paradojas-e-intuicion"
+objective: "Experience the failure of statistical intuition in four classic traps (Monty Hall, Linda, Bertrand, the law of small numbers) and understand what each formal tool is up against"
+order: 1
+datasets: []
+duration: 90
+prerequisites: []
+---
+
+import { Callout } from '@/components/Callout'
+import { Quiz } from '@/components/Quiz'
+import { Flashcard } from '@/components/Flashcard'
+import { RCell } from '@/components/RCell'
+import { LabExercise } from '@/components/LabExercise'
+import { ProcessSteps } from '@/components/ProcessSteps'
+
+<Callout type="tip" title="How this course works">
+Nobody here will ask you to trust formulas. The deal is different:
+first you answer with your gut, then you see the result, and only
+then does the formal explanation arrive. The mistakes you make in
+this module are the raw material. Kahneman and Tversky built a whole
+career on that idea: statistics exists because the human mind does
+not reason statistically by nature.
+</Callout>
+
+This module opens with four problems designed to make you fail: three
+doors, a woman named Linda, a chord inside a circle, and a coin that
+refuses to behave. The point is to feel the stumble inside your own
+head before anyone explains why it happened. Psychologists call that
+cognitive strain: for our purposes, it is the starting point.
+
+## Three doors, a car, and two goats
+
+The game show is simple. Three closed doors. Behind one, a car;
+behind the other two, goats. You pick a door. The host, who knows
+where the car is, opens another door and shows you a goat. Then he
+asks the question that has broken friendships: do you stick with
+your door or switch to the one still closed?
+
+Almost everyone answers that it doesn't matter. Two closed doors,
+one car, fifty-fifty. Play a few rounds and check your own track
+record before reading on.
+
+<MontyHallGame />
+
+Played already? Look at your numbers. Chances are you don't see a
+clear difference between staying and switching: with a handful of
+rounds, luck covers the advantage, and expecting your history to
+reveal it is the law of small numbers working again. The massive
+simulation does pull them apart: after ten thousand rounds, staying
+wins about a third of the time and switching wins two-thirds.
+
+<CommitReveal
+  question="With no more information, which strategy gives you the better shot at the car?"
+  options={[
+    "Stay with my door",
+    "Switch to the closed door",
+    "It makes no difference: two doors, fifty-fifty"
+  ]}
+  correctIndex={1}
+>
+
+## The trap explained
+
+Your first pick is right with probability $1/3$. Nobody disputes
+that. The question is what happens to that probability when the host
+opens a door with a goat.
+
+Intuition reasons like this: two doors remain, the car is behind one
+of them, fifty-fifty. The mistake is treating the host as if he
+opened doors at random. He doesn't. He knows where the car is and
+always opens a goat. His move doesn't split the probability between
+the two doors: it concentrates it.
+
+Your door keeps its original $1/3$, because the rules said the host
+would never open it. The $2/3$ that belonged to the other two doors
+together didn't vanish when one opened: it migrated, whole, to the
+single closed door left. Switching doesn't give you better luck. It
+hands you the full inheritance of the door that was sacrificed.
+
+<Callout type="note" title="The detail everyone misses">
+If the host opened a door at random and it happened to be a goat by
+luck, this would be a different problem, and there switching or
+staying really would be a coin flip. The trap works because he knows
+and because you know he knows. In probability, the rules of the game
+are part of the problem, even when the problem doesn't shout them.
+</Callout>
+
+</CommitReveal>
+
+Verify it with R. The code simulates the full mechanics of the show:
+it draws the prize door and your first pick, lets the host open a
+goat that isn't yours (he knows where the car is), and records what
+each strategy would have won on the same round. Ten thousand rounds
+later, the win rates of "stay" and "switch" converge to their
+theoretical values:
+
+<RCell
+  id="01/monty-hall"
+  title="Monty Hall simulated: stay vs. switch"
+  code={`# Monty Hall: 10000 rounds modeling the full mechanism.
+set.seed(2024)
+
+# Careful: sample(x) on a length-1 x samples from 1:x, not from x.
+pick <- function(x) if (length(x) == 1) x else sample(x, 1)
+
+play <- function() {
+  prize  <- sample(1:3, 1)
+  first  <- sample(1:3, 1)
+  # The host opens a goat that is not your door (he knows the car).
+  opens  <- pick(setdiff(1:3, c(first, prize)))
+  second <- setdiff(1:3, c(first, opens))  # the only closed door left
+  c(stay = first == prize, switch = second == prize)
+}
+
+results <- replicate(10000, play())
+rowMeans(results)`}
+/>
+
+<Quiz
+  question="After you pick a door, the host opens another one he knows hides a goat. Why does switching double your chances of winning?"
+  options={[
+    "Because once a goat is revealed, the probability is split again between the two closed doors",
+    "Because your door keeps its initial 1/3 and the remaining 2/3 concentrates on the other closed door",
+    "Because the host always opens the door with the car when you didn't pick it",
+    "Because two out of three doors hold goats, so switching guarantees a new one"
+  ]}
+  correctIndex={1}
+  explanation="The host does not open at random: he always reveals a goat. Your first pick had a 1/3 chance and that number does not move; the 2/3 that belonged to the two doors together passes whole to the one still closed."
+/>
+
+## Linda, the bank teller
+
+Second trap, different format. Read the description carefully before
+answering.
+
+Tversky and Kahneman gave this problem to graduate students in 1983
+and the results were uncomfortable. Now it's your turn.
+
+Linda is 31, single, outspoken, and very bright. She studied
+philosophy, cared about discrimination and social justice, and took
+part in anti-nuclear demonstrations. Which is more likely? First:
+Linda is a bank teller. Second: Linda is a bank teller and is active
+in the feminist movement.
+
+<LindaVenn />
+
+The fallacy has a proper name: <Term k="falacia de conjunción">the
+conjunction fallacy</Term>. Joining two conditions in one statement
+makes it more vivid, more coherent with the stereotype, more
+narratively satisfying. It also makes it less likely, always, by
+pure set logic. The intersection cannot exceed the set.
+
+The engine of the error is the <Term k="representatividad">representativeness
+heuristic</Term>: judging probability by resemblance. Linda looks far
+more like the "feminist" stereotype than the "bank teller" one, so
+the conjunction, which holds the detail that fits best, feels truer.
+Resemblance measures narrative fit. Probability measures something
+else.
+
+<Quiz
+  question="Why can't 'Linda is a bank teller and a feminist' be more likely than 'Linda is a bank teller'?"
+  options={[
+    "Because being a feminist is statistically rare among bank tellers",
+    "Because the set 'teller and feminist' sits inside the set 'teller', and a subset never exceeds its set",
+    "Because Linda's description was designed to deceive",
+    "Because P(A ∩ B) is always zero when A and B are independent"
+  ]}
+  correctIndex={1}
+  explanation="Set logic allows no exceptions: if a case meets two conditions, it also meets each one separately. Adding a condition can only shrink or hold the probability, never raise it. The stereotyped description is the bait; set logic is the law."
+/>
+
+## Two more doors in the same lobby
+
+Before going on, it's worth seeing that the doors are only the
+stage: the real problem is what intuition does to probability
+itself.
+
+**Bertrand's paradox** (1889). Take a circle, draw a chord at
+random, and ask: what's the probability the chord is longer than the
+side of the inscribed equilateral triangle? There are at least three
+legitimate ways to read "at random": by the angle of the endpoints,
+by the chord's distance to the center, by the position of its
+midpoint inside the circle. Each gives a different answer, in that
+order: $1/3$, $1/2$ and $1/4$. All three are correct. The paradox
+lives in the question, not the calculation: "at random" does not
+define itself.
+
+**The St. Petersburg paradox** (Bernoulli, 1738). A coin is tossed
+until it lands heads. If that happens on the first toss you're paid
+2, on the second 4, on the third 8, doubling on and on. The game's
+expected value is infinite. How much would you pay to play? Almost
+nobody offers more than 20 units, and they're right not to: the
+astronomical prize that inflates the average almost never arrives.
+Expected value is a summary, not a universal guide.
+
+Bernoulli's escape from his own paradox coined a concept this course
+needed to define: <Term k="utilidad">utility</Term>, what money is
+worth to the person receiving it rather than what it weighs on a
+scale. A thousand more units changes the life of someone with little
+and changes almost nothing for someone with plenty, so utility grows
+slower than wealth. With logarithmic utility the game stops being
+worth infinity and drops to a few dozen, exactly what people pay.
+Two and a half centuries later, Kahneman and Tversky flipped the
+question: not how decisions should be made, but how they are made.
+<Term k="teoría prospectiva">Prospect theory</Term> (1979), the work
+behind the Nobel, collects four findings: choices are made from a
+reference point, not from total wealth; losses hurt more than
+equivalent gains feel good (loss aversion); the same outcome is
+chosen or rejected depending on how it's framed, lives saved or
+lives lost; and probabilities don't weigh linearly, the very small
+get inflated and the very large get deflated. The anchor of M3 and
+the base rate of M2 describe errors of estimation; this is an error
+of choice, the last member of the family.
+
+The two paradoxes teach the same lesson from different angles:
+probability only exists once the space of possibilities is defined,
+and an average can hide everything that matters. Intuition skips
+both details with astonishing ease.
+
+## The law of small numbers
+
+Last trap of the module, and the most dangerous because it dresses
+as common sense. Tversky and Kahneman called it the <Term k="LNP">law
+of small numbers</Term>: the belief that a small sample must resemble
+the population. That ten tosses of a fair coin should come out near
+five heads. That a small hospital can't have strange streaks.
+
+Try the experiment. A thousand repetitions of tossing a fair coin
+n times, with n of your choosing:
+
+<SmallNumbersLab />
+
+With n = 10, seven heads is not news, it's routine. With n = 1000,
+the same proportion would be a scandal of more than twelve standard
+deviations. Chance does not correct itself quickly; it dilutes
+slowly. Intuition confuses those two things and expects the small
+sample to behave like the large one.
+
+This law has a wicked cousin, the <Term k="falacia del jugador">gambler's
+fallacy</Term>: if the law of small numbers expects the sample to
+match the population right now, then after five heads, tails is
+"due". The coin has no memory. We lend it ours.
+
+<Quiz
+  question="Two hospitals record births. The large one has ~45 babies a day, the small one ~15. Which will record more days with over 60% boys?"
+  options={[
+    "The large hospital, because it has more births",
+    "The small hospital, because small samples vary more",
+    "Both the same, because the share of boys is equal",
+    "Neither: over 60% boys is impossible with a 50% base rate"
+  ]}
+  correctIndex={1}
+  explanation="The variability of a proportion shrinks with n. With 15 births, beating 60% boys takes only a moderate deviation; with 45 it takes a much bigger one. Small samples produce extremes far more often: the heart of the law of small numbers."
+/>
+
+## System 1 and System 2
+
+The four traps in this module look different. They share the same
+mechanism. <Term k="Kahneman">Kahneman</Term> describes it as a split
+between two systems.
+
+<Term k="S1">System 1</Term> is fast, automatic, and cheap. It reads
+Linda's description and delivers a verdict before you finish the
+sentence. It sees two closed doors and declares a tie. It sees five
+heads and announces tails is "due". It's brilliant at narratives and
+terrible at frequencies.
+
+<Term k="S2">System 2</Term> is slow, effortful, and lazy. It can run
+the correct computation, but it doesn't switch itself on: you have
+to call it. All statistical training amounts, at bottom, to training
+System 2 to show up for work at the exact moments System 1 is about
+to fail.
+
+Beneath the split sits a more precise mechanism that ties together
+every trap in the course. Kahneman and Frederick (2002) called it
+<Term k="sustitución de atributos">attribute substitution</Term>:
+when the question is hard, the mind answers an easier one and
+delivers that answer as if it were the one asked. Linda swaps
+"probability" for "resemblance". Monty Hall swaps "what does his
+knowing tell me" for "how many doors are left". The law of small
+numbers swaps "how variable is a small sample" for "it looks like
+the large one". Kahneman himself admitted System 1 and System 2 are
+fictional characters, narrative shortcuts; substitution is the real
+process their costumes explain.
+
+Hold on to that idea: it's the course's master key. Every module
+ahead is the same substitution in another costume. The base rate gets
+dropped because "how good is the test" is easier than "how likely is
+sick". The anchor pulls because "how close to adjust" is easier than
+"what range does the evidence justify". And in M8 you'll see the
+algorithm inherit the same operation: it answers the easy question it
+was written instead of the hard one the case demanded.
+
+<Callout type="warning" title="Bias is not cured by knowledge">
+The original experiments were run on graduate students, physicians,
+and professional statisticians. They failed like everyone else.
+Kahneman's uncomfortable conclusion: bias is the default response
+of a mind that evolved for other tasks, and no training removes it
+entirely. That's why this course makes you fail live: a concept
+sticks better when it cost you.
+A note of academic honesty: the findings in this course are the ones
+that survived replication. Not every chapter of *Thinking, Fast and
+Slow* had that luck; social priming, for instance, did not survive
+the mass replications. The course leaves them out on purpose.
+</Callout>
+
+## What you take with you
+
+<ProcessSteps
+  steps={[
+    { title: 'Fail', description: 'The problem arrives unannounced and System 1 answers first. Your intuition is on record.' },
+    { title: 'See the error', description: 'Notice the gap between the intuitive answer and the correct one.' },
+    { title: 'Name the trap', description: 'Every error has a proper name and a known mechanism: representativeness, conjunction, small numbers.' },
+    { title: 'Correct', description: 'The formal tool arrives last, once the need is already felt. The formula does not persuade; it closes.' },
+  ]}
+/>
+
+<Callout type="note" title="The same error in your field">
+The law of small numbers has a payroll of its own: the fund that
+"nailed" four straight quarters, the well that produced well for a
+month, the maintenance trick that worked three times. And the
+gambler's fallacy charges in both directions: whoever sells because
+"it already rose too much" and whoever buys because "it's due for a
+rise" commit the same error with opposite signs, treating a
+memoryless process as if it had debts outstanding.
+</Callout>
+
+<Flashcard
+  title="The map in cards"
+  items={[
+    { front: 'Monty Hall', back: 'Switching wins 2/3: your door keeps 1/3 and the other inherits the rest, because the host always opens a goat knowing where the prize is.' },
+    { front: 'Conjunction fallacy', back: 'P(A and B) ≤ P(A): the intersection never exceeds the set. Linda is more likely a teller than a feminist teller, however feminist she seems.' },
+    { front: 'Representativeness', back: 'Judging probability by resemblance to a stereotype: explains Linda, the forgotten base rate, and the belief in typical samples.' },
+    { front: 'Law of small numbers', back: 'Expecting n = 10 to behave like n = 1000. The variance of a proportion is p(1−p)/n: small samples produce extremes, not truth.' },
+    { front: 'Bertrand’s paradox', back: 'Random must be defined: the same circle gives 1/3, 1/2 or 1/4 depending on how the chord is chosen. No probability exists without a sample space.' },
+    { front: 'System 1 / System 2', back: 'Fast and intuitive vs. slow and analytic. System 1 always wins if System 2 is never trained to show up.' },
+  ]}
+/>
+
+The lab takes the simulation one step further. The first part replays
+Monty Hall with four doors and two different host rules (open one
+goat or open two) so you see that the switching advantage is no magic
+number: it is the probability the host concentrates on the closed
+doors. The second part tosses a fair coin (the case where the true
+probability is known in advance) and repeats the experiment of
+tossing it n times twenty thousand times over, with n = 10, 100 and
+1000. In each repetition it records whether the sample reached 70%
+heads.
+
+<LabExercise
+  id="lab-01-tu-propia-trampa"
+  title="Your own trap: simulate, then explain"
+  code={`# Lab: reproduce the module's traps with R.
+set.seed(42)
+
+# 1. Monty Hall simulated properly: the host OPENS goats knowingly.
+#    Staying keeps 1/N; each door the host leaves closed inherits an
+#    equal share of the probability your pick failed to capture.
+# Careful: sample(x) on a length-1 x samples from 1:x, not from x.
+pick <- function(x, n = 1) if (length(x) == 1) rep(x, n) else sample(x, n)
+
+play <- function(n_doors, n_revealed) {
+  prize      <- sample.int(n_doors, 1)
+  first      <- sample.int(n_doors, 1)
+  candidates <- setdiff(seq_len(n_doors), first)
+  opened     <- pick(setdiff(candidates, prize), n_revealed)
+  second     <- pick(setdiff(candidates, opened))  # switch to a closed door
+  c(stay = first == prize, switch = second == prize)
+}
+for (case in list(c(3, 1), c(4, 1), c(4, 2))) {
+  res <- replicate(20000, play(case[1], case[2]))
+  cat(sprintf("%d doors, opens %d goat(s) -> stay: %.3f | switch: %.3f\n",
+              case[1], case[2], mean(res["stay", ]), mean(res["switch", ])))
+}
+
+# 2. The law of small numbers: a fair coin (p = 0.5) is the clean
+#    case: the true probability is known, so any deviation from 50%
+#    is pure chance. rbinom(20000, n, 0.5) repeats the experiment of
+#    tossing the coin n times 20000 times; each element of p is the
+#    head proportion of one repetition, and mean(p >= 0.7) counts how
+#    often a sample reaches 70% heads.
+for (n in c(10, 100, 1000)) {
+  p <- rbinom(20000, n, 0.5) / n
+  cat(sprintf("n = %4d -> sd(p) = %.3f | P(70%% heads or more) = %.4f\n",
+              n, sd(p), mean(p >= 0.7)))
+}`}
+  tasks={[
+    "Verify the simulation by hand: staying wins 1/N and switching wins (N−1)/N shared across the doors left closed. Explain why with 4 doors and one goat opened switching reaches 3/8, but when the host opens two goats it reaches 3/4.",
+    "The second part simulates a fair coin because it is the cleanest random process there is: the true head probability is known (0.5), so any deviation from 50% can only be chance. The measured event is 'reaching 70% heads', which means 7 heads if you tossed 10 times and 700 if you tossed 1000: the same proportion at a different scale. Compare what the simulation reports for each n and explain why the same 70% goes from routine to scandal. What would you tell someone who generalizes from ten observations?",
+    "Modify the simulation so the host picks which door to open at random (he might reveal the prize): what happens to the switching advantage, and why?",
+  ]}
+  hint="With four doors, your initial pick hits 1/4; if the host opens a goat, the remaining 3/4 is shared by two closed doors: each inherits 3/8, still better than 1/4. The switching advantage always exists, but its size depends on how much probability the host concentrates on the closed doors. If he opened at random, seeing a goat does change your probability, because he could have opened the car."
+/>
+
+The next module, M2, carries these traps into the territory where
+they do the most damage: diagnostic tests and Bayes' theorem. There,
+the intuition that fails doesn't cost you a game-show car. It costs
+you a diagnosis.
+
+**In one sentence:** the first answer is the easiest, not the correct one; write down your intuition, then do the math.

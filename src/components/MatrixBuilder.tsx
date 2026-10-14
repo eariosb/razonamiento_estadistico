@@ -184,7 +184,7 @@ export function MatrixBuilder({ initialSize = 4, canvasRef, initialValues, editE
   };
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded border border-ink-200 bg-white shadow-sm">
+    <div className="flex h-full flex-col overflow-hidden rounded border border-ink-200 bg-surface shadow-sm">
       <div className="border-b border-ink-200 bg-ink-50 px-4 py-2">
         <p className="text-sm font-semibold text-ink-800">Editor de matrices</p>
       </div>
@@ -199,7 +199,7 @@ export function MatrixBuilder({ initialSize = 4, canvasRef, initialValues, editE
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value as MatrixType)}
-                className="ml-2 rounded border border-ink-200 bg-white px-2 py-1 text-xs"
+                className="ml-2 rounded border border-ink-200 bg-surface px-2 py-1 text-xs"
               >
                 {Object.entries(MATRIX_LABELS).map(([key, label]) => (
                   <option key={key} value={key}>{label}</option>
@@ -268,7 +268,7 @@ export function MatrixBuilder({ initialSize = 4, canvasRef, initialValues, editE
               type="button"
               onClick={handleInsert}
               disabled={inserting || !canvasRef?.current}
-              className="inline-flex items-center gap-1.5 rounded bg-brand-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded bg-ocre-100 px-3 py-1.5 text-xs font-medium text-on-accent hover:bg-ocre-100 disabled:opacity-50"
             >
               {inserting ? 'Guardando…' : editElementId ? 'Actualizar matriz' : (
                 <>
@@ -298,7 +298,7 @@ export function MatrixBuilder({ initialSize = 4, canvasRef, initialValues, editE
         </div>
 
         {/* Live preview, right side of the same view */}
-        <div className="flex min-h-0 w-2/5 shrink-0 items-center justify-center overflow-auto border-l border-ink-200 bg-white p-3">
+        <div className="flex min-h-0 w-2/5 shrink-0 items-center justify-center overflow-auto border-l border-ink-200 bg-surface p-3">
           <div ref={previewRef} dangerouslySetInnerHTML={{ __html: rendered }} />
         </div>
       </div>

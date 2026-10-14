@@ -5,31 +5,62 @@
 @tailwind utilities;
 
 /* ------------------------------------------------------------------
- * Tokens semánticos de diseño (canales RGB para componer con alfa).
- * brand    = identidad del curso (verde azulado)
- * warning  = advertencias y cautelas metodológicas
- * danger   = rechazo / incumplimiento / errores
- * success  = veredictos favorables / metas alcanzadas
- * info     = resaltado neutral (tablas, fieldsets, referencias)
- * code     = fondo de bloques de código
- * Los tonos interpolados (55, 105, 405, 505, 515, 650, 705, 715)
- * preservan los hex exactos de las paletas heredadas (positive,
- * green, rose) para que la migración no mueva un solo píxel.
+ * Sistema de diseño del curso (docs/diseno.md — fuente de verdad).
+ *
+ * Las CINCO FAMILIAS del curso, como canales RGB para componer alfa:
+ *   ocre    = revelación, foco interactivo, significancia (#C8A11F)
+ *   tinta   = voz formal, texto, ejes, respuesta correcta (#2C3136)
+ *   pizarra = soporte, rejillas, IC, texto secundario    (#6F7A85)
+ *   arena   = lo previo/basal: priors, líneas base       (#8F7D5B)
+ *   lienzo  = fondo y superficies de lectura             (#E6E8EA)
+ *
+ * Tokens semánticos de UI (se mantienen; no son colores de datos):
+ *   brand    = identidad del curso → puente hacia ocre
+ *   warning  = advertencias y cautelas metodológicas
+ *   danger   = rechazo / incumplimiento / errores
+ *   success  = veredictos favorables / metas alcanzadas
+ *   info     = resaltado neutral (tablas, fieldsets, referencias)
+ *   code     = fondo de bloques de código
+ *
+ * Reglas (diseno.md §2, §6, §9): ningún gráfico usa colores fuera de
+ * las cinco familias; el ocre nunca es color de texto sobre lienzo
+ * (contraste 2.8:1 < AA); el color nunca es el único canal de datos.
  * ----------------------------------------------------------------- */
 :root {
-  --bg: 250 250 250;
-  --fg: 33 37 41;
+  /* Superficie de lectura = lienzo; texto = tinta (diseno.md §2.2) */
+  --bg: 230 232 234;
+  --fg: 44 49 54;
 
-  --brand-50: 234 250 249;
-  --brand-100: 208 243 241;
-  --brand-200: 163 230 227;
-  --brand-300: 111 213 210;
-  --brand-400: 63 194 190;
-  --brand-500: 42 169 163;
-  --brand-600: 32 144 137;
-  --brand-700: 29 118 112;
-  --brand-800: 24 93 88;
-  --brand-900: 18 63 60;
+  /* Superficie elevada (tarjetas, sidebar, paneles §5.1): se distingue
+   * del fondo por el borde y el espacio, nunca por sombras difusas.
+   * surface-hover: estado hover/active de ítems sobre surface. */
+  --surface: 230 232 234;
+  --surface-hover: 217 220 223;
+
+  /* --- Las cinco familias (diseno.md §12.1) --- */
+  --ocre: 200 161 31;
+  --tinta: 44 49 54;
+  /* pizarra oscurecida para AA: como texto secundario debe pasar 4.5:1
+   * sobre surface; los tintes -15/-30 para bordes y rejillas apenas
+   * cambian al oscurecer el canal base. */
+  --pizarra: 90 100 110;
+  --arena: 143 125 91;
+  --lienzo: 230 232 234;
+
+  /* --- Puentes legacy re-entonados a la paleta del doc ---
+   * brand-* conserva sus nombres pero ahora deriva del ocre: la
+   * interfaz heredada adopta la identidad sin reescribir clases.
+   * Se eliminan cuando todo el código use las familias del doc. */
+  --brand-50: 251 246 231;
+  --brand-100: 245 235 200;
+  --brand-200: 235 216 143;
+  --brand-300: 222 193 88;
+  --brand-400: 209 174 51;
+  --brand-500: 200 161 31;
+  --brand-600: 169 136 25;
+  --brand-700: 138 110 20;
+  --brand-800: 107 84 16;
+  --brand-900: 76 59 11;
 
   --warning-50: 255 251 235;
   --warning-100: 254 243 199;
@@ -83,8 +114,151 @@
   --info-800: 7 89 133;
   --info-900: 12 74 110;
 
-  --code: 30 30 46;
+  --code: 38 42 46;
+
+  /* Rampa neutra legacy `ink-*` (puente hacia las familias): anclada
+   * en lienzo (200), pizarra (500) y tinta (900). En .dark se invierte
+   * — ver el bloque .dark más abajo. */
+  --ink-50: 247 248 249;
+  --ink-100: 238 240 242;
+  --ink-200: 230 232 234;
+  --ink-300: 195 200 206;
+  --ink-400: 154 163 172;
+  --ink-500: 90 100 110;
+  --ink-600: 89 99 109;
+  --ink-700: 69 77 85;
+  --ink-800: 53 59 65;
+  --ink-900: 44 49 54;
+
+  /* Texto sobre superficies siempre oscuras (terminal de código):
+   * constante en ambos modos — NO se reinterpeta en .dark. */
+  --code-fg: 230 232 234;
+
+  /* Texto oscuro CONSTANTE sobre ocre/brand saturado (chips, números
+   * de paso, tarjetas ocre). No se reinterpeta en .dark: el ocre es
+   * claro en ambos modos y necesita siempre texto oscuro (§9.1). */
+  --on-accent: 44 49 54;
 }
+
+/* ------------------------------------------------------------------
+ * Modo oscuro (diseno.md §2.4): NO es una inversión automática, es una
+ * reinterpretación que preserva los papeles semánticos.
+ *   · fondo = tinta profunda, no carbón puro (evita fatiga de contraste)
+ *   · ocre intacto (su calidez funciona en ambos modos)
+ *   · pizarra aclarada (sigue siendo soporte, legible sobre oscuro)
+ *   · arena saturada (no se pierde en el fondo)
+ * ----------------------------------------------------------------- */
+.dark {
+  --bg: 30 34 37;
+  --fg: 230 232 234;
+
+  /* Tinta un paso más clara que el fondo: elevación sin brillos (§2.4) */
+  --surface: 37 42 46;
+  --surface-hover: 44 49 54;
+
+  /* Reinterpretación de papeles (§2.4): la TINTA es la voz formal, así
+   * que en oscuro se vuelve clara (era el texto); el LIENZO es la
+   * superficie de lectura, así que se vuelve tinta profunda. El ocre
+   * queda intacto y la pizarra se aclara, como manda el doc. */
+  --tinta: 230 232 234;
+  --lienzo: 44 49 54;
+
+  --pizarra: 143 154 165;
+  --arena: 160 141 105;
+  --code: 22 25 28;
+
+  /* Rampa ink invertida (§2.4): conserva los PAPELES — paneles sutiles
+   * cerca del fondo al inicio de la rampa, texto/voz al final. Anclas:
+   * ink-200 = lienzo reinterpretado (superficie), ink-500 = pizarra
+   * oscura, ink-900 = tinta oscura (texto claro). */
+  --ink-50: 32 36 40;
+  --ink-100: 36 40 44;
+  --ink-200: 44 49 54;
+  --ink-300: 77 84 91;
+  --ink-400: 110 119 128;
+  --ink-500: 143 154 165;
+  --ink-600: 165 174 182;
+  --ink-700: 187 194 199;
+  --ink-800: 208 213 217;
+  --ink-900: 230 232 234;
+
+  /* Tintes semánticos reinterpretados (§2.4): en oscuro los pasteles
+   * -50/-100/-200 se vuelven fondos teñidos OSCUROS de la misma
+   * familia, y los textos -700/-800/-900 se vuelven versiones claras.
+   * Los medios (300–600) se conservan: acentos, bordes y botones
+   * saturados funcionan en ambos fondos. */
+  --brand-50: 76 59 11;
+  --brand-100: 107 84 16;
+  --brand-200: 138 110 20;
+  --brand-700: 222 193 88;
+  --brand-800: 235 216 143;
+  --brand-900: 245 235 200;
+
+  --warning-50: 69 26 3;
+  --warning-100: 92 32 6;
+  --warning-200: 146 64 14;
+  --warning-700: 253 230 138;
+  --warning-800: 254 243 199;
+  --warning-900: 255 251 235;
+
+  --danger-50: 69 10 10;
+  --danger-100: 89 16 16;
+  --danger-200: 153 27 27;
+  --danger-700: 252 165 165;
+  --danger-800: 254 202 202;
+  --danger-900: 254 226 226;
+
+  --success-50: 6 78 59;
+  --success-100: 6 95 70;
+  --success-200: 4 120 87;
+  --success-700: 110 231 183;
+  --success-800: 167 243 208;
+  --success-900: 209 250 229;
+
+  --info-50: 12 74 110;
+  --info-100: 7 89 133;
+  --info-200: 3 105 161;
+  --info-700: 125 211 252;
+  --info-800: 186 230 253;
+  --info-900: 224 242 254;
+}
+
+/* ------------------------------------------------------------------
+ * Tipografía MDX (prose-ink, @tailwindcss/typography): los roles de
+ * texto apuntan a los tokens semánticos en vez de hex fijos, así el
+ * cuerpo, encabezados, citas y tablas se reinterpretan en .dark sin
+ * tocar las clases (diseno.md §2.4, §3).
+ * ----------------------------------------------------------------- */
+.prose,
+.prose-ink {
+  --tw-prose-body: rgb(var(--tinta) / 0.88);
+  --tw-prose-headings: rgb(var(--tinta));
+  --tw-prose-lead: rgb(var(--pizarra));
+  --tw-prose-links: rgb(var(--tinta));
+  --tw-prose-bold: rgb(var(--tinta));
+  --tw-prose-counters: rgb(var(--pizarra));
+  --tw-prose-bullets: rgb(var(--pizarra));
+  --tw-prose-hr: rgb(var(--pizarra) / 0.3);
+  --tw-prose-quotes: rgb(var(--tinta) / 0.8);
+  --tw-prose-quote-borders: rgb(var(--ocre) / 0.75);
+  --tw-prose-captions: rgb(var(--pizarra));
+  --tw-prose-kbd: rgb(var(--tinta));
+  --tw-prose-code: rgb(var(--code-fg));
+  --tw-prose-pre-code: rgb(var(--code-fg));
+  --tw-prose-pre-bg: rgb(var(--code));
+  --tw-prose-th-borders: rgb(var(--pizarra) / 0.5);
+  --tw-prose-td-borders: rgb(var(--pizarra) / 0.25);
+}
+
+/* Enlaces en prosa: tinta AA + subrayado ocre como doble canal
+ * (§9.1 — el ocre solo nunca es texto sobre lienzo). */
+.prose a {
+  text-decoration-color: rgb(var(--ocre) / 0.6);
+}
+.prose a:hover {
+  text-decoration-color: rgb(var(--ocre));
+}
+
 
 html {
   scroll-behavior: smooth;
@@ -109,6 +283,39 @@ html {
 body {
   background-color: rgb(var(--bg));
   color: rgb(var(--fg));
+}
+
+/* ------------------------------------------------------------------
+ * Detalles de acabado (diseno.md §7.3, §8.1, §9)
+ *
+ * Selección: ocre al 25% — la revelación también se ve al seleccionar.
+ * Foco: anillo ocre como red de seguridad accesible; los componentes
+ * que definen su propio focus-visible lo sobreescriben por especificidad.
+ * Scrollbar: pizarra fina, presente pero discreta.
+ * ----------------------------------------------------------------- */
+::selection {
+  background-color: rgb(var(--ocre) / 0.25);
+}
+
+:focus-visible {
+  outline: 2px solid rgb(var(--ocre) / 0.9);
+  outline-offset: 2px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--pizarra) / 0.45) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--pizarra) / 0.45);
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* Flashcard: efecto de volteo 3D */
@@ -142,7 +349,9 @@ body {
   outline: none !important;
 }
 .cm-editor.cm-focused {
-  outline: 2px solid #6795c2 !important;
+  /* Foco = anillo ocre (§8.1); el editor es superficie siempre oscura
+   * (oneDark), igual que los bloques de código estáticos (vsDark). */
+  outline: 2px solid rgb(var(--ocre)) !important;
   outline-offset: -1px;
 }
 
@@ -234,4 +443,27 @@ body {
    el TOC lateral robaría demasiado espacio al artículo, así que se oculta. */
 .board-docked #bb-toc {
   display: none;
+}
+
+/* ---- Lectura en voz alta ----
+   Resaltado del bloque que suena: tinte ocre suave con sangría de
+   box-shadow, igual en claro y en oscuro (el ocre no se reinterpeta).
+   El cursor de clic-para-saltar solo aparece mientras la lectura está
+   activa (§7: el estilo comunica un estado, no adorna). */
+.lectura-actual {
+  background: rgb(var(--ocre) / 0.22);
+  box-shadow:
+    -0.6rem 0 0 rgb(var(--ocre) / 0.22),
+    0.6rem 0 0 rgb(var(--ocre) / 0.22);
+  transition: background-color 200ms ease-out;
+}
+
+body.lectura-activa .lectura-bloque {
+  cursor: pointer;
+}
+
+@media print {
+  .lectura-ui {
+    display: none;
+  }
 }

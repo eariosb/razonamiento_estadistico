@@ -1,0 +1,133 @@
+{
+  "meta": {
+    "title": "Razonamiento Estadístico | Curso Interactivo",
+    "description": "Curso interactivo de razonamiento estadístico con R en el navegador: heurísticas y sesgos, la falacia de tasa base, regresión a la media, paradoja de Simpson, estadística robusta, el paradigma bayesiano y la decisión algorítmica."
+  },
+  "nav": {
+    "courseIndex": "Índice del curso",
+    "school": "Escuela de Estadística",
+    "campus": "UNAL · Medellín",
+    "openMenu": "Abrir índice del curso",
+    "closeMenu": "Cerrar índice",
+    "block": "Bloque",
+    "review": "Repaso",
+    "resources": "Recursos",
+    "anexos": "Anexos",
+    "bibliografia": "Bibliografía y lecturas",
+    "glosario": "Glosario"
+  },
+  "blocks": {
+    "I": "La intuición y sus trampas",
+    "II": "La corrección formal",
+    "III": "Bayes y la era algorítmica"
+  },
+  "home": {
+    "eyebrow": "Universidad Nacional de Colombia · Sede Medellín",
+    "title": "Razonamiento Estadístico",
+    "tagline": "Ocho módulos para aprender cuándo desconfiar de la propia intuición. Aquí primero te equivocas, después ves la trampa, y solo entonces llega la herramienta formal. El error es el método.",
+    "quote": "Somos propensos a sobrestimar lo que entendemos del mundo y a subestimar el papel del azar en los acontecimientos.",
+    "quoteAuthor": "Daniel Kahneman.",
+    "modulesAria": "Índice de módulos"
+  },
+  "course": {
+    "moduleOf": "Módulo {order} de {total}",
+    "data": "Datos:",
+    "navAria": "Navegación entre módulos"
+  },
+  "quiz": {
+    "verify": "Verificar",
+    "correct": "✓ ¡Correcto!",
+    "wrong": "✗ No exactamente.",
+    "tryAgain": "Intentar de nuevo",
+    "optionsLegend": "Opciones de respuesta"
+  },
+  "commitReveal": {
+    "commit": "Registrar mi respuesta",
+    "optionsLegend": "Opciones de respuesta",
+    "revealed": "Respuesta registrada. Sigue leyendo.",
+    "revealedCorrect": "Registrada, y acertada. Sigue leyendo.",
+    "revealedWrong": "Registrada. La revelación sigue abajo."
+  },
+  "callout": {
+    "tip": "Tip",
+    "note": "Nota",
+    "warning": "Atención",
+    "curiosity": "Para el curioso",
+    "success": "Buena práctica"
+  },
+  "sims": {
+    "guideLabel": "Qué mirar:"
+  },
+  "rcell": {
+    "defaultTitle": "Código R",
+    "hide": "Ocultar",
+    "exploreCode": "Explorar código",
+    "editorAria": "Editor de código R",
+    "run": "Ejecutar",
+    "running": "Ejecutando…",
+    "booting": "Cargando R…",
+    "restoreCode": "Restaurar código original",
+    "capture": "Capturar",
+    "capturing": "Capturando…",
+    "sendCode": "Enviar código",
+    "sendPlots": "Enviar gráficos",
+    "sendResult": "Enviar resultado",
+    "sending": "Enviando…",
+    "bootingNote": "Iniciando entorno R (WebAssembly), solo la primera vez puede tardar unos segundos…",
+    "webrError": "No se pudo iniciar el entorno R (WebAssembly).",
+    "webrErrorUnknown": "Error desconocido al cargar WebR."
+  },
+  "footer": {
+    "credit": "Esneider Ríos · Plataforma That_Board © 2026 · Contenido © 2026 Esneider Ríos, bajo"
+  },
+  "localeSwitcher": {
+    "label": "Idioma",
+    "es": "Español",
+    "en": "English"
+  },
+  "theme": {
+    "label": "Tema de color",
+    "light": "Claro",
+    "auto": "Automático",
+    "dark": "Oscuro"
+  },
+  "bibliografia": {
+    "eyebrow": "Apéndice del curso",
+    "title": "Bibliografía, enlaces y lecturas de interés",
+    "intro": "{total} referencias organizadas por los temas del curso: el debate sobre las intuiciones estadísticas (Kahneman, Tversky, Gigerenzer) y las lecturas que soportan cada módulo: probabilidad y Bayes, inferencia, causalidad, procesos estocásticos, métodos robustos, el paradigma bayesiano y la decisión bajo incertidumbre.",
+    "verification": "Las referencias se verifican contra la fuente antes de cada publicación; volumen y páginas pueden requerir corrección menor.",
+    "linksHeading": "Enlaces y recursos",
+    "metaTitle": "Bibliografía · Razonamiento Estadístico",
+    "metaDescription": "Apéndice de bibliografía, enlaces y lecturas de interés del curso, organizado por tema."
+  },
+  "glosario": {
+    "eyebrow": "Apéndice del curso",
+    "title": "Glosario",
+    "intro": "{total} términos que el curso usa sin volver a explicar: heurísticas, sesgos, probabilidad, Bayes e inferencia. Busca por nombre o recorre las ocho familias.",
+    "search": "Buscar término…",
+    "count": "{visible} términos",
+    "empty": "Nada coincide con «{q}». Prueba otra palabra.",
+    "metaTitle": "Glosario · Razonamiento Estadístico",
+    "metaDescription": "Definiciones breves de los términos, heurísticas, sesgos y conceptos estadísticos del curso."
+  },
+  "lectura": {
+    "barra": "Lectura en voz alta",
+    "rotulo": "Audio",
+    "escuchar": "Escuchar",
+    "pausa": "Pausa",
+    "seguir": "Seguir",
+    "detener": "Detener",
+    "anterior": "Párrafo anterior",
+    "siguiente": "Párrafo siguiente",
+    "velocidad": "Velocidad",
+    "voz": "Voz",
+    "automatica": "Automática",
+    "seleccion": "Escuchar selección",
+    "seleccionCorta": "Selección",
+    "parrafo": "Párrafo {actual} de {total}",
+    "fin": "Fin",
+    "vozFallo": "La voz «{voz}» no respondió; se cambió a «{otra}».",
+    "sinAudio": "El navegador no está produciendo audio. Revisa el volumen y la salida de sonido, o prueba en Edge o Chrome con la página abierta en una pestaña normal.",
+    "pista": "Consejo: mientras escuchas, haz clic en cualquier párrafo para saltar a él. También puedes seleccionar un texto y escuchar solo eso."
+  }
+}

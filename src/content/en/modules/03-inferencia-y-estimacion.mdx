@@ -1,0 +1,224 @@
+---
+title: "Inference and estimation"
+slug: "03-inferencia-y-estimacion"
+objective: "Expose anchoring and overconfidence in your own estimates, calibrate confidence intervals, and measure the gap between stated confidence and actual accuracy"
+order: 3
+datasets: []
+duration: 90
+prerequisites: ["M2"]
+---
+
+import { Quiz } from '@/components/Quiz'
+import { RCell } from '@/components/RCell'
+import { Callout } from '@/components/Callout'
+
+## The number they put in front of you
+
+Before reading, two gestures. Write down the last two digits of your
+ID number and multiply them by a hundred: that is your involuntary
+starting point. Now estimate in your head how many kilometers the
+Nile river is, and keep the number.
+
+<CommitReveal
+  question="Is the Nile longer or shorter than your number times a hundred?"
+  options={[
+    "Longer than my number × 100",
+    "Shorter than my number × 100"
+  ]}
+>
+
+Your digits know nothing about geography. And yet, in the lab
+version of this experiment, estimates shift with the number the
+subject saw just before: whoever wrote «07» and whoever wrote «92»
+report Niles of different lengths. Tversky and Kahneman proved it
+with a rigged wheel that always landed on 10 or 65: those who saw
+65 estimated the share of African countries in the UN far higher
+than those who saw 10. The Nile is really about 6,650 km, so a
+6,000 anchor on top would be useful information, not pure noise.
+Your ID, on the other hand, is a perfectly useless anchor, and it
+still pulled your estimate.
+
+</CommitReveal>
+
+<Term k="anclaje">Anchoring and adjustment</Term> completes the trio
+of heuristics from the 1974 paper: representativeness already showed
+up in M1 and availability arrives in M5. Estimates start from the
+first number available and adjust toward the right answer, but the
+adjustment falls short. In practice it means whoever sets the first
+number in a conversation sets the center of gravity for the
+negotiation, the forecast, and the diagnosis.
+
+It's worth fixing the module's map before going on. You're about to
+measure three gaps in the same instrument, the mind estimating: the
+**center** that anchors, the **width** that promises more than it
+covers, and the **scatter** nobody audits. The formal statistics at
+the end of the module exist because those three gaps were measured,
+one by one.
+
+## Intervals that don't cover
+
+If the anchor corrupts the starting point, this section measures
+what it does to the width.
+
+Alpert and Raiffa asked Harvard MBA students for 98% confidence
+intervals on quantities they didn't know. The intervals promised to
+miss 2% of the time; they missed close to 40%. Subjective intervals
+come out systematically too narrow. That is
+<Term k="sobreconfianza">overconfidence</Term>, and it comes from the
+geometry of anchoring applied to uncertainty, not from arrogance.
+The central estimate anchors and the endpoints adjust too little.
+
+<Term k="calibración">Calibration</Term> is the opposite property:
+stated confidence matching the real frequency of being right. A
+well-calibrated meteorologist is right on 80% of the days she
+forecasts "80% chance of rain". A badly calibrated executive is
+right on 50% of what he states at 90%.
+
+And you? The game below asks you for ten 90% intervals on quantities
+you probably don't recall exactly. Then it shows you how many
+covered the truth. If your calibration were perfect, you'd miss once
+in ten. See how many you miss.
+
+<CalibrationGame />
+
+## The outside view
+
+The Alpert and Raiffa intervals failed in the abstract, on quantities
+nobody measures daily. The same narrowness has a calendar version
+that has probably cost you
+money or embarrassment: the <Term k="falacia de planificación">planning
+fallacy</Term>. Everyone estimates how long their project will take
+from the inside, adding up the tasks they can see, and almost nobody
+checks the record of similar projects. Kahneman and Tversky
+documented it with textbook authors who estimated a year and a half
+and took seven; the monumental version is the Sydney Opera House,
+budgeted at six years and finished in fourteen at ten times the
+cost.
+
+The antidote has a proper name and is among the most portable in the
+course: the <Term k="vista desde afuera">outside view</Term>, or
+reference-class forecasting. Before estimating your project, ask
+how long projects of its kind took, not how long yours would take
+if everything went according to plan. The inside question measures
+your optimism; the reference class measures the world.
+
+## Noise: the villain nobody measures
+
+One gap left to measure, the most hidden. Anchoring and
+overconfidence show up when you compare yourself against the right
+answer; noise is the error invisible even in comparison, because
+every wrong answer arrives by a different road.
+
+Kahneman, Sibony and Sunstein spent a whole book separating
+<Term k="ruido">noise</Term> from bias. Bias pushes decisions in one
+systematic direction. Noise scatters them without pattern: two
+doctors giving different diagnoses to the same patient, two judges
+handing different sentences to the same case, the same analyst
+giving different answers on a Monday and a Friday.
+
+Noise is measured with audits, not intuition. And it costs the same
+as bias: every judgment different from the right one is an error,
+whether it came from a systematic push or a causeless scatter.
+
+Noise also charges a dangerous premium: reacting to it as if it were
+signal. Rewarding what rises and punishing what falls in a stable
+process produces the illusion of effective management, because the
+units you intervened on "improve" every time. That trap has a proper
+name, regression to the mean, and a simulator waiting for you at the
+start of M4.
+
+## Formal estimation as the correction
+
+The statistical <Term k="IC">confidence interval</Term> exists
+precisely because the subjective one fails: it takes the measured
+variability of the data and turns uncertainty into a computed range,
+not an imagined one. Inference is the institutional answer to
+overconfidence.
+
+The code puts that promise before the only test that matters here:
+repetition. It generates five thousand samples of size 30 from a
+standard normal, computes the 95% CI for each, and records how many
+capture the true mean. The cell runs two versions: the naive one
+with z = 1.96 and the corrected one with Student's t. The 1.96 falls
+short: with the estimated deviation and n = 30, real coverage sits
+around 0.94. The t widens the interval just enough to deliver the
+promised 0.95. That is what "95% confidence" means: not that this
+particular interval holds the parameter, but that the method is
+right 95% of the time.
+
+<RCell
+  id="03/ic-cobertura"
+  title="Real coverage of a 95% interval"
+  code={`# Coverage of the 95% CI for a mean with n = 30: z vs. Student's t.
+# With estimated sd, z = 1.96 falls short; qt(0.975, n-1) corrects.
+set.seed(7)
+n <- 30
+covers <- function(mult) mean(replicate(5000, {
+  x <- rnorm(n, mean = 0, sd = 1)
+  ci <- mean(x) + c(-1, 1) * mult * sd(x) / sqrt(n)
+  ci[1] <= 0 & ci[2] >= 0
+}))
+cat("with z = 1.96:      ", round(covers(1.96), 3), "\n")
+cat("with Student's t:   ", round(covers(qt(0.975, n - 1)), 3), "\n")`}
+/>
+
+When the model and the multiplier are right, the 95% interval covers
+95% of the time; with the naive z it covers less than it promises.
+The calibration game above asked the same question about your own
+intervals: 90% ranges on uncertain quantities, then the count of how
+many covered the real answer.
+
+## From the interval to the p-value
+
+The <Term k="EE">standard error</Term> is the brick under all of
+this: the typical deviation of the estimator, not of the data. With
+large samples, the sample mean behaves almost like a normal whose
+spread is σ/√n, and that's where the interval above comes from.
+
+The <Term k="p">p-value</Term> is built on that same computation and
+is, by far, the most misread figure in working statistics. It says
+one thing only: if the null hypothesis were true, how likely would
+a result at least as extreme as yours be. It does not say what the
+probability of the null being true is, the question everyone wants
+answered and the one that requires a prior, the road M7 takes. It
+doesn't measure effect size or practical importance either: with
+enough n, an insignificant difference produces a brilliant p-value.
+
+<Term k="potencia">Power</Term> is the other face of the design: the
+probability of detecting the effect if it exists. An underpowered
+study that finds nothing has not proven absence; it has proven it
+was too small. When no theoretical distribution convinces, the
+<Term k="bootstrap">bootstrap</Term> remains: resampling your own
+data to build the spread empirically. M6 develops it properly.
+
+<Callout type="note" title="The same error in your field">
+Anchoring is the first number in a reserves assessment, the opening
+bid of a mining tender, the first flow reading a hydrologist sees.
+And a p-value of 0.04 over twenty drilled wells does not mean "4%
+chance the deposit doesn't exist": it means that, if it didn't,
+data like this would appear 4 out of 100 times. The commercial
+question is a different one, and only the base rate of your region
+plus the new evidence answers it, as in M2.
+</Callout>
+
+<Quiz
+  question="A rare mutation exists in 1 of every 500 people. The test catches 90% of carriers and produces false positives at 5%. If your test comes back positive, roughly how likely is it that you carry it?"
+  options={[
+    "About 90%, because the test catches 90% of carriers",
+    "About 4%: out of every 500 people expect 1 detected carrier against ~25 false positives",
+    "About 50%, because the test has two possible outcomes",
+    "About 95%, because the test is reliable"
+  ]}
+  correctIndex={1}
+  explanation="It is the M2 base-rate fallacy in another costume: the mutation is ten times rarer than the previous module's disease, so the predictive value falls even further, to about 4%, even though the test is good."
+/>
+
+## What comes next
+
+Two gaps got measured in this module: your intervals against real
+coverage, and the attributed intervention against the real effect.
+M4 takes the second piece, regression to the mean, and carries it
+into causal territory, where confusing correlation with cause claims
+its most expensive victims.
+
+**In one sentence:** your uncertainty can be measured too, and it almost always comes out narrower than the world allows.

@@ -1,0 +1,210 @@
+---
+title: "The Bayesian paradigm"
+slug: "07-paradigma-bayesiano"
+objective: "See belief updating as the movement of a whole distribution, understand Lindley's paradox, and hold the Kahneman-Gigerenzer debate without flattening it into caricature"
+order: 7
+datasets: []
+duration: 90
+prerequisites: ["M2"]
+---
+
+import { Quiz } from '@/components/Quiz'
+import { Callout } from '@/components/Callout'
+import { RCell } from '@/components/RCell'
+
+## The coin that needs a prior
+
+Before reading, commit to an answer. A coin lands heads 14 times out
+of 20 tosses.
+
+<CommitReveal
+  question="Is the coin loaded?"
+  options={[
+    "Yes: 70% heads is not 50%",
+    "No: 20 tosses prove nothing",
+    "It depends on what I believed before tossing"
+  ]}
+  correctIndex={2}
+>
+
+The first two answers share a defect: they expect the data to speak
+for themselves. The third is the whole Bayesian paradigm. If the
+coin came out of your pocket, 14 heads are cheap noise; if a
+magician pulled it from a case while betting against you, 14 heads
+are close to a confession. Same data, different verdicts, and the
+difference lives outside the sample. This module shows the
+machinery that makes that difference explicit, honest, and
+computable.
+
+</CommitReveal>
+
+## The reasoning people should do
+
+Module M2 introduced Bayes as the correction of an error: the
+forgotten base rate. Here the paradigm shows up whole. The
+<Term k="prior">prior</Term> is the distribution of beliefs before
+the data; the <Term k="verosimilitud">likelihood</Term> is what the
+data say about each possible value; the <Term k="posterior">
+posterior</Term> is the prior reshaped by the evidence.
+
+The mark that sets the framework apart: belief is an entire
+distribution, not a loose number, and it shifts, narrows, or splits
+with every observation. Bayes describes the movement of uncertainty,
+not just its verdict.
+
+## Prior, data, posterior: the mechanics
+
+With a Beta(α, β) prior over a probability and binary observations,
+updating is pure counting: every success adds to α, every failure
+adds to β. A uniform Beta(1, 1) prior and 20 tosses with 14 heads
+end at Beta(15, 7): the mode sits at 14/20, the mean at 15/22, and
+the spread has closed in. The evidence dragged the belief along,
+which is what should happen to any reasonable mind.
+
+The code draws that movement: the flat Beta(1,1) prior in dashed
+sand, the Beta(15,7) posterior in ochre, and an ink line at the
+posterior mode, 14/20. Below it prints the posterior mean and its
+90% credibility interval: the updated belief with its honest
+uncertainty.
+
+<RCell
+  id="07/beta-actualizacion"
+  title="The posterior after 14 heads in 20 coin tosses"
+  code={`# A coin with unknown probability p: prior Beta(1,1) +
+# 14 heads in 20 tosses -> posterior Beta(15,7).
+x <- seq(0, 1, length.out = 400)
+ocre  <- "#C8A11F"  # posterior: the signal
+arena <- "#8F7D5B"  # prior: the base
+tinta <- "#2C3136"  # annotation
+plot(x, dbeta(x, 1, 1), type = "l", col = arena, lty = 2,
+     ylim = c(0, 5), main = "Prior (dashed) vs. posterior",
+     xlab = "p", ylab = "density", bty = "n")
+lines(x, dbeta(x, 15, 7), col = ocre, lwd = 2)
+abline(v = 14/20, col = tinta, lty = 3)
+legend("topright", legend = c("Prior Beta(1,1)", "Posterior Beta(15,7)", "Observed 14/20"),
+       col = c(arena, ocre, tinta), lty = c(2, 1, 3), bty = "n", cex = 0.85)
+cat("Posterior mean:", round(15/22, 3), "| 90% credibility:",
+    round(qbeta(c(0.05, 0.95), 15, 7), 3), "\n")`}
+/>
+
+Now watch it move. Pick a prior, feed it tosses one at a time or ten
+at a time, and watch the whole posterior slide and sharpen. The coin
+has a real hidden bias: the skeptical, the uniform and the
+enthusiastic priors start in different places and the data gather
+them all in the same spot.
+
+<BayesianUpdater />
+
+## Lindley's paradox
+
+Lindley (1957) showed that the same data can lead the two paradigms
+to opposite conclusions. The paradox needs a specific condition:
+the null hypothesis is point-valued (the coin is exactly fair,
+p = 0.5) and the prior assigns positive probability mass to that
+exact point. With large n and a very spread-out prior over the
+alternatives, a result the frequentist test rejects at 5% can carry
+a posterior overwhelmingly in favor of the null. The p-value, the
+probability of a result at least as extreme if the null were true,
+evaluates the data against a single hypothesis; Bayes compares what
+the data say about two. It is no logical contradiction: they are
+different questions that happen to use the same experiment.
+
+The module's moral goes beyond picking a side: the choice between
+paradigms is epistemological: what counts as evidence, what role
+prior belief plays, and who carries the burden of proof.
+
+Watch it happen. Pin the evidence at the edge of rejection (z = 1.96)
+and push n toward a million: the p-value doesn't flinch while the
+posterior hands everything to the null. Move z or the prior's spread
+and find where the two paradigms agree again.
+
+<LindleyExplorer />
+
+## Kahneman versus Gigerenzer
+
+Time to judge the judge. The whole course rested on one thesis:
+intuition substitutes questions and fails systematically. This
+section puts that thesis to its hardest test, which is also the
+debate that organized the field for thirty years. Is the mind
+broken, or is the exam unfair?
+
+Two readings of the same experimental building. Kahneman and
+Tversky: heuristics produce systematic, measurable errors,
+cognitive illusions as real as optical ones. <Term k="Gigerenzer">Gigerenzer</Term>
+answers back: heuristics are ecological adaptations that work in
+the environments they evolved for; the lab evaluates them with
+narrow norms and unnatural formats. And he has data: natural
+frequencies "cure" the base-rate fallacy without instruction.
+
+The exchange escalated to a head-on clash in Psychological Review
+(1996). Gigerenzer accused the heuristics-and-biases program of
+decrying errors without a theory of when each heuristic works:
+labels that explain little because they cover everything. Kahneman
+and Tversky answered that the critique changed the norm mid-game:
+showing that a natural format improves performance does not show
+the probabilistic norm was misapplied. Both things are true, and
+that is the part the debate usually loses: the error is real and it
+is also fixable by changing the presentation, not the mind.
+
+A later adversarial collaboration measured the gap with a shared
+method. Mellers, Hertwig and Kahneman (2001) had both camps predict
+the outcome of their own conjunction-effect experiments, and both
+schools failed to anticipate the public's answers: the theoretical
+dispute coexisted with poor empirical calibration on both sides.
+Nobody came out intact, which was the point.
+
+The third front is technical. The
+<Term k="conjuntos anidados">nested-sets</Term> thesis (Barbey and
+Sloman, 2007) proposes that the mind reasons with sets, not with
+single-event probabilities: "ten out of a hundred" is processable,
+"10% of a person" is not. If probabilistic reasoning operates on
+sets, the failures are not defects but format: present the problem
+in its natural support and reasoning works. It is the strong version
+of the ecological argument.
+
+And there is the positive contribution of Gigerenzer's school:
+fast-and-frugal heuristics are not just what fails, they are a
+catalog of tools that sometimes win. Recognition, take-the-best
+and stopping, "one out of N": rules that spend little information
+and that, in environments with the right structure, beat heavier
+models. The program does not deny the illusions; it holds that the
+same mind that produces them also runs effective inferences, and
+that asking "is it rational?" without naming an environment has no
+answer.
+
+The course takes both positions as training. The student who can
+say when formal rationality and ecological rationality coincide and
+when they diverge understood the module better than the one who
+memorized a side's verdict.
+
+<Quiz
+  question="Before the study, you gave a deposit 1:9 odds of holding commercial reserves. The seismic study comes back favorable with likelihood ratio 5. What are your posterior odds?"
+  options={[
+    "1:9, because the study doesn't change the geology",
+    "About 5:9, prior odds times the Bayes factor",
+    "9:1, because a favorable study confirms it",
+    "1:5, dividing the odds by the likelihood"
+  ]}
+  correctIndex={1}
+  explanation="The odds form from M2: posterior odds = prior odds × likelihood ratio = (1/9) × 5 ≈ 5/9, a probability near 36%. Neither the 'it confirms' euphoria nor the skepticism that ignores the evidence."
+/>
+
+<Callout type="note" title="The same error in your field">
+The prior nobody writes down is the one that decides: the
+probability you give "this well will hit water" before drilling,
+"this claim is legitimate" before auditing, "this client will pay"
+before approving. When evidence arrives weak, a strong prior rules
+the verdict without anyone having justified it, and when it arrives
+strong, a stubborn prior wastes it. Making the prior explicit, even
+as an uncomfortable range, is half of professional Bayesian hygiene.
+</Callout>
+
+## What comes next
+
+The posterior learned to move, and Lindley's paradox showed that
+two honest statisticians can disagree without either of them
+computing wrong. M8 closes the arc: when the estimator is no longer
+a person but an algorithm trained on historical data, the biases
+don't vanish. They get amplified or inherited.
+
+**In one sentence:** the right belief is not a verdict but a number that moves: prior plus evidence gives posterior.

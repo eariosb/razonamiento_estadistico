@@ -153,7 +153,7 @@ export function SessionToolbar({ canvasRef, modules, blocks }: Readonly<SessionT
           type="button"
           onClick={handleExportPDF}
           disabled={exporting}
-          className="inline-flex items-center gap-1 rounded bg-brand-500 px-3 py-1 text-xs font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+          className="inline-flex items-center gap-1 rounded bg-ocre-100 px-3 py-1 text-xs font-medium text-on-accent hover:bg-ocre-100 disabled:opacity-50"
           title="Exportar sesión a PDF"
         >
           {exporting ? (

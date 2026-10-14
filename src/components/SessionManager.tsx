@@ -20,7 +20,7 @@ export function SessionManager() {
       </button>
       {open && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded border border-ink-200 bg-white p-4 shadow-xl">
+          <div className="w-full max-w-md rounded border border-ink-200 bg-surface p-4 shadow-xl">
             <div className="mb-3 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-ink-800">Gestionar sesiones</h3>
               <button
@@ -43,7 +43,7 @@ export function SessionManager() {
                     className={`flex items-center justify-between rounded border px-3 py-2 text-xs ${
                       s.id === session?.id
                         ? 'border-brand-300 bg-brand-50'
-                        : 'border-ink-200 bg-white'
+                        : 'border-ink-200 bg-surface'
                     }`}
                   >
                     <div>
@@ -57,7 +57,7 @@ export function SessionManager() {
                         <button
                           type="button"
                           onClick={() => switchSession(s.id).then(() => setOpen(false))}
-                          className="rounded bg-brand-500 px-2 py-1 text-[10px] font-medium text-white hover:bg-brand-600"
+                          className="rounded bg-ocre-100 px-2 py-1 text-[10px] font-medium text-on-accent hover:bg-ocre-100"
                         >
                           Cargar
                         </button>

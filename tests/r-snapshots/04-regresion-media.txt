@@ -1,0 +1,1 @@
+Media del decil peor, ronda 1: 66.61 nMismas unidades, ronda 2:   91.84 nMedia de todas, ronda 2:    101.1 nCorrelacion entre rondas:   0.32 n

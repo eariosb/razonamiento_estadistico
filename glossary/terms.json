@@ -1,0 +1,33 @@
+{
+  "_doc": "Glosario fijado según docs/bilingue.md §5. Las equivalencias no se negocian entre piezas. `note` explica restricciones.",
+  "terms": [
+    { "es": "sesgo", "en": "bias", "note": "nunca 'skew' en este contexto" },
+    { "es": "heurístico", "en": "heuristic" },
+    { "es": "tasa base", "en": "base rate", "note": "no 'base rate frequency'" },
+    { "es": "intervalo de confianza", "en": "confidence interval" },
+    { "es": "regresión a la media", "en": "regression to the mean", "note": "no 'reversion to the mean'" },
+    { "es": "muestra", "en": "sample", "note": "no 'specimen'" },
+    { "es": "posterior", "en": "posterior" },
+    { "es": "prior", "en": "prior" },
+    { "es": "verosimilitud", "en": "likelihood", "note": "no 'plausibility' en contexto técnico" },
+    { "es": "contraste de hipótesis", "en": "hypothesis testing" },
+    { "es": "falacia de conjunción", "en": "conjunction fallacy" },
+    { "es": "insensibilidad a la tasa base", "en": "base rate neglect" },
+    { "es": "heurística de disponibilidad", "en": "availability heuristic" },
+    { "es": "heurística de representatividad", "en": "representativeness heuristic" },
+    { "es": "anclaje y ajuste", "en": "anchoring and adjustment" },
+    { "es": "aversión a la pérdida", "en": "loss aversion" },
+    { "es": "teoría de las perspectivas", "en": "prospect theory" },
+    { "es": "Sistema 1 y Sistema 2", "en": "System 1 and System 2" },
+    { "es": "frecuencias naturales", "en": "natural frequencies" },
+    { "es": "valor predictivo positivo", "en": "positive predictive value", "note": "VPP / PPV" },
+    { "es": "sensibilidad", "en": "sensitivity" },
+    { "es": "especificidad", "en": "specificity" },
+    { "es": "caminata aleatoria", "en": "random walk" },
+    { "es": "falacia del jugador", "en": "gambler's fallacy" },
+    { "es": "paradoja de Simpson", "en": "Simpson's paradox" },
+    { "es": "sesgo algorítmico", "en": "algorithmic bias" },
+    { "es": "calibración", "en": "calibration" },
+    { "es": "ruido", "en": "noise", "note": "en el sentido de Kahneman–Sibony–Sunstein" }
+  ]
+}

@@ -1,0 +1,206 @@
+---
+title: "Stochastic processes and time series"
+slug: "05-procesos-estocasticos"
+objective: "Defuse the illusion of trend in random series, tell trend, seasonality and noise apart, and understand why availability distorts the perception of risk over time"
+order: 5
+datasets: []
+duration: 90
+prerequisites: ["M4"]
+---
+
+import { Quiz } from '@/components/Quiz'
+import { RCell } from '@/components/RCell'
+import { Callout } from '@/components/Callout'
+
+## Which one came from a coin?
+
+Before reading, commit to an answer. One of these two sequences came
+from tossing a fair coin thirty times. The other was written by a
+person imitating randomness:
+
+```
+A: H T H H T H T T H T H T H H T H T H T H H T H T T T H T H T
+B: H H T T H H T T H H T T H H T T H H T T H T H T H T H T H T
+```
+
+<CommitReveal
+  question="Which of the two sequences came from a fair coin?"
+  options={[
+    "Sequence A",
+    "Sequence B",
+    "You cannot tell"
+  ]}
+  correctIndex={0}
+>
+
+Most people pick B, because it alternates evenly and shows no long
+streaks, and they are wrong. In a fair coin, streaks are the norm:
+in thirty tosses, seeing four heads in a row at some point is
+typical, not an anomaly. The fabricated sequence avoids streaks
+because the eye reads them as pattern. Whoever imitates randomness
+systematically over-alternates, and that is the fingerprint that
+gives them away: B was written by a hand, A came out of the coin.
+
+It's the same rule as M1: people judge a random sequence by how
+"messy" it looks, not by the distribution that generated it. This
+module carries that intuition into processes that move through time.
+
+</CommitReveal>
+
+## The walk that looks like it's going somewhere
+
+Generate a pure <Term k="caminata aleatoria">random walk</Term>: each
+step is an independent draw, no trend and no memory in the
+increments; the level you draw, though, accumulates the whole past.
+Plot it. Now look at it with a market analyst's eyes: you'll find
+clear trends, channels, supports, ceiling breakouts. All of that is
+in the chart. None of it is in the process.
+
+The random walk produces apparent structure for free because it
+accumulates: a few steps in the same direction are enough to draw a
+"trend" that lasts months on the chart. The accumulated variance
+grows with time, so long excursions from the origin are normal, not
+anomalous.
+
+The code draws exactly that: six random walks of 365 steps, each the
+running sum of zero-drift normal steps. The ochre line is simply the
+first of the six; the dashed slate marks the origin. Look for the
+trend, the support, the breakout: they're all there, and none of
+them exists.
+
+<RCell
+  id="05/caminata-aleatoria"
+  title="Six random walks: find the trend"
+  code={`# Six 365-step random walks: none has a real trend.
+# The seed freezes THIS figure; delete set.seed for new walks.
+set.seed(7)
+n <- 365
+ocre    <- "#C8A11F"   # main series
+arena   <- "#8F7D5B"   # comparisons
+pizarra <- "#6F7A85"   # baseline and axes
+matplot(
+  sapply(1:6, function(i) cumsum(rnorm(n))),
+  type = "l", lty = 1,
+  col = c(ocre, rep(c(arena, pizarra), length.out = 5)),
+  main = "Six random walks (zero drift)",
+  xlab = "step", ylab = "value", bty = "n"
+)
+abline(h = 0, col = pizarra, lty = 3)`}
+/>
+
+The figure comes out fixed because the seed freezes it. Delete the
+`set.seed` and run the cell a few times: each run will have one
+series that "clearly rises" and one that "clearly falls". Intuition
+offers each one a story. The process has no story: it has
+<Term k="ruido blanco">white noise</Term> piling up.
+
+Put it to the test with imaginary money. The challenge below shows
+you an honest walk, tells you exactly how it's generated, and asks
+for the final value. Then it shows you what the process actually
+promised: not a direction but a cone of futures, dense at the center
+and growing wider as the square root of time.
+
+<RandomWalkChallenge />
+
+## Trend, seasonality, and noise
+
+The walk manufactures trends for free. The next question comes
+naturally: if chance draws structure, how do you tell real structure
+apart? A real series mixes three ingredients the eye separates poorly:
+trend (the underlying direction), seasonality (the cycles that
+repeat) and noise (everything else). The decomposition is a modeling
+decision, not a fact of the chart: two honest analysts can split the
+same series differently. Time series demand thinking in processes,
+and thinking in processes is exactly what System 1 avoids.
+
+The property that orders the territory is
+<Term k="estacionariedad">stationarity</Term>: that the statistical
+behavior of the process doesn't change over time. The random walk is
+not stationary, and that is the technical reason its "trends" come
+free.
+
+## Availability: the risk that makes the news
+
+So far the module measured illusions in the data. Now it measures
+one in your memory, and with it the 1974 trio is complete:
+representativeness made you fail in M1, anchoring in M3, and this
+third heuristic was the one still missing.
+
+What causes more deaths per year: plane crashes or household
+accidents? The <Term k="disponibilidad">availability heuristic</Term>
+(Tversky and Kahneman, 1973) predicts the typical answer and its
+error: whatever comes to mind easily is judged frequent. Plane
+crashes make the news every year; household accidents kill more and
+have no correspondents.
+
+In time series, availability keeps a calendar: analysts overestimate
+the probability of what just happened (the last crisis, the team's
+last failure) and underestimate what hasn't occurred in the recent
+past. The recent record becomes the model, and the model collects
+on the next surprise.
+
+Measure yourself. Five pairs of causes of death, one question each:
+which kills more? Your answers, like almost everyone's, will register
+the headlines instead of the rates.
+
+<AvailabilityLab />
+
+## The hot hand, recounted
+
+The module's arc closes here. The fake sequences at the opening
+over-alternated; the walk manufactured trends. The hot hand is the
+case where the pattern illusion was measured seriously, and where
+statistics itself fell into one of the course's own traps.
+
+The classic study by Gilovich, Vallone and Tversky (1985) measured
+scoring streaks in the NBA and found no hot hand: after a make, the
+probability of the next shot was the same as after a miss. For
+thirty years it was the flagship example of "intuition sees patterns
+in noise".
+
+In 2018, Miller and Sanjurjo showed the classic analysis had a bias
+of its own, subtle and geometric: conditioning on "the shot after a
+make" inside a finite sequence is not neutral. The attempts that
+meet that condition are a biased sample, because a sequence that
+ends in a make contributes no next shot. With the selection bias
+corrected, the same data show a small but real hot hand, on the
+order of a few percentage points.
+
+The lesson doubled: collective intuition did exaggerate the effect,
+and the statistics that debunked it made the error this course has
+repeated since M2, forgetting which set you're conditioning on. The
+honest verdict today is that the effect exists and is much smaller
+than the crowd feels. Distrusting the pattern is correct; concluding
+"zero effect" required a calculation that was done wrong.
+
+<Callout type="note" title="The same error in your field">
+Streaks are professional temptation: the operator with three
+accident-free shifts "is on a roll", the fund that won six straight
+quarters "has the right manager", the recruiter who landed two
+hires "figured it out". This module's question is always the same:
+is the streak a signal that the process changed, or the normal
+signature of one that didn't? Long streaks are expected in
+independent sequences, and treating them as evidence of momentum
+costs decisions.
+</Callout>
+
+<Quiz
+  question="A sensor catches 99% of a machine's real failures but gives false alarms on 5% of healthy days. The machine fails about one day in two hundred. The alarm just went off. Roughly how likely is a real failure?"
+  options={[
+    "About 99%, because the sensor is almost never wrong",
+    "About 50%, the alarm is a coin flip",
+    "About 9%: in 200 days there is 1 detected failure against ~10 false alarms",
+    "About 5%, which is the false-alarm rate"
+  ]}
+  correctIndex={2}
+  explanation="An M2 review in a plant uniform: the 1/200 base rate makes false alarms outnumber real ones ten to one, so a ringing alarm is still probably noise. This module's lesson adds the other half: you can't ignore the alarm either because 'machines don't fail'."
+/>
+
+## What comes next
+
+Two illusions got measured: the trend chance draws for free and the
+frequency the press inflates. M6 drops from the process to the single
+data point: what one outlier does to the mean, and why the median
+survives where the mean gives up.
+
+**In one sentence:** streaks are the normal price of independence; what looks like momentum is usually noise with a good memory.

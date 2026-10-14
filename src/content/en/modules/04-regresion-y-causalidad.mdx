@@ -1,0 +1,211 @@
+---
+title: "Regression and causality"
+slug: "04-regresion-y-causalidad"
+objective: "Recognize regression to the mean where others see intervention effects, take apart the causal illusion of spurious correlations, and work Simpson's paradox until you understand it"
+order: 4
+datasets: []
+duration: 90
+prerequisites: ["M3"]
+---
+
+import { Quiz } from '@/components/Quiz'
+import { RCell } from '@/components/RCell'
+import { Callout } from '@/components/Callout'
+import { Flashcard } from '@/components/Flashcard'
+
+## The schools that improved on their own
+
+Before reading, commit to an answer. The ten schools with the worst
+average on the national exam enter an improvement program. A year
+later their average is up twelve points.
+
+<CommitReveal
+  question="Did the program work?"
+  options={[
+    "Yes: a twelve-point gain is enough evidence",
+    "No: the program did nothing",
+    "You cannot tell from this information alone"
+  ]}
+  correctIndex={2}
+>
+
+The honest answer is the third one, and it contains the trap this
+module takes apart: selecting by the extreme guarantees that the
+next measurement looks better, with or without an intervention.
+Twelve points up cannot tell an effective program apart from a
+decorative one, because the worst decile of any distribution
+improves afterwards by pure chance. Generations of managers,
+coaches, and consultants have been paid on this confusion.
+
+</CommitReveal>
+
+## The pilots who disproved the psychology
+
+Kahneman tells how he discovered <Term k="regresión a la media">
+regression to the mean</Term> while teaching Israeli Air Force
+flight instructors. The instructors were convinced that punishment
+worked and praise didn't: after yelling at a pilot for a bad
+maneuver, the next one came out better; after praising a good one,
+the next came out worse.
+
+The explanation was statistical. Flight performance has a skill
+component and a luck component. An exceptionally bad maneuver is,
+by definition, an extreme: odds are the next one will be better,
+punishment or not. An exceptionally good one, the reverse. Praise
+ruined nothing and yelling cured nothing. The mean reclaimed its
+territory and the instructors credited the feat to their own voices.
+
+The managerial version of the same phenomenon: a stable quality
+process and a management that intervenes every time a line drifts.
+You do the rewarding and punishing: the intervened units "improve"
+every time, and the intervention collects credit that belongs to
+chance.
+
+<QualityControlSim />
+
+## Correlations that count for nothing
+
+The pattern you just saw follows a general rule: the mind doesn't
+read association, it reads stories. The instructors credited the
+yelling for the improvement; here we credit the association with a
+cause. When the mind finds two curves moving together, it doesn't
+ask what mechanism joins them: it manufactures one. Tyler Vigen
+collects <Term k="correlación espuria">spurious
+correlations</Term>: per-capita cheese consumption correlates with
+civil engineering doctorates awarded; swimming-pool drownings
+correlate with the number of Nicolas Cage films released that year.
+Correlation coefficients of 0.9 and up, between variables that have
+nothing to do with each other.
+
+With enough series and enough time, chance produces perfect
+associations. The fallacy is called *cum hoc ergo propter hoc*:
+with this, therefore because of this. <Term k="representatividad">
+Representativeness</Term> helps the disaster along because System 1
+doesn't accept association without a story, and it always finds one.
+
+You don't have to believe it: manufacture it. The explorer below
+generates pairs of independent random walks and names them after
+Vigen's real archive. It counts how many come out with a "strong"
+correlation while having absolutely nothing to do with each other.
+
+<SpuriousCorrelationExplorer />
+
+## Simpson's paradox
+
+In 1973, the University of Berkeley admitted 44% of male applicants
+and 35% of female ones. It looked like discrimination. Disaggregated
+by department, the bias vanished or flipped: women applied in larger
+share to more selective departments, and within each department the
+rates were similar or favored women.
+
+<Term k="paradoja de Simpson">Simpson's paradox</Term> is the reversal
+of an association when you disaggregate by a variable. At Berkeley
+that variable is a mediator: gender doesn't cause the department,
+but it steers the choice, and the department decides admission.
+Pearl uses precisely this case to teach that whether to stratify
+depends on the causal graph: with a mediator, the stratified view
+answers the right question; with a collider, it poisons it. The
+aggregate number and the per-stratum number tell opposite stories,
+and both are correct: what changes is the question each one answers.
+
+Handle it with your hands. The stacked bars up top show the
+confounder at once: where each group applies. Switch the views and
+the gap flips; slide "women apply like men" to 100% and the
+aggregate gap dissolves without touching a single rate.
+
+<SimpsonExplorer />
+
+## The bridge to formal causality
+
+Three traps, one mechanism. Regression to the mean, Vigen's
+correlations, and Simpson's paradox are the same M1 substitution in
+another costume: the mind swaps "what process generated this?" for
+"what story explains it?". The formal correction exists precisely
+because the hard question can be written down.
+
+Pearl (2009) provides the mathematical framework for all of this:
+directed causal diagrams separate confounders, mediators, and
+colliders, and the back-door criterion says when an association
+admits a causal reading. The moral can already be stated without
+waiting for the full formalization: seeing association is seeing
+shadow, not mechanism. Causality demands a model of the generating
+process, not a prettier coefficient.
+
+The code recreates the instructors' trap in two rounds of data:
+each unit has a stable level (its skill) plus the luck of the round.
+It selects the bottom decile as if it were the group "needing
+intervention" and measures those same units on the next round. With
+nobody touching anything, the bottom decile "improves" toward the
+mean. The imaginary intervention collects credit that belongs to
+chance.
+
+<RCell
+  id="04/regresion-media"
+  title="Regression to the mean: the intervention that doesn't exist"
+  code={`# Each unit has a stable level (skill) plus the luck of the round.
+# Selecting the bottom decile and "intervening" improves without cause.
+set.seed(11)
+skill <- rnorm(200, mean = 100, sd = 10)
+med1 <- skill + rnorm(200, 0, 15)
+med2 <- skill + rnorm(200, 0, 15)
+
+# Select the worst 10% of round 1 and "intervene" (we do nothing).
+worst <- order(med1)[1:20]
+
+cat("Bottom-decile mean, round 1:", round(mean(med1[worst]), 2), "\n")
+cat("Same units, round 2:        ", round(mean(med2[worst]), 2), "\n")
+cat("Mean of all units, round 2: ", round(mean(med2), 2), "\n")
+cat("Correlation between rounds: ", round(cor(med1, med2), 2), "\n")`}
+/>
+
+The intervened units improve by several points. The intervention was
+nothing. That free effect explains a good share of the success that
+retraining consultancies, recovery programs, and the flight
+instructor's punishments report: intervening on the worst guarantees
+apparent improvement, whether the intervention deserves it or not.
+
+<Callout type="note" title="The same error in your field">
+A well with the worst output in the field enters a stimulation
+program and pumps better by next quarter. Did the stimulation work?
+With ICU patients: yesterday's sickest are better today, therapy or
+regression. With claims: the portfolio with the worst loss ratio
+this year is the one that gets priced highest next year. Selecting
+by the extreme and measuring after is the mechanism that makes
+almost any intervention look effective; the right question demands a
+comparison group, not just a before and an after.
+</Callout>
+
+<Quiz
+  question="An airline overhauls the five planes with the most failures last quarter and swaps several components. Next quarter they report fewer failures. What conclusion does the evidence best support?"
+  options={[
+    "The component swap worked",
+    "The planes are done for and should be retired",
+    "The program made things worse",
+    "Without a control group you can't separate the program's effect from regression to the mean: the worst always improve on their own"
+  ]}
+  correctIndex={3}
+  explanation="Selecting the extreme cases guarantees later improvement by pure chance, the same mechanism as the pilots and the exam schools. Honest evaluation needs comparison against similar units that weren't intervened on."
+/>
+
+## What comes next
+
+The do-nothing-intervention simulator at the start of this module is
+the same trap in a business suit: the mean reclaims its extremes
+while management collects the credit. The other two faces of the
+same coin stayed here: the association chance builds for free and
+the one that flips when the mediator shows up. M5 raises the stakes:
+from pairs of variables to whole processes, where the illusion of
+trend makes careers in finance.
+
+<Flashcard
+  title="The map in cards"
+  items={[
+    { front: 'Regression to the mean', back: 'Selecting by the extreme guarantees causeless improvement: the measure has a stable component and a luck component, and luck does not repeat.' },
+    { front: 'Spurious correlation', back: 'With enough series, chance produces perfect associations between unrelated variables: cum hoc does not imply propter hoc.' },
+    { front: 'Simpson’s paradox', back: 'An association flips when disaggregated: at Berkeley the department was a mediator, not a confounder, and stratifying answered the right question.' },
+    { front: 'Mediator vs confounder', back: 'The confounder causes both variables and demands adjustment; the mediator sits on the causal path and adjusting it answers a different question. Deciding requires the graph, not the number.' },
+    { front: 'Evaluated intervention', back: 'A before-and-after on extreme cases proves no effect: honest evaluation needs a comparison group.' },
+  ]}
+/>
+
+**In one sentence:** selecting by the extreme guarantees an improvement that needs no cause; before attributing, discount the luck.
